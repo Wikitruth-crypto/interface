@@ -1,0 +1,151 @@
+@import '@/root.css';
+
+.home {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    width: 100%; 
+    // height: 100vh;
+    background-color: #000017;
+    color: white;
+
+    .first {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        width: 1200px; 
+        height: 600px; 
+
+        .left {
+            // font-size: 50px; 
+            // font-weight: bold; 
+            margin-left: 10px; 
+
+            span {
+                display: flex;
+                flex-direction: row; 
+                align-items: last baseline; 
+                // justify-content:last baseline; 
+                color: #ffffff;
+                
+                .title01 {
+                    // 设置字体
+                    // font-family: 'Poppins', sans-serif; 
+                    font-size: 50px; 
+                    // font-weight: 100; 
+                    font-weight: lighter; 
+                    // font-style: italic;
+                }
+    
+                .title02 {
+                    margin-left: 5px;
+                    // font-family: 'Poppins', sans-serif; 
+                    font-size: 50px; 
+                    // font-weight: 600; 
+                    font-weight: bold; 
+                }
+
+            }
+
+            p {
+                color: #919191;
+                font-size: 20px; 
+                font-weight: lighter; 
+            }
+
+            ul {
+                margin-top: 20px;
+                font-size: 20px; 
+                font-weight: regular; 
+                // margin-bottom: 100px; 
+                color: #919191;
+                // 去掉列表的符号
+                list-style: none;
+
+                // .li {
+                //     font-size: 20px; 
+                //     font-weight: lighter; 
+                //     margin-bottom: 10px; 
+                //     color: #383838;
+                // }
+
+            }
+            
+        }
+
+    }
+
+    .second {
+        width: 100%; 
+        height: 100vh;
+        background-color: #131321;
+        // background: radial-gradient(circle at 10% 20%, rgba(13, 18, 82, 0.3), transparent 20%),
+        //         radial-gradient(circle at 100% 70%, rgba(81, 10, 161, 0.3), transparent 20%),
+        //         radial-gradient(circle at 50% 50%, rgba(40, 40, 187, 0.3), transparent 20%),
+        //         radial-gradient(circle at 0% 95%, rgba(59, 60, 94, 0.4), transparent 20%),
+        //         #131321;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        position: relative; 
+
+    
+        .container{
+            display: flex; 
+            align-items: center; 
+            flex-direction: column; 
+            width: 1200px; 
+            height: 400px; 
+            
+            h1 {
+                margin-top: 80px; 
+                font-size: 30px; 
+                font-weight: bold; 
+                margin-left: 10px; 
+            }
+
+            .secDiv {
+                margin-top: 80px; 
+                width: 1200px; 
+                display: flex; 
+                flex-direction: row;
+                justify-content: space-around; // 在容器中均匀分布子元素
+                align-items: center; // 垂直居中对齐子元素
+
+                .youshi {
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+
+                    img {
+                        width: 50px; 
+                    }
+
+                    text {
+                        font-size: 20px; 
+                        font-weight: regular; 
+                        margin-top: 20px; 
+                    }
+
+                    p {
+                        font-size: 20px; 
+                        font-weight: lighter; 
+                        margin-top: 10px; 
+                        color: #b3b3b3;
+                    }
+                }
+
+            }
+        }
+
+        .horizontalLine {
+            width: 1400px;
+            height: 1px;
+            background-color: rgb(66, 66, 66);
+            // margin: 0 20px; 
+        }
+
+
+    }
+}

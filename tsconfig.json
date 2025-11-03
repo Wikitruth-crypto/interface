@@ -19,9 +19,23 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@dapp/*": ["./src/dapp/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@Create/*": ["./src/dapp/pages/Create/*"],
+      "@Marketplace/*": ["./src/dapp/pages/Marketplace/*"],
+      "@BoxDetail/*": ["./src/dapp/pages/BoxDetail/*"],
+      "@Profile/*": ["./src/dapp/pages/Profile/*"],
+      "@Token/*": ["./src/dapp/pages/Token/*"],
+      "@Staking/*": ["./src/dapp/pages/Staking/*"],
+      "@Dao/*": ["./src/dapp/pages/Dao/*"],
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src", "vite.config.ts", "project.ts"],
+  "exclude": ["node_modules", "dist"]
 }
+
+
+
+

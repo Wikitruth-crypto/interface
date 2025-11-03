@@ -1,0 +1,349 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+/* React Flow 边样式强制覆盖 */
+.react-flow__edge-path {
+  stroke: #6d6d6d !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+  opacity: 0.6 !important;
+}
+
+.react-flow__arrowhead {
+  fill: #6d6d6d !important;
+  opacity: 0.6 !important;
+}
+
+.react-flow__edge {
+  pointer-events: none !important;
+}
+
+.react-flow__edges {
+  z-index: 1 !important;
+}
+
+/* 确保SVG元素可见 */
+.react-flow__renderer {
+  z-index: 1 !important;
+}
+
+.react-flow__edge-path,
+.react-flow__connection-path {
+  stroke: #6d6d6d !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+  opacity: 0.6 !important;
+}
+
+/* 隐藏React Flow Attribution */
+.react-flow__attribution {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* 这个原本是shadcn的dark主题，现在改成root主题 */
+:root {
+  --radius: 0.5rem;
+  --background: rgb(0, 0, 0); /* oklch(0.141 0.005 285.823) */
+  --foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --card: rgb(19, 19, 19); /* oklch(0.21 0.006 285.885) */
+  --card-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --popover: rgb(54, 54, 54); /* oklch(0.21 0.006 285.885) */
+  --popover-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --primary: rgb(198,169,252); /* oklch(0.696 0.17 162.48) - 绿色 */
+  --primary-foreground: rgb(31, 31, 31); /* oklch(0.393 0.095 152.535) */
+  --secondary: rgb(70, 70, 70); /* oklch(0.274 0.006 286.033) */
+  --secondary-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --muted: rgb(70, 70, 70); /* oklch(0.274 0.006 286.033) */
+  --muted-foreground: rgb(179, 179, 179); /* oklch(0.705 0.015 286.067) */
+  --accent: rgb(70, 70, 70); /* oklch(0.274 0.006 286.033) */
+  --accent-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --destructive: rgb(239, 68, 68); /* oklch(0.704 0.191 22.216) */
+  --border: rgba(255, 255, 255, 0.4); /* oklch(1 0 0 / 40%) */
+  --input: rgba(255, 255, 255, 0.15); /* oklch(1 0 0 / 15%) */
+  --ring: rgb(198,169,252); /* oklch(0.527 0.154 150.069) */
+  --chart-1: rgb(99, 102, 241); /* oklch(0.488 0.243 264.376) */
+  --chart-2: rgb(34, 197, 94); /* oklch(0.696 0.17 162.48) */
+  --chart-3: rgb(251, 191, 36); /* oklch(0.769 0.188 70.08) */
+  --chart-4: rgb(168, 85, 247); /* oklch(0.627 0.265 303.9) */
+  --chart-5: rgb(239, 68, 68); /* oklch(0.645 0.246 16.439) */
+  --sidebar: rgb(54, 54, 54); /* oklch(0.21 0.006 285.885) */
+  --sidebar-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --sidebar-primary: rgb(198,169,252); /* oklch(0.696 0.17 162.48) */
+  --sidebar-primary-foreground: rgb(20, 83, 45); /* oklch(0.393 0.095 152.535) */
+  --sidebar-accent: rgb(70, 70, 70); /* oklch(0.274 0.006 286.033) */
+  --sidebar-accent-foreground: rgb(250, 250, 250); /* oklch(0.985 0 0) */
+  --sidebar-border: rgba(255, 255, 255, 0.1); /* oklch(1 0 0 / 10%) */
+  --sidebar-ring: rgb(198,169,252); /* oklch(0.527 0.154 150.069) */
+
+  /* 禁用背景色 */
+  --disabled: #232327;
+  --disabledText: #3b3b3d;
+
+  /* 订单状态色 */
+  --Storing: #4db325;
+  --OnSale: #b0b306;
+  --Waiting: #e28b19;
+  --Paid: #c7480d;
+  --Refunding: #bd0fb4;
+  --InSecrecy: #5e0fdd;
+  --Published: #3d63e0;
+  --Blacklisted: #4f5055;
+
+  --gradient-background: radial-gradient(
+    circle at 37.50% 95%, 
+    rgba(166, 29, 197, 0.387) 0%,
+    rgba(43, 31, 133, 0.2) 45.62%,
+    transparent 88.23%) 50% 50%, 
+    radial-gradient(circle at 97.50% 5%, 
+    rgba(153, 48, 240, 0.4) 0%,
+    transparent 31.20%) 50% 50%, 
+    radial-gradient(circle at 2.50% 0%, 
+    rgba(155, 20, 167, 0.587) 0%,
+    transparent 26.74%) 50% 50%, 
+    black 100%;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* 禁用背景色 */
+
+  --font-mono: var(--font-geist-mono);
+  --font-logo: 'Wallpoet', cursive;
+  /* --font-hammersmith: 'Hammersmith One', sans-serif; */
+
+  --gradient-background: var(--gradient-background);
+
+  /* 来自 root.css 的兼容性变量 - 用于新旧组件的过渡期 */
+  
+  --color-error: #ff4d4f;
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+
+  /* 业务状态颜色 - 映射到Tailwind */
+  --color-Storing: var(--Storing);
+  --color-OnSale: var(--OnSale);
+  --color-Waiting: var(--Waiting);
+  --color-Paid: var(--Paid);
+  --color-Refunding: var(--Refunding);
+  --color-InSecrecy: var(--InSecrecy);
+  --color-Blacklisted: var(--Blacklisted);
+  --color-Published: var(--Published);
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+} 
+
+p {
+  font-family: var(--font-geist-mono);
+  /* color: var(--text-white-70); */
+  /*letter-spacing: -0.05em;  /* 缩小字母间距 */
+  word-spacing: -0.2em;
+  /* font-size: 0.9rem; */
+}
+
+/* 恢复基础样式 */
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  color: var(--foreground);
+  background: var(--background);
+  font-size: 1rem;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+.text-hero {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+button,
+.btn {
+  /* font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif; */
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+/* main {
+  padding: 0 1rem;
+} */
+
+/* 小屏幕设备 这个不起作用 */
+/* @media (max-width: 320px) {
+  main {
+    padding: 0 0.5rem;
+  }
+} */
+
+
+/* 小屏幕设备 */
+@media (min-width: 480px) {
+  
+}
+
+
+
+/* 移动端响应式 */
+@media (min-width: 768px) {
+
+  /* main {
+    padding: 0 2rem;
+  } */
+
+
+  h1,
+  .text-hero {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+
+  h5 {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  h6 {
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+}
+
+/* 平板端响应式 */
+@media (min-width: 1024px) {
+  /* main {
+    padding: 0 2rem;
+  } */
+  /* p {
+    font-size: 1rem;
+  } */
+}
+
+
+@media (min-width: 1440px) {
+  /* main {
+    padding: 0 0rem;
+  } */
+  /* p {
+    font-size: 1.1rem;
+  } */
+}
+/* public 路径 */
+@font-face {
+  font-family: 'STSong';
+  src: url('/font/STSONG.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* StatusStepFlow 水平滚动样式优化 */
+.status-step-flow-container {
+  /* 自定义滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.status-step-flow-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.status-step-flow-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.status-step-flow-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.status-step-flow-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 平滑滚动 */
+.status-step-flow-container {
+  scroll-behavior: smooth;
+}

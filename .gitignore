@@ -10,12 +10,24 @@
 !.yarn/releases
 !.yarn/versions
 
+# project
+.cursor/
+.vscode/
+/docs
+/oasisQuery
+
 # testing
 /coverage
+/src-dapp
 
-# next.js
+# next.js (legacy)
 /.next/
 /out/
+
+# vite
+/dist
+/dist-ssr
+*.local
 
 # production
 /build
@@ -32,6 +44,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+.env.local
 
 # vercel
 .vercel

@@ -1,0 +1,208 @@
+type GlobalState @entity(immutable: false) {
+  id: ID! # Singleton ID, e.g., "global"
+  totalSupply: BigInt!
+  storingSupply: BigInt!
+  sellingSupply: BigInt!
+  auctioningSupply: BigInt!
+  paidSupply: BigInt! # Updated from deliveredSupply to match Status enum
+  refundingSupply: BigInt!
+  inSecrecySupply: BigInt! # Fixed capitalization
+  publishedSupply: BigInt!
+  blacklistedSupply: BigInt! # Updated to match Status enum
+}
+
+type FundManagerState @entity(immutable: false) {
+  id: ID! # Singleton ID, e.g., "fundManager"
+  tokenTotalRewardAmounts: [TokenTotalRewardAmount!]! @derivedFrom(field: "fundManager")
+}
+
+type Box @entity(immutable: false) {
+  id: ID! # boxId (BigInt converted to String ID)
+  tokenId: BigInt! # Original numeric tokenId
+  tokenURI: String
+  boxInfoCID: String # Box information CID from BoxInfoChanged event
+  privateKey: String # 
+  price: BigInt!
+  deadline: BigInt!
+  minter: User! # User who minted the box (userId)
+  owner: User! # Current owner of the box NFT (userId)
+  publisher: User # User who published the box (userId)
+  createTimestamp: BigInt!
+  sellTimestamp: BigInt # Timestamp when listed for sale/auction
+  publishTimestamp: BigInt
+
+  # State
+  isInBlacklist: Boolean!
+  status: BoxStatus!
+
+  # Exchange Data
+  seller: User # User listing the box for sale/auction (userId)
+  listedMode: ListedMode
+  acceptedToken: Token # Token accepted for payment
+  buyer: User # User who purchased the box (userId)
+  bidders: [User!]! # Users who placed bids (userIds)
+  paymentLogs: [Payment!]! @derivedFrom(field: "box")
+  refundPermit: Boolean
+  completer: User # User who completed the box (userId)
+  listedTimestamp: BigInt
+  purchaseTimestamp: BigInt
+  requestRefundDeadline: BigInt # From RequestDeadlineChanged event
+  reviewDeadline: BigInt # From ReviewDeadlineChanged event
+  completeTimestamp: BigInt
+
+  # Order and Reward Data
+  userOrders: [UserOrder!]! @derivedFrom(field: "box")
+  rewardAmounts: [RewardAmount!]! @derivedFrom(field: "box") # Track reward amounts by type
+}
+
+type UserOrder @entity(immutable: false) {
+  id: ID! # BoxId-UserId composite key
+  box: Box!
+  user: User!
+  token: Token! # Token used for the order
+  amount: BigInt!
+  timestamp: BigInt! # When the order was placed
+}
+
+type RewardAmount @entity(immutable: false) {
+  id: ID! # BoxId-RewardType composite key
+  box: Box!
+  token: Token!
+  amount: BigInt!
+  rewardType: RewardType! # Minter, Seller, Completer, Total
+  timestamp: BigInt! # When the reward was added
+}
+
+type UserReward @entity(immutable: false) {
+  id: ID! # UserId-Token composite key
+  user: User!
+  token: Token!
+  totalRewards: BigInt! # Total accumulated rewards for this user and token
+  helperRewards: BigInt! # Helper rewards accumulated
+  lastWithdrawTimestamp: BigInt # Last time rewards were withdrawn
+}
+
+type User @entity(immutable: false) {
+  id: ID! # UserId (uint256 converted to String)
+  isBlacklisted: Boolean! # Track blacklist status from Blacklist event
+
+  # Box relationships
+  ownedBoxes: [Box!]! @derivedFrom(field: "owner")
+  mintedBoxes: [Box!]! @derivedFrom(field: "minter")
+  soldBoxes: [Box!]! @derivedFrom(field: "seller")
+  boughtBoxes: [Box!]! @derivedFrom(field: "buyer")
+  bidBoxes: [Box!]! # Boxes this user has bid on
+  completedBoxes: [Box!]! @derivedFrom(field: "completer")
+  publishedBoxes: [Box!]! @derivedFrom(field: "publisher")
+
+  # Timestamps
+  lastMintTimestamp: BigInt
+  lastActivityTimestamp: BigInt # Track last activity
+
+  # Financial relationships
+  allowances: [Allowance!]! @derivedFrom(field: "owner")
+  paymentLogs: [Payment!]! @derivedFrom(field: "payer")
+  withdrawLogs: [Withdraw!]! @derivedFrom(field: "recipient")
+  userOrders: [UserOrder!]! @derivedFrom(field: "user")
+  rewards: [UserReward!]! @derivedFrom(field: "user")
+}
+
+type Payment @entity(immutable: true) {
+  id: ID! # Transaction hash - log index (HexString, 0x...)
+  box: Box!
+  payer: User! # UserId from events
+  token: Token! # Token address (HexString, 0x...)
+  amount: BigInt!
+  timestamp: BigInt!
+  paymentType: PaymentType!
+  transactionHash: Bytes! # Store transaction hash
+  blockNumber: BigInt! # Store block number for ordering
+}
+
+type Withdraw @entity(immutable: true) {
+  id: ID! # Transaction hash - log index (HexString)
+  token: Token!
+  boxList: [BigInt!]! # List of box IDs from OrderAmountWithdraw event
+  recipient: User! # UserId from events
+  amount: BigInt!
+  timestamp: BigInt!
+  withdrawType: FundsType! # Order or Refund
+  transactionHash: Bytes! # Store transaction hash
+  blockNumber: BigInt! # Store block number for ordering
+}
+
+type Token @entity(immutable: false) {
+  id: ID! # Token address (HexString, 0x...)
+  name: String # Token name
+  symbol: String # Token symbol
+  decimals: Int # Token decimals
+  status: TokenStatus! # Active, Inactive, UnExisted
+
+  # Relationships
+  allowances: [Allowance!]! @derivedFrom(field: "token")
+  acceptedInBoxes: [Box!]! @derivedFrom(field: "acceptedToken")
+  totalRewardAmounts: [TokenTotalRewardAmount!]! @derivedFrom(field: "token")
+  userOrders: [UserOrder!]! @derivedFrom(field: "token")
+  rewardAmounts: [RewardAmount!]! @derivedFrom(field: "token")
+  userRewards: [UserReward!]! @derivedFrom(field: "token")
+  payments: [Payment!]! @derivedFrom(field: "token")
+  withdraws: [Withdraw!]! @derivedFrom(field: "token")
+}
+
+type TokenTotalRewardAmount @entity(immutable: false) {
+  id: ID! # Composite ID: tokenAddress-amountType (HexString, 0x...)
+  token: Token!
+  fundManager: FundManagerState!
+  amountType: FundsType! # Order or Refund
+  amount: BigInt!
+}
+
+type Allowance @entity(immutable: false) {
+  id: ID! # Composite ID: tokenAddress-ownerUserId-spenderAddress (HexString)
+  token: Token!
+  owner: User! # User who owns the tokens (userId)
+  spender: Bytes! # Address allowed to spend (e.g., Exchange contract)
+  amount: BigInt!
+  lastUpdated: BigInt! # Timestamp of last update
+}
+
+enum BoxStatus {
+  Storing
+  Selling
+  Auctioning
+  Paid
+  Refunding
+  InSecrecy
+  Published
+  Blacklisted # Added to match contract Status enum
+}
+
+enum FundsType {
+  Order
+  Refund # Updated from Reward to match contract enum
+}
+
+enum ListedMode {
+  Selling
+  Auctioning
+}
+
+enum PaymentType {
+  Buy
+  Bid
+  ConfidentialityFee
+}
+
+enum RewardType {
+  Minter
+  Seller
+  Completer
+  Total
+}
+
+enum TokenStatus {
+  UnExisted # Matches contract TokenEnum
+  Active
+  Inactive
+}
+

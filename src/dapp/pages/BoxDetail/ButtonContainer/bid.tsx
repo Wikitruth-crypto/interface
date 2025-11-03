@@ -1,0 +1,83 @@
+'use client'
+import React, { useEffect, useState } from 'react';
+import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
+import { cn } from '@/lib/utils';
+import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
+import { useAllContractConfigs } from '@/dapp/contractsConfig';
+import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
+import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
+import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
+import ApproveButton from './approve';
+import BaseButton from '@/dapp/components/base/baseButton';
+import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+
+interface Props {
+    onClick?: () => void;
+    className?: string;
+}
+
+const BidButton: React.FC<Props> = ({ onClick, className }) => {
+    const allConfigs = useAllContractConfigs();
+    const disabled = useButtonDisabled('bidDisabled');
+    const { box , boxId } = useCurrentBox()
+    const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
+    const { write_BoxDetail, error } = useWrite_BoxDetail();
+    const { roles } = useBoxDetailStore(state => state.userState);
+    
+    // 使用集中的按钮交互状态
+    const { currentAction, isPending } = useButtonInteractionStore();
+    
+    const handleBid = async () => {
+        onClick?.();
+        await write_BoxDetail({
+            contract: allConfigs.Exchange,
+            functionName: 'Bid',
+            args: [boxId],
+        });
+    }
+
+    // 检查是否需要授权
+    useEffect(() => {
+        if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
+            checkAllowance_BoxDetail(
+                box?.acceptedToken?.id || '',
+                box?.price || 0
+            )
+        }
+    }, [box, roles, checkAllowance_BoxDetail]);
+
+    // 计算按钮状态
+    const isLoading = currentAction === 'bid' && isPending;
+    const isDisabled = disabled || (currentAction !== null && currentAction !== 'bid');
+
+    // 如果额度不足，则需要授权
+    if (!isEnough) {
+        return <ApproveButton className={className} />;
+    }
+
+    // 如果按钮被禁用，不显示
+    if (disabled) {
+        return null;
+    }
+
+    return (
+        <div className={cn('w-full', className)}>
+            <div className={'flex flex-col md:flex-row w-full items-start'}>
+                <BaseButton
+                    onClick={handleBid}
+                    loading={isLoading}
+                    disabled={isDisabled}
+                >
+                    Bid
+                </BaseButton>
+                {error?.message && <p className={'text-red-400 text-sm mt-2 font-mono'}>{error?.message}</p>}
+                <div className={'flex flex-col items-start '}>
+                    <CalcMoney />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default React.memo(BidButton); 

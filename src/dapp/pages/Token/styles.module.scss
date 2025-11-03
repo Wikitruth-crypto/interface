@@ -1,0 +1,125 @@
+@import "../../../root.css";
+
+.home {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    // justify-content: center; 
+    width: 100%; 
+    height: 100%;
+    background: radial-gradient(circle at 10% 20%, rgba(13, 18, 82, 0.3), transparent 20%),
+                radial-gradient(circle at 100% 70%, rgba(81, 10, 161, 0.3), transparent 20%),
+                radial-gradient(circle at 0% 95%, rgba(59, 60, 94, 0.4), transparent 20%),
+                var(--color-background2);
+
+    .container{
+        // position: relative; 
+        display: flex; 
+        align-items: center; 
+        flex-direction: column; 
+        width: 1500px; 
+        height: 100%; 
+        
+        .account {
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100%; 
+            height: 100px; 
+            margin: 20px 0;
+        }
+        
+        .content {
+            padding: 50px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100%; 
+            height: 100%; 
+            background-color: var(--color-colorBar);
+
+            .dataRow {
+                display: flex; 
+                flex-direction: row; 
+                justify-content: space-around; 
+                align-items: center; 
+                width: 70%; 
+                height: 100px; 
+
+                .spanRow {
+                    display: flex; 
+                    flex-direction: row; 
+                }
+    
+                .spaceRow {
+                    width: 30px;
+
+                }
+                .data {
+                    display: flex; 
+                    flex-direction: column; 
+                    justify-content: center; 
+                    align-items: center; 
+    
+                    .dataItem {
+                        color: var(--color-gray2); 
+                        font-size: 20px; 
+                        font-weight: regular; 
+                        margin: 15px;
+                    }
+    
+                    .dataNumber {
+                        color: var(--color-white); 
+                        font-size: 30px; 
+                        margin: 10px;
+                    }
+                }
+            }
+
+            .tipsRow {
+                display: flex; 
+                flex-direction: row; 
+                justify-content: space-around; 
+                align-items: center; 
+                width: 70%; 
+                height: 100px; 
+    
+                .data {
+                    display: flex; 
+                    flex-direction: column; 
+                    justify-content: center; 
+                    align-items: center; 
+    
+                    .dataItem {
+                        color: var(--color-gray2); 
+                        font-size: 20px; 
+                        font-weight: regular; 
+                        margin: 15px;
+                    }
+    
+                    .dataNumber {
+                        color: var(--color-white); 
+                        font-size: 30px; 
+                        margin: 10px;
+                    }
+                }
+            }
+
+            .horizontalLine {
+                width: 90%;
+                height: 1px;
+                background-color: var(--color-line);
+                margin: 20px 20px; 
+            }
+
+        }
+
+        .spaceFooter {
+            height: 200px;
+        }
+        
+    }
+    
+}

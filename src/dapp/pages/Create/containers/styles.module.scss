@@ -1,0 +1,116 @@
+// @import "@/root.css";
+
+.home {
+    width: 1300px; 
+    height:auto; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 20px;
+
+    .card {
+        width: 100%;
+        height: 100%;
+        // background-color: var(--color-background2);
+        border-radius: 10px;
+        // padding: 20px;
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+    }
+
+}
+
+// 表单卡片样式
+.formCard {
+    padding: 20px;
+    // border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    // 卡片头部样式
+    :global(.ant-card-head) {
+        min-height: 48px;
+        padding: 0;
+    }
+    
+    :global(.ant-card-body) {
+        padding: 0;
+    }
+}
+
+// 表单区域样式
+.formSection {
+    padding: 20px;
+}
+
+.mintButton {
+    margin-bottom: 50px;
+}
+
+// 区域标题样式
+.sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary, #4912c7);
+    margin: 0 0 16px 0;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid var(--color-divider, rgba(255, 255, 255, 0.06));
+}
+
+// 表单项样式
+.formItem {
+    margin-bottom: 20px;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// 表单标签样式
+.formLabel {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--color-gray2);
+    font-weight: 500;
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+    .home {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .formCard {
+        padding: 10px;
+    }
+    
+    .formSection {
+        padding: 15px;
+    }
+    
+    .sectionTitle {
+        font-size: 15px;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+    }
+    
+    .formLabel {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+    
+    .formItem {
+        margin-bottom: 16px;
+    }
+}
