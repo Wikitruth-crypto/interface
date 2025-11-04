@@ -4,7 +4,7 @@ import {
     useWriteContract
 } from 'wagmi';
 import { ContractConfigType } from '@/dapp/contractsConfig/contractsConfig';
-import { useBoxDetailStore } from '../store/boxDetailStore';
+import { useBoxContext } from '../contexts/BoxContext';
 import { useButtonInteractionStore } from '../store/buttonInteractionStore';
 import { FunctionNameType } from '@/dapp/types/contracts';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
@@ -43,12 +43,12 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
         hash,
     });
     
-    const tokenId = useBoxDetailStore(state => state.tokenId);
+    const { boxId } = useBoxContext();
     const { address } = useWalletContext();
     const [writeType, setWriteType] = useState<FunctionNameType | null>(null);
     
     // 使用 buttonInteractionStore 管理按钮交互状态
-    const { setCurrentAction, setPending } = useButtonInteractionStore();
+    const { setCurrentActionFunction, setPending } = useButtonInteractionStore();
     const addBoxInteraction = useAccountStore(state => state.addBoxInteraction);
 
     const write_BoxDetail = async (
@@ -57,7 +57,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
         const functionName = config.functionName as FunctionNameType;
         
         setWriteType(functionName);
-        setCurrentAction(functionName);
+        setCurrentActionFunction(functionName);
         
         try {
             const result = await writeContractAsync({
@@ -71,7 +71,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
             console.error('Contract write failed:', err);
             throw err;
         } finally {
-            setCurrentAction(null);
+            setCurrentActionFunction(null);
         }
     };
 
@@ -83,10 +83,10 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
     // 交易成功后记录到 accountStore
     useEffect(() => {
         if (isSuccessed && writeType && address) {
-            addBoxInteraction(tokenId, writeType, hash);
-            console.log(`[useWrite_BoxDetail] Transaction successful: ${writeType} on Box ${tokenId}`);
+            addBoxInteraction(boxId, writeType, hash);
+            console.log(`[useWrite_BoxDetail] Transaction successful: ${writeType} on Box ${boxId}`);
         }
-    }, [isSuccessed, writeType, address, tokenId, hash, addBoxInteraction]);
+    }, [isSuccessed, writeType, address, boxId, hash, addBoxInteraction]);
 
     return {
         write_BoxDetail,

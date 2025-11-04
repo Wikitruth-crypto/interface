@@ -2,17 +2,16 @@ import { useEffect } from 'react';
 import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { BoxRoleType } from '@dapp/types/account';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useQueryStore } from '@/dapp/store_sapphire/useQueryStore';
+import { useBoxContext } from '../contexts/BoxContext';
 
 export const useLisenerRoles = () => {
-    const tokenId = useBoxDetailStore(state => state.tokenId);
+    const { boxId, box } = useBoxContext();
 
     const { 
         updateUserState, 
     } = useBoxDetailStore();
 
     const { address, isConnected, accountRole} = useWalletContext() || {};
-    const box = useQueryStore(state => state.boxes[tokenId]);
 
     useEffect(() => {
         let roles: BoxRoleType[] = [];

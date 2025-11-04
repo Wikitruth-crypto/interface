@@ -16,7 +16,7 @@ interface Props {
 const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const disabled = useButtonDisabled('auctionDisabled');
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { currentAction } = useButtonInteractionStore();
+  const { currentActionFunction } = useButtonInteractionStore();
   
   const { auctioningTime } = usePeriodRate();
 
@@ -30,7 +30,7 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isDisabled = disabled || (currentAction !== null);
+  const isDisabled = disabled || (currentActionFunction !== null);
 
   // 如果按钮被禁用，不显示
   if (disabled) {

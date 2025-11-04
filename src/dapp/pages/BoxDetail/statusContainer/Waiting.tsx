@@ -1,22 +1,19 @@
 'use client'
 import React from 'react';
-// import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
-// import { selectBox, } from '@/dapp/event_sapphire/selectors';
 import { ViewFileButton } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 // import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
 import { Alert } from 'antd'; // 直接使用antd的Alert组件
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
     tokenId?: string,
 }
 
-const Waiting: React.FC<Props> = ({ tokenId }) => {
+const Waiting: React.FC<Props> = ({ }) => {
     const store = useBoxDetailStore(state => state)
     const deadlineCheckState = store.deadlineCheckState
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+    const { box } = useBoxContext()
 
     if (!box) {
         return <div>loading...</div>

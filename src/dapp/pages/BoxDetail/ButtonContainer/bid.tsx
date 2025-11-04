@@ -6,7 +6,7 @@ import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ApproveButton from './approve';
 import BaseButton from '@/dapp/components/base/baseButton';
@@ -20,13 +20,13 @@ interface Props {
 const BidButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
     const disabled = useButtonDisabled('bidDisabled');
-    const { box , boxId } = useCurrentBox()
+    const { box , boxId } = useBoxContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);
     
     // 使用集中的按钮交互状态
-    const { currentAction, isPending } = useButtonInteractionStore();
+    const { currentActionFunction, isPending } = useButtonInteractionStore();
     
     const handleBid = async () => {
         onClick?.();
@@ -48,8 +48,8 @@ const BidButton: React.FC<Props> = ({ onClick, className }) => {
     }, [box, roles, checkAllowance_BoxDetail]);
 
     // 计算按钮状态
-    const isLoading = currentAction === 'bid' && isPending;
-    const isDisabled = disabled || (currentAction !== null && currentAction !== 'bid');
+    const isLoading = currentActionFunction === 'bid' && isPending;
+    const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'bid');
 
     // 如果额度不足，则需要授权
     if (!isEnough) {

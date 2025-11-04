@@ -18,20 +18,18 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import Line from '@/components/base/line';
 import ShareSocial from '@/dapp/components/shareSoical';
 import { useMetadataStore } from '@/dapp/store_sapphire/useMetadataStore';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 // import Paragraph from '@/components/base/paragraph';
 
 interface Props {
-    loading?: boolean;
+    tokenId: number|string;
+    args?: boolean;
 }
 
-const ContentRight: React.FC<Props> = ({ loading }) => {
-    const { tokenId } = useBoxDetailStore(state => state);
-    const { box } = useCurrentBox(tokenId)
+const ContentRight: React.FC<Props> = ({ tokenId }) => {
+    const { box, boxId, metadataBox ,isLoading} = useBoxContext();
 
-    const boxMetadata = useMetadataStore(state => state.boxesMetadata[tokenId]);
-
-    useCheckDeadline(tokenId);
+    useCheckDeadline(boxId);
 
     const [price, setPrice] = useState('');
     const [status, setStatus] = useState<BoxStatus>('Storing');
@@ -68,7 +66,7 @@ const ContentRight: React.FC<Props> = ({ loading }) => {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="w-full flex items-center justify-center py-12">
                 <div className="text-muted-foreground text-lg">Loading...</div>
@@ -139,9 +137,9 @@ const ContentRight: React.FC<Props> = ({ loading }) => {
                 */}
                 {/* Social Share - Commented out for now */}
             <ShareSocial 
-                title={boxMetadata?.title ?? ''}
-                description={boxMetadata?.description ?? ''}
-                image={boxMetadata?.nftImage ?? ''}
+                title={metadataBox?.title ?? ''}
+                description={metadataBox?.description ?? ''}
+                image={metadataBox?.nftImage ?? ''}
                 url={typeof window !== 'undefined' ? window.location.href : ''}
             />
             </div>

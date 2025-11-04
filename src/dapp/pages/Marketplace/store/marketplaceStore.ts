@@ -24,7 +24,7 @@ const defaultFilters: MarketplaceFilters = {
 
 const defaultPaginationConfig: PaginationConfig = {
   mode: 'paginator',
-  pageSize: 20,
+  pageSize: 8,
   loadBatchSize: 4,
 };
 

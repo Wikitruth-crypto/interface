@@ -21,8 +21,6 @@ import { ContractProvider } from "./provider";
 import { WalletProvider } from "./useAccount/WalletContext";
 import ClientOnly from "./clientOnly"; // 确保在页面加载时只渲染一次
 
-// 创建 React Query 客户端
-// const queryClient = new QueryClient();
 
 export function Web3ContextProvider({
     children,
@@ -30,7 +28,6 @@ export function Web3ContextProvider({
     return (
         <ClientOnly>
             <WagmiProvider config={config}>
-                {/* <QueryClientProvider client={queryClient}> */}
                     <RainbowKitProvider
                         modalSize="compact"
                         locale="en-US"
@@ -49,7 +46,6 @@ export function Web3ContextProvider({
                             </ContractProvider>
                         </WalletProvider>
                     </RainbowKitProvider>
-                {/* </QueryClientProvider> */}
             </WagmiProvider>
         </ClientOnly>
     );

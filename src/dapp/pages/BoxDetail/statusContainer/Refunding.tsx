@@ -9,16 +9,14 @@ import {
 } from '@BoxDetail/ButtonContainer';
 // import { useBoxDetailStore } from '../store/boxDetailStore';
 import Line from '@/components/base/line';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
     tokenId?: string,
 }
 
-const Refunding: React.FC<Props> = ({ tokenId }) => {
-    // const store = useBoxDetailStore(state => state)
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+const Refunding: React.FC<Props> = ({ }) => {
+    const { box } = useBoxContext()
 
     if (!box) {
         return <div>loading...</div>

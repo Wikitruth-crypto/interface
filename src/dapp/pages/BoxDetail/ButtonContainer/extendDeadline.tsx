@@ -15,7 +15,7 @@ interface Props {
 const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
   const disabled = useButtonDisabled('extendDisabled');
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { currentAction } = useButtonInteractionStore();
+  const { currentActionFunction } = useButtonInteractionStore();
 
   const handleExtendDeadline = () => {
     onClick?.();
@@ -27,7 +27,7 @@ const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isDisabled = disabled || (currentAction !== null);
+  const isDisabled = disabled || (currentActionFunction !== null);
 
   // 如果按钮被禁用，不显示
   if (disabled) {

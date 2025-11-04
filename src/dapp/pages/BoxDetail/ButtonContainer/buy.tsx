@@ -12,7 +12,7 @@ import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionSto
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
     onClick?: () => void;
@@ -23,13 +23,13 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
     const disabled = useButtonDisabled('buyDisabled');
     // const { address } = useWalletContext();
-    const { box , boxId } = useCurrentBox()
+    const { box , boxId } = useBoxContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);
     
     // 使用集中的按钮交互状态
-    const { currentAction, isPending } = useButtonInteractionStore();
+    const { currentActionFunction, isPending } = useButtonInteractionStore();
 
 
     const handleBuy = async () => {
@@ -53,8 +53,8 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     }, [box?.price, roles, checkAllowance_BoxDetail]);
 
     // 计算按钮状态
-    const isLoading = currentAction === 'buy' && isPending;
-    const isDisabled = disabled || (currentAction !== null && currentAction !== 'buy');
+    const isLoading = currentActionFunction === 'buy' && isPending;
+    const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'buy');
 
     // 如果需要授权，显示授权按钮
     if (!isEnough) {

@@ -1,13 +1,12 @@
 'use client'
 import React from 'react';
-import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
 import UriPassword from '@/dapp/components/uriPassword';
 import {
     RequestRefundButton,
     CompleteButton,
     ViewFileButton,
 } from '@BoxDetail/ButtonContainer';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 // import { useBoxDetailStore } from '../store/boxDetailStore';
 import Line from '@/components/base/line';
 
@@ -15,10 +14,8 @@ interface Props {
     tokenId?: string,
 }
 
-const Paid: React.FC<Props> = ({ tokenId }) => {
-    // const store = useBoxDetailStore(state => state)
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+const Paid: React.FC<Props> = ({ }) => {
+    const { box } = useBoxContext()
 
     if (!box) {
         return <div>loading...</div>

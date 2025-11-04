@@ -9,6 +9,7 @@ import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
   onClick?: () => void;
@@ -16,26 +17,26 @@ interface Props {
 }
 
 const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
-  const tokenId = useBoxDetailStore(state => state.tokenId);
+  const { boxId } = useBoxContext();
   const disabled = useButtonDisabled('refuseRefundDisabled');
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const allConfigs = useAllContractConfigs();
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const handleRefuse = async () => {
     onClick?.();
     await write_BoxDetail({
       contract: allConfigs.Exchange,
       functionName: 'refuseRefund',
-      args: [tokenId],
+      args: [boxId],
     });
   };
 
   // 计算按钮状态
-  const isLoading = currentAction === 'refuseRefund' && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'refuseRefund');
+  const isLoading = currentActionFunction === 'refuseRefund' && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'refuseRefund');
 
   // 如果按钮被禁用，不显示
   if (disabled) {

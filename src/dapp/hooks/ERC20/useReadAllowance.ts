@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useAllowanceBase, AllowanceERC20Params, AllowanceERC20SecretParams, AllowanceCheckResult } from './useAllowanceBase';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { EIP712Permit, useEIP712_ERC20secret, PermitType } from '@/dapp/hooks/EIP712';
-import { useAccountStore } from '@/dapp/store/accountStore';
+import { useSecretStore } from '@/dapp/store/secretStore';
 import { TokenMetadata } from '@/dapp/contractsConfig';
+import { useChainId } from 'wagmi';
+import { useTokenType } from './useTokenType';
 
 /**
  * 高级授权检查 Hook
@@ -14,17 +16,19 @@ import { TokenMetadata } from '@/dapp/contractsConfig';
  * 3. 对于 Secret 代币，自动处理 EIP712 签名
  * 4. 提供签名缓存机制
  */
-export const useAllowance = () => {
+export const useReadAllowance = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     // ==================== 依赖项 ====================
     const { checkAllowanceBase } = useAllowanceBase();
     const supportedTokens = useSupportedTokens();
+    const chainId = useChainId();
     
     // ⚠️ Hook 必须在顶层调用，不能在条件语句中
     const { signPermit } = useEIP712_ERC20secret();
-    const { getEip712Permit, setEip712Permit } = useAccountStore();
-
+    const getEip712Permit = useSecretStore((state) => state.getEip712Permit);
+    const setEip712Permit = useSecretStore((state) => state.setEip712Permit);
+    const { getTokenType } = useTokenType();
     /**
      * 检查代币授权额度
      * 
@@ -43,7 +47,7 @@ export const useAllowance = () => {
      * const result = await checkAllowance(wroseSecretAddress, userAddress, fundManagerAddress, 500);
      */
     const checkAllowance = async (
-        tokenAddress: string,
+        tokenAddress: `0x${string}`,
         owner: string,
         spender: string,
         amount: number | string | bigint
@@ -52,19 +56,12 @@ export const useAllowance = () => {
 
         try {
             // ==================== 1. 获取代币配置 ====================
-            const tokenConfig = supportedTokens.find(
-                (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress.toLowerCase()
-            );
-
-            if (!tokenConfig) {
-                console.error(`Token not found: ${tokenAddress}`);
-                return { isEnough: false, allowanceAmount: 0 };
-            }
+            const tokenType = await getTokenType(tokenAddress);
 
             // ==================== 2. 根据代币类型生成参数 ====================
             let params: AllowanceERC20Params | AllowanceERC20SecretParams;
 
-            if (tokenConfig.types === 'ERC20') {
+            if (tokenType === 'ERC20') {
                 // 标准 ERC20 代币
                 params = {
                     type: 'ERC20',
@@ -73,9 +70,14 @@ export const useAllowance = () => {
                     spender: spender as `0x${string}`,
                 };
 
-            } else if (tokenConfig.types === 'Secret') {
+            } else if (tokenType === 'Secret') {
                 // 隐私 ERC20 代币 - 需要 EIP712 签名
-                let eip712Permit = getEip712Permit(PermitType.VIEW);
+                let eip712Permit = getEip712Permit(
+                    PermitType.VIEW,
+                    spender,
+                    chainId ?? undefined,
+                    owner
+                );
 
                 // 检查是否需要生成新签名
                 if (!eip712Permit || isPermitExpired(eip712Permit)) {
@@ -93,7 +95,13 @@ export const useAllowance = () => {
                         eip712Permit = permit as EIP712Permit;
 
                         // 缓存签名到状态管理中
-                        setEip712Permit(PermitType.VIEW, eip712Permit);
+                        setEip712Permit(
+                            PermitType.VIEW,
+                            spender,
+                            eip712Permit,
+                            chainId ?? undefined,
+                            owner
+                        );
                         console.log('[Secret] EIP712 permit generated and cached');
 
                     } catch (signError) {
@@ -112,7 +120,7 @@ export const useAllowance = () => {
                 };
 
             } else {
-                console.error(`Unsupported token type: ${tokenConfig.types}`);
+                console.error(`Unsupported token type: ${tokenType}`);
                 setIsLoading(false);
                 return { isEnough: false, allowanceAmount: 0 };
             }

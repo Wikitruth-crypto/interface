@@ -27,9 +27,8 @@ import { useEffect } from 'react';
  * // 在子组件中使用 Store
  * function MyComponent() {
  *   const chainId = useChainId();
- *   const { getEip712Permit, setEip712Permit } = useAccountStore();
- *   
- *   const permit = getEip712Permit(chainId, PermitType.VIEW);
+ *   const getEip712Permit = useSecretStore((state) => state.getEip712Permit);
+ *   const permit = getEip712Permit(PermitType.VIEW, someSpenderAddress, chainId);
  *   // ...
  * }
  * ```
@@ -67,12 +66,7 @@ export const useSecureAccount = () => {
                 }
                 
                 // 初始化新账户
-                initAccount(address, chainId, {
-                    type: connector?.name?.toLowerCase() as any || 'other',
-                    connector: connector?.id || 'unknown',
-                    ensName: null,
-                    ensAvatar: null,
-                });
+                initAccount(address, chainId);
                 
                 // 开始新会话
                 startSession(chainId);

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Pagination } from 'antd';
 import BaseButton from '@/dapp/components/base/baseButton';
+import Loader from '@/dapp/components/Loader';
 
 interface MarketplacePaginationProps {
   /** 总数据量 */
@@ -23,6 +24,8 @@ interface MarketplacePaginationProps {
   fetchNextPage: () => void;
   /** 是否正在加载 */
   isFetchingNextPage: boolean;
+  /** 是否加载失败 */
+  hasError?: boolean;
 }
 
 /**
@@ -42,6 +45,7 @@ export default function MarketplacePagination({
   hasNextPage,
   fetchNextPage,
   isFetchingNextPage,
+  hasError = false,
 }: MarketplacePaginationProps) {
   // 分页器模式：显示页码分页器
   if (mode === 'paginator') {
@@ -60,23 +64,41 @@ export default function MarketplacePagination({
     );
   }
 
-  // Load More 模式：显示加载更多按钮
-  return (
-    <div className="flex justify-center items-center py-4">
-      <BaseButton
-        onClick={fetchNextPage}
-        disabled={!hasNextPage || isFetchingNextPage}
-        loading={isFetchingNextPage}
-        variant="outline"
-        className="min-w-[120px]"
-      >
-        {isFetchingNextPage
-          ? 'Loading...'
-          : hasNextPage
-            ? 'Load More'
-            : 'No More'}
-      </BaseButton>
-    </div>
-  );
+  // Load More 模式：根据状态显示不同UI
+  // 1. 加载失败：显示重试按钮
+  if (hasError) {
+    return (
+      <div className="flex justify-center items-center py-4">
+        <BaseButton
+          onClick={fetchNextPage}
+          variant="outline"
+          className="min-w-[120px]"
+        >
+          Retry
+        </BaseButton>
+      </div>
+    );
+  }
+
+  // 2. 正在加载：显示加载指示器
+  if (isFetchingNextPage) {
+    return (
+      <div className="flex justify-center items-center py-4">
+        <Loader />
+      </div>
+    );
+  }
+
+  // 3. 没有更多数据：显示结束提示
+  if (!hasNextPage) {
+    return (
+      <div className="flex justify-center items-center py-4 text-white/50 text-sm">
+        No More
+      </div>
+    );
+  }
+
+  // 4. 正常情况下：不显示任何内容（由滚动自动触发）
+  return null;
 }
 

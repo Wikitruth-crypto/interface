@@ -3,6 +3,8 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useMemo } from 'react';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
+import { selectBox } from '@/dapp/store_sapphire/selectors';
+import { useBoxContext } from '../contexts/BoxContext';
 
 type ButtonDisabledNameType = 
 'extendDisabled' | 
@@ -20,12 +22,13 @@ type ButtonDisabledNameType =
 'viewFileDisabled';
 
 export const useButtonDisabled = (name: ButtonDisabledNameType) => {
-  const { userState, deadlineCheckState, modalStatus, tokenId } = useBoxDetailStore(state => state);
-  const box = useQueryStore(state => state.boxes[tokenId]);
+  const { boxId } = useBoxContext();
+  const { userState, deadlineCheckState, modalStatus} = useBoxDetailStore(state => state);
+  const box = useQueryStore(selectBox(boxId));
   const { address } = useWalletContext() || {};
 
   // 导入accountStore中记录的写入成功列表
-  const boxInteraction = useAccountStore(state => state.getBoxInteractions(tokenId));
+  const boxInteraction = useAccountStore(state => state.getBoxInteractions(boxId));
 
   return useMemo(() => {
     if (!box) {
@@ -308,6 +311,6 @@ export const useButtonDisabled = (name: ButtonDisabledNameType) => {
     deadlineCheckState.inReviewRefundPeriod,
     boxInteraction,
     modalStatus,
-    tokenId
+    boxId
   ]);
 };

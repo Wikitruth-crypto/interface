@@ -65,7 +65,8 @@ export const useAllowanceBase = () => {
      * });
      */
     const checkAllowanceBase = async (
-        tokenConfig: TokenMetadata, // 使用代币配置，增强复用性
+        tokenAddress: `0x${string}`,
+        tokenType: 'ERC20' | 'Secret',
         params: AllowanceERC20Params | AllowanceERC20SecretParams,
     ): Promise<AllowanceCheckResult> => {
         // 验证钱包连接
@@ -87,9 +88,9 @@ export const useAllowanceBase = () => {
             // }
 
             // 验证代币类型与参数类型一致
-            if (tokenConfig.types !== params.type) {
+            if (tokenType !== params.type) {
                 console.error(
-                    `Token type mismatch: expected ${tokenConfig.types}, got ${params.type}`
+                    `Token type mismatch: expected ${tokenType}, got ${params.type}`
                 );
                 return { isEnough: false, allowanceAmount: 0 };
             }

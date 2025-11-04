@@ -9,6 +9,7 @@ import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import { usePeriodRate } from '@/dapp/constants/periodRate';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
   onClick?: () => void;
@@ -16,7 +17,7 @@ interface Props {
 }
 
 const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
-  const tokenId = useBoxDetailStore(state => state.tokenId);
+  const { boxId } = useBoxContext();
   const { roles } = useBoxDetailStore(state => state.userState);
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const inRequestRefundPeriod = deadlineCheckState.inRequestRefundPeriod;
@@ -25,7 +26,7 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const { helperRewardRate } = usePeriodRate();
 
@@ -34,13 +35,13 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
     await write_BoxDetail({
       contract: allConfigs.Exchange,
       functionName: 'CompleteOrder',
-      args: [tokenId],
+      args: [boxId],
     });
   };
 
   // 计算按钮状态
-  const isLoading = currentAction === 'completeOrder' && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'completeOrder');
+  const isLoading = currentActionFunction === 'completeOrder' && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'completeOrder');
 
   // 如果按钮被禁用，不显示
   if (disabled) {

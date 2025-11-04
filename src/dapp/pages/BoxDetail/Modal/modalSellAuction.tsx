@@ -14,7 +14,7 @@ import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
 // import { useQueryStore } from '@/dapp/store/useQueryStore';
 import PriceLabel from '@/dapp/components/base/priceLabel';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 import InputNumber from '@/dapp/components/base/inputNumber';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import Paragraph from '@/components/base/paragraph';
@@ -26,13 +26,12 @@ interface Props {
 
 const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
     const { address } = useWalletContext();
-    const tokenId = useBoxDetailStore(state => state.tokenId);
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
     const allConfigs = useAllContractConfigs();
     const supportedTokens = useSupportedTokens();
     const { roles } = useBoxDetailStore(state => state.userState);
     const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
-    const { box } = useCurrentBox();
+    const { boxId, box } = useBoxContext();
     const [cancelAble, setCancelAble] = useState<boolean>(false)
     const [okAble, setOkAble] = useState<boolean>(false)
     const [buttonText, setButtonText] = useState<string>('Submit')
@@ -83,13 +82,13 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
                 await write_BoxDetail({
                     contract: allConfigs.Exchange,
                     functionName: 'sell',
-                    args: [tokenId, accpetTokenAddress, priceBigInt],
+                    args: [boxId, accpetTokenAddress, priceBigInt],
                 });
             } else if (listedMode === 'Auction') {
                 await write_BoxDetail({
                     contract: allConfigs.Exchange,
                     functionName: 'auction',
-                    args: [tokenId, accpetTokenAddress, priceBigInt],
+                    args: [boxId, accpetTokenAddress, priceBigInt],
                 });
             }
 
@@ -142,7 +141,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
                 <div className='flex flex-col gap-2 text-foreground'>
                     <div className='flex flex-row gap-2 items-baseline'>
                         <Paragraph color='muted-foreground'>tokenId:</Paragraph>
-                        <Paragraph >{tokenId}</Paragraph>
+                        <Paragraph >{boxId}</Paragraph>
                     </div>
                     <div className='flex flex-row gap-2 items-baseline'>
                         <Paragraph color='muted-foreground'>Current Price:</Paragraph>

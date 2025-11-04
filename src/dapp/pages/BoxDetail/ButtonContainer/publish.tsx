@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { FunctionNameType } from '@dapp/types/contracts';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
@@ -19,12 +19,12 @@ interface Props {
 const PublishButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
   const disabled = useButtonDisabled('publishDisabled');
-  const { box , boxId } = useCurrentBox()
+  const { box , boxId } = useBoxContext()
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const handlePublish = async () => {
     onClick?.();
@@ -55,8 +55,8 @@ const PublishButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isLoading = (currentAction === 'publishByMinter' || currentAction === 'publishByBuyer') && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'publishByMinter' && currentAction !== 'publishByBuyer');
+  const isLoading = (currentActionFunction === 'publishByMinter' || currentActionFunction === 'publishByBuyer') && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'publishByMinter' && currentActionFunction !== 'publishByBuyer');
 
   // 如果按钮被禁用，不显示
   if (disabled) {

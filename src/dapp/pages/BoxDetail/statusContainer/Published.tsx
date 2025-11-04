@@ -4,18 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { Typography } from 'antd';
 import UriPassword from '@/dapp/components/uriPassword';
 import { timeToDate } from '@dapp/utils/time';
-// import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 // import { useBoxDetailStore } from '../store/boxDetailStore';
 
 interface Props {
     tokenId?: string,
 }
 
-const Published: React.FC<Props> = ({ tokenId }) => {
-    // const store = useBoxDetailStore(state => state)
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+const Published: React.FC<Props> = ({ }) => {
+    const { box } = useBoxContext()
 
     const [date, setDate] = useState<string | null>(null);
 

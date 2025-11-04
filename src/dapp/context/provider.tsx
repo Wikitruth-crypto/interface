@@ -36,7 +36,7 @@ import { ContractContext } from "./contractContext";
 import { useProviderFundManager } from "./providerFundManager";
 import { useProviderExchange } from "./providerExchange";
 import { useProviderTruthBox } from "./providerTruthBox";
-import { useProviderTruthNFT } from "./providerTruthNFT";
+// import { useProviderTruthNFT } from "./providerTruthNFT";
 import { useProviderUserId } from "./providerUserId";
 import { useProviderERC20 } from "./providerERC20";
 import { useProviderSiweAuth } from "./providerSiweAuth";
@@ -59,7 +59,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     // const addRecentTransaction = useAddRecentTransaction(); 
     const Config_TruthBox = useContractConfig(ContractName.TRUTH_BOX);
     const Config_Exchange = useContractConfig(ContractName.EXCHANGE);
-    const Config_TruthNFT = useContractConfig(ContractName.TRUTH_NFT);
+    // const Config_TruthNFT = useContractConfig(ContractName.TRUTH_NFT);
     const Config_FundManager = useContractConfig(ContractName.FUND_MANAGER);
     const Config_AddressManager = useContractConfig(ContractName.ADDRESS_MANAGER);
     const Config_SiweAuth = useContractConfig(ContractName.SIWE_AUTH);
@@ -93,15 +93,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
                 account: currentAddress,
                 args: args,
             });
-        } else if (methodType === "read_truthNFT") {
-            contract = await publicClient?.readContract({
-                address: Config_TruthNFT.address,
-                abi: Config_TruthNFT.abi,
-                functionName: functionName,
-                account: currentAddress,
-                args: args,
-            });
-        }else if (methodType === "read_fundManager") {
+        } else if (methodType === "read_fundManager") {
             contract = await publicClient?.readContract({
                 address: Config_FundManager.address,
                 abi: Config_FundManager.abi,
@@ -149,7 +141,16 @@ export function ContractProvider({ children }: { children: ReactNode }) {
                 account: currentAddress,
                 args: args,
             });
-        }
+        } 
+        // else if (methodType === "read_truthNFT") {
+        //     contract = await publicClient?.readContract({
+        //         address: Config_TruthNFT.address,
+        //         abi: Config_TruthNFT.abi,
+        //         functionName: functionName,
+        //         account: currentAddress,
+        //         args: args,
+        //     });
+        // }
         
         /*else if (methodType === "write_truthBox") {
             contract = await walletClient?.writeContract({
@@ -232,7 +233,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
         return contract; // 返回合约响应
     };
 
-    const readTurthNFT = useProviderTruthNFT(contractFunction);
+    // const readTurthNFT = useProviderTruthNFT(contractFunction);
     const readFundManager = useProviderFundManager(contractFunction);
     const readExchange = useProviderExchange(contractFunction);
     const readTruthBox = useProviderTruthBox(contractFunction);
@@ -245,7 +246,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     // 用 useMemo 包裹 context value
     const contextValue = React.useMemo(() => ({
         contract: contractFunction,
-        ...readTurthNFT,
+        // ...readTurthNFT,
         ...readFundManager,
         ...readExchange,
         ...readTruthBox,
@@ -256,7 +257,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
         ...readERC20secret,
     }), [
         contractFunction,
-        readTurthNFT,
+        // readTurthNFT,
         readFundManager,
         readExchange,
         readTruthBox,

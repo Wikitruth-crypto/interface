@@ -4,19 +4,17 @@ import { useMetadataStore } from '@/dapp/store_sapphire/useMetadataStore';
 import ImageSwiper from '@/dapp/components/imageSwiper';
 import Paragraph from '@/components/base/paragraph';
 import Line from '@/components/base/line';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
-    loading?: boolean;
-    tokenId: number;
+    tokenId: number|string;
 }
 
-const ContentLeft: React.FC<Props> = ({ loading, tokenId }) => {
-    const boxMetadata = useMetadataStore(state => state.boxesMetadata[tokenId]);
+const ContentLeft: React.FC<Props> = ({ tokenId }) => {
 
-    const { box } = useCurrentBox(tokenId)
+    const { box, metadataBox } = useBoxContext()
 
-    if (loading || !boxMetadata || !box) {
+    if (!box) {
         return (
             <div className="w-full flex items-center justify-center py-12">
                 <div className="text-muted-foreground text-lg font-mono">Loading...</div>
@@ -50,7 +48,7 @@ const ContentLeft: React.FC<Props> = ({ loading, tokenId }) => {
                 </div>
                 <div className="text-muted-foreground font-mono">
                     <span className="font-medium">Create date:</span>{' '}
-                    <span>{boxMetadata.createDate}</span>
+                    <span>{metadataBox?.createDate}</span>
                 </div>
             </div>
             <Line weight={1} />
@@ -59,7 +57,7 @@ const ContentLeft: React.FC<Props> = ({ loading, tokenId }) => {
             <div className="w-full bg-black rounded-xl md:rounded-2xl overflow-hidden">
                 <div className="aspect-video md:aspect-[4/3] lg:aspect-video">
                     <ImageSwiper 
-                        images={[boxMetadata.boxImage, boxMetadata.nftImage]} 
+                        images={[metadataBox?.boxImage || '', metadataBox?.nftImage || '']} 
                         className='w-full'
                     />
                 </div>
@@ -74,7 +72,7 @@ const ContentLeft: React.FC<Props> = ({ loading, tokenId }) => {
                     lineClamp={'none'}
                     className="text-md font-mono md:text-lg lg:text-xl leading-relaxed break-words"
                 >
-                    {boxMetadata.title}
+                    {metadataBox?.title}
                 </Paragraph>
             </div>
 
@@ -82,21 +80,21 @@ const ContentLeft: React.FC<Props> = ({ loading, tokenId }) => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 text-sm md:text-base">
                 <div className="flex flex-wrap gap-2 text-muted-foreground">
                     <span className="font-mono py-1 rounded">
-                        {boxMetadata.country}
+                        {metadataBox?.country}
                     </span>
                     <span className="font-mono px-2 py-1 rounded">
-                        {boxMetadata.state}
+                        {metadataBox?.state}
                     </span>
                 </div>
                 <div className="text-muted-foreground font-mono">
-                    {boxMetadata.eventDate}
+                    {metadataBox?.eventDate}
                 </div>
             </div>
             <Line weight={1} />
             {/* Description */}
             <div className="space-y-3">
                 <div className="text-sm md:text-base font-mono text-muted-foreground leading-relaxed break-words">
-                    {boxMetadata.description}
+                    {metadataBox?.description}
                 </div>
             </div>
         </div>

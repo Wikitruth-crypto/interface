@@ -8,7 +8,7 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import Paragraph from '@/components/base/paragraph';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
     price: string | number;
@@ -19,7 +19,7 @@ interface Props {
 const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
     // const decimals = officeToken.decimals;
     const supportedTokens = useSupportedTokens();
-    const { box } = useCurrentBox();
+    const { box } = useBoxContext();
 
     if (!box) {
         return <div>loading...</div>;

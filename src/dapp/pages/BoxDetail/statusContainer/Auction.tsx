@@ -1,25 +1,20 @@
 'use client'
 import React from 'react';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-// import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
-// import { selectBox, } from '@/dapp/event_sapphire/selectors';
-import { useCurrentBox } from '../hooks/useCurrentBox';
-import { Box } from '@/dapp/event_sapphire/types';
+import { useBoxContext } from '../contexts/BoxContext';
 import { BidButton, ViewFileButton, PublishButton } from '@BoxDetail/ButtonContainer';
 // import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
 import { Alert } from 'antd'; // 直接使用antd的Alert组件
 
 interface Props {
     tokenId?: string,
-    
 }
 
-const Auction: React.FC<Props> = ({ tokenId }) => {
+const Auction: React.FC<Props> = ({ }) => {
     const store = useBoxDetailStore(state => state)
     const { roles } = store.userState
     const deadlineCheckState = store.deadlineCheckState
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+    const { box } = useBoxContext()
 
     if (!box) {
         return <div>loading...</div>

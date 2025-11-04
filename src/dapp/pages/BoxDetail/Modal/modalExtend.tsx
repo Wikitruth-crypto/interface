@@ -14,21 +14,19 @@ import {
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useCurrentBox } from '../hooks/useCurrentBox';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import InputNumber from '@dapp/components/base/inputNumber';
+import { useBoxContext } from '../contexts/BoxContext';
 // import { usePermissionContext } from '../useState/permission/PermissionContext';
 
 interface Props {
-    tokenId?: number,
     onClose: () => void;
 }
 
 const ModalExtend: React.FC<Props> = ({ onClose }) => {
-    const tokenId = useBoxDetailStore(state => state.tokenId);
+    const { boxId, box } = useBoxContext();
     // const { address } = useWalletContext();
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
-    const { box } = useCurrentBox();
     const { roles } = useBoxDetailStore(state => state.userState);
     const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
     const allConfigs = useAllContractConfigs();
@@ -71,7 +69,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
                 await write_BoxDetail({
                     contract: allConfigs.TruthBox,
                     functionName: 'extendDeadline',
-                    args: [tokenId, timestamp], // 
+                    args: [boxId, timestamp], // 
                 });
             } else {
                 alert('You can`t do that!');
@@ -107,7 +105,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
 
                 <div className='flex flex-row gap-2 items-baseline'>
                     <Typography.Paragraph className='text-gray-300'>Current tokenId:</Typography.Paragraph>
-                    <Typography.Paragraph className='text-lg'>{tokenId}</Typography.Paragraph>
+                    <Typography.Paragraph className='text-lg'>{boxId}</Typography.Paragraph>
                 </div>
                 <div className='flex flex-col gap-2'>
                     {/* <Typography.Paragraph className='text-muted-foreground'>Please enter the data from the previously minted files.</Typography.Paragraph> */}

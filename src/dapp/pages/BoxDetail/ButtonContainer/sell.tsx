@@ -21,7 +21,7 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
   const { helperRewardRate } = usePeriodRate();
   
   // 使用集中的按钮交互状态
-  const { currentAction } = useButtonInteractionStore();
+  const { currentActionFunction } = useButtonInteractionStore();
 
   const handleSell = () => {
     onClick?.();
@@ -33,7 +33,7 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isDisabled = disabled || (currentAction !== null);
+  const isDisabled = disabled || (currentActionFunction !== null);
 
   // 如果按钮被禁用，不显示
   if (disabled) {

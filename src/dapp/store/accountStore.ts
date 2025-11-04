@@ -1,10 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { AccountRoleType } from '@/dapp/types/account';
-import { EIP712Permit, PermitType } from '@/dapp/hooks/EIP712';
-import { SessionInfo } from '@/dapp/hooks/SiweAuth';
 import { FunctionNameType } from '@/dapp/types/contracts';
-// import { currentChainId } from '@/dapp/store/globalLet';
 
 /**
  * ==================== 账户全局状态管理 ====================
@@ -33,34 +30,6 @@ export interface LoginRecord {
     chainId: number;
     sessionId: string; // 会话唯一标识
 }
-
-/**
- * EIP712 签名数据（不再需要按链分组，因为外层已经按链分组）
- */
-export type Eip712State = Partial<Record<PermitType, EIP712Permit | null>>;
-
-/**
- * 用户偏好设置
- */
-export interface UserPreferences {
-    language: 'zh-CN' | 'en-US';
-    theme: 'light' | 'dark' | 'system';
-    currency: 'USD' | 'CNY' | 'EUR';
-    notificationsEnabled: boolean;
-    autoSignPermissions: boolean; // 是否允许自动签名
-    gasPreference: 'fast' | 'medium' | 'slow'; // Gas 费偏好
-}
-
-/**
- * 钱包信息
- */
-// export interface WalletInfo {
-//     type: 'metamask' | 'walletconnect' | 'coinbase' | 'other';
-//     connector: string; // wagmi connector ID
-//     ensName: string | null;
-//     ensAvatar: string | null;
-// }
-
 
 /**
  * 安全审计日志
@@ -116,28 +85,37 @@ export interface BoxInteractionsMap {
 }
 
 /**
+ * 代币授权信息
+ * 记录代币在某个地址的授权额度
+ */
+export interface TokenAllowance {
+    amount: string; // 授权额度（字符串格式，支持大数）
+    lastUpdated: number; // 最后更新时间戳
+}
+
+/**
+ * 代币授权映射
+ * 结构：tokenAllowances[tokenAddress][spender] = TokenAllowance
+ */
+export interface TokenAllowancesMap {
+    [tokenAddress: string]: {
+        [spender: string]: TokenAllowance;
+    };
+}
+
+/**
  * 单个账户在特定链上的完整状态
  * 注意：此状态是针对特定链的，因为外层结构是 accounts[chainId][address]
  */
 export interface AccountState {
     // === 基础信息 ===
     address: string; 
-    chainId: number; 
+    chainId: number; // 这个应该移除。
     role: AccountRoleType;
-    
-    // === 认证与签名（不再需要按链分组）===
-    eip712: Eip712State;
-    siwe: SessionInfo;
     
     // === 会话管理 ===
     loginHistory: LoginRecord[]; // 登录历史
     currentSessionId: string | null; // 当前会话 ID
-    
-    // === 钱包信息 ===
-    // wallet: WalletInfo | null; // 弃用
-    
-    // === 用户偏好 ===
-    preferences: UserPreferences;
     
     // === 余额快照（原生代币 + ERC20 代币）===
     balance: {
@@ -145,6 +123,14 @@ export interface AccountState {
         tokens: Record<string, string>; // ERC20 代币余额
         lastUpdated: number;
     };
+
+    // === 账户的代币信息 === 
+    /**
+     * 代币授权额度
+     * 结构：tokenAllowances[tokenAddress][spender] = TokenAllowance
+     * 用于缓存代币授权额度，避免重复查询合约
+     */
+    tokenAllowances: TokenAllowancesMap;
     
     // === 多签信息 ===
     multiSig: MultiSigInfo | null;
@@ -205,32 +191,53 @@ export interface AccountStoreMethods {
     setRole: (role: AccountRoleType) => void;
     getRole: () => AccountRoleType;
     
-    // === EIP712 签名管理（带链隔离，chainId 参数可选）===
-    setEip712Permit: (permitType: PermitType, permit: EIP712Permit | null, chainId?: number) => void;
-    getEip712Permit: (permitType: PermitType, chainId?: number) => EIP712Permit | null;
-    clearEip712Permits: (chainId?: number) => void;
-    
-    // === SIWE 认证管理（带链隔离，chainId 参数可选）===
-    setSiweSession: (session: SessionInfo, chainId?: number) => void;
-    getSiweSession: (chainId?: number) => SessionInfo | null;
-    clearSiweSession: (chainId?: number) => void;
-    
     // === 会话管理 ===
     startSession: (chainId: number) => void;
     endSession: () => void;
     getLoginHistory: (limit?: number) => LoginRecord[];
     
-    // === 用户偏好 ===
-    setPreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
-    getPreferences: () => UserPreferences | null;
+    // === 多签信息 ===
+    setMultiSigInfo: (info: MultiSigInfo) => void;
+    getMultiSigInfo: () => MultiSigInfo | null;
     
     // === 余额管理 ===
     updateBalance: (native: string, tokens?: Record<string, string>, chainId?: number) => void;
     getBalance: (chainId?: number) => { native: string; tokens: Record<string, string>; lastUpdated: number } | null;
     
-    // === 多签信息 ===
-    setMultiSigInfo: (info: MultiSigInfo) => void;
-    getMultiSigInfo: () => MultiSigInfo | null;
+    // === 代币授权管理 ===
+    /**
+     * 更新代币授权额度
+     * @param tokenAddress 代币合约地址
+     * @param spender 被授权者地址（通常是合约地址）
+     * @param amount 授权额度
+     * @param chainId 链ID（可选，使用当前链）
+     */
+    updateTokenAllowance: (
+        tokenAddress: string,
+        spender: string,
+        amount: string,
+        chainId?: number
+    ) => void;
+    
+    /**
+     * 获取代币授权额度
+     * @param tokenAddress 代币合约地址
+     * @param spender 被授权者地址
+     * @param chainId 链ID（可选，使用当前链）
+     * @returns TokenAllowance 或 null
+     */
+    getTokenAllowance: (
+        tokenAddress: string,
+        spender: string,
+        chainId?: number
+    ) => TokenAllowance | null;
+    
+    /**
+     * 清除指定代币的所有授权缓存
+     * @param tokenAddress 代币合约地址（可选，不提供则清除所有）
+     * @param chainId 链ID（可选，使用当前链）
+     */
+    clearTokenAllowances: (tokenAddress?: string, chainId?: number) => void;
     
     // === Box 交互记录 ===
     addBoxInteraction: (boxId: string, functionName: FunctionNameType, txHash?: string, chainId?: number) => void;
@@ -261,34 +268,19 @@ export interface AccountStoreMethods {
 
 // ==================== 默认值 ====================
 
-const DEFAULT_PREFERENCES: UserPreferences = {
-    language: 'zh-CN',
-    theme: 'system',
-    currency: 'USD',
-    notificationsEnabled: true,
-    autoSignPermissions: false,
-    gasPreference: 'medium',
-};
 
 const createDefaultAccountState = (address: string, chainId: number): AccountState => ({
     address,
     chainId,
     role: null,
-    eip712: {},
-    siwe: {
-        isLoggedIn: false,
-        token: null,
-        expiresAt: null,
-        address: null,
-    },
     loginHistory: [],
     currentSessionId: null,
-    preferences: { ...DEFAULT_PREFERENCES },
     balance: {
         native: '0',
         tokens: {},
         lastUpdated: Date.now(),
     },
+    tokenAllowances: {},
     multiSig: null,
     boxInteractions: {},
     auditLogs: [],
@@ -479,199 +471,6 @@ export const useAccountStore = create<AccountStore>()(
                 return accounts[currentChainId]?.[address]?.role || null;
             },
 
-            // === EIP712 签名管理 ===
-            setEip712Permit: (permitType, permit, chainId) => {
-                const address = get()._checkAccess?.('setEip712Permit');
-                if (!address) return;
-                
-                // 如果没有传 chainId，使用当前 chainId
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) {
-                    console.warn('[AccountStore] No chainId provided and no current chainId set');
-                    return;
-                }
-                
-                const { accounts } = get();
-                const account = accounts[targetChainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [targetChainId]: {
-                            ...accounts[targetChainId],
-                            [address]: {
-                                ...account,
-                                eip712: {
-                                    ...account.eip712,
-                                    [permitType]: permit,
-                                },
-                            },
-                        },
-                    },
-                });
-                
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'eip712',
-                    details: `Type ${permitType}`,
-                    chainId: targetChainId,
-                });
-            },
-
-            getEip712Permit: (permitType, chainId) => {
-                const address = get()._checkAccess?.('getEip712Permit');
-                if (!address) return null;
-                
-                // 如果没有传 chainId，使用当前 chainId
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) {
-                    console.warn('[AccountStore] No chainId provided and no current chainId set');
-                    return null;
-                }
-                
-                const permit = get().accounts[targetChainId]?.[address]?.eip712?.[permitType] || null;
-                
-                get().addAuditLog({
-                    action: 'read',
-                    resource: 'eip712',
-                    details: `Type ${permitType}`,
-                    chainId: targetChainId,
-                });
-                
-                return permit;
-            },
-
-            clearEip712Permits: (chainId) => {
-                const address = get()._checkAccess?.('clearEip712Permits');
-                if (!address) return;
-                
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) return;
-                
-                const { accounts } = get();
-                const account = accounts[targetChainId]?.[address];
-                if (!account) return;
-                
-                // 清除当前链的签名
-                set({
-                    accounts: {
-                        ...accounts,
-                        [targetChainId]: {
-                            ...accounts[targetChainId],
-                            [address]: {
-                                ...account,
-                                eip712: {},
-                            },
-                        },
-                    },
-                });
-                
-                get().addAuditLog({
-                    action: 'delete',
-                    resource: 'eip712',
-                    details: 'Clear EIP712 permits',
-                    chainId: targetChainId,
-                });
-            },
-
-            // === SIWE 认证管理 ===
-            setSiweSession: (session, chainId) => {
-                const address = get()._checkAccess?.('setSiweSession');
-                if (!address) return;
-                
-                // 如果没有传 chainId，使用当前 chainId
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) {
-                    console.warn('[AccountStore] No chainId provided and no current chainId set');
-                    return;
-                }
-                
-                const { accounts } = get();
-                const account = accounts[targetChainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [targetChainId]: {
-                            ...accounts[targetChainId],
-                            [address]: {
-                                ...account,
-                                siwe: session,
-                            },
-                        },
-                    },
-                });
-                
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'siwe',
-                    details: `Login: ${session.isLoggedIn}`,
-                    chainId: targetChainId,
-                });
-            },
-
-            getSiweSession: (chainId) => {
-                const address = get()._checkAccess?.('getSiweSession');
-                if (!address) return null;
-                
-                // 如果没有传 chainId，使用当前 chainId
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) {
-                    console.warn('[AccountStore] No chainId provided and no current chainId set');
-                    return null;
-                }
-                
-                const session = get().accounts[targetChainId]?.[address]?.siwe || null;
-                
-                get().addAuditLog({
-                    action: 'read',
-                    resource: 'siwe',
-                    details: 'Read SIWE session',
-                    chainId: targetChainId,
-                });
-                
-                return session;
-            },
-
-            clearSiweSession: (chainId) => {
-                const address = get()._checkAccess?.('clearSiweSession');
-                if (!address) return;
-                
-                const targetChainId = chainId ?? get().currentChainId;
-                if (!targetChainId) return;
-                
-                const { accounts } = get();
-                const account = accounts[targetChainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [targetChainId]: {
-                            ...accounts[targetChainId],
-                            [address]: {
-                                ...account,
-                                siwe: {
-                                    isLoggedIn: false,
-                                    token: null,
-                                    expiresAt: null,
-                                    address: null,
-                                },
-                            },
-                        },
-                    },
-                });
-                
-                get().addAuditLog({
-                    action: 'delete',
-                    resource: 'siwe',
-                    details: 'Clear SIWE session',
-                    chainId: targetChainId,
-                });
-            },
-
             // === 会话管理 ===
             startSession: (chainId) => {
                 const address = get()._checkAccess?.('startSession');
@@ -762,44 +561,6 @@ export const useAccountStore = create<AccountStore>()(
                 return history.slice(-limit);
             },
 
-            // === 用户偏好 ===
-            setPreference: (key, value) => {
-                const address = get()._checkAccess?.('setPreference');
-                if (!address) return;
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
-                
-                const account = accounts[currentChainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [currentChainId]: {
-                            ...accounts[currentChainId],
-                            [address]: {
-                                ...account,
-                                preferences: {
-                                    ...account.preferences,
-                                    [key]: value,
-                                },
-                            },
-                        },
-                    },
-                });
-            },
-
-            getPreferences: () => {
-                const address = get()._checkAccess?.('getPreferences');
-                if (!address) return null;
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return null;
-                
-                return accounts[currentChainId]?.[address]?.preferences || null;
-            },
-
             // === 余额管理 ===
             updateBalance: (native, tokens = {}, chainId01) => {
                 const address = get()._checkAccess?.('updateBalance');
@@ -837,6 +598,148 @@ export const useAccountStore = create<AccountStore>()(
                 
                 const balance = get().accounts[chainId]?.[address]?.balance || null;
                 return balance;
+            },
+
+            // === 代币授权管理 ===
+            updateTokenAllowance: (tokenAddress, spender, amount, chainId01) => {
+                const address = get()._checkAccess?.('updateTokenAllowance');
+                if (!address) return;
+                
+                const chainId = chainId01 ?? get().currentChainId;
+                if (!chainId) return;
+                
+                const { accounts } = get();
+                const account = accounts[chainId]?.[address];
+                if (!account) return;
+                
+                // 规范化地址（小写）
+                const normalizedTokenAddress = tokenAddress.toLowerCase();
+                const normalizedSpender = spender.toLowerCase();
+                
+                // 确保 tokenAllowances 结构存在
+                const currentAllowances = account.tokenAllowances || {};
+                const tokenAllowances = currentAllowances[normalizedTokenAddress] || {};
+                
+                set({
+                    accounts: {
+                        ...accounts,
+                        [chainId]: {
+                            ...accounts[chainId],
+                            [address]: {
+                                ...account,
+                                tokenAllowances: {
+                                    ...currentAllowances,
+                                    [normalizedTokenAddress]: {
+                                        ...tokenAllowances,
+                                        [normalizedSpender]: {
+                                            amount,
+                                            lastUpdated: Date.now(),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+                
+                get().addAuditLog({
+                    action: 'write',
+                    resource: 'token_allowance',
+                    details: `Update allowance: ${tokenAddress} -> ${spender} = ${amount}`,
+                    chainId,
+                });
+                
+                console.log(
+                    `[AccountStore] Token allowance updated: ${tokenAddress} -> ${spender} = ${amount}`
+                );
+            },
+
+            getTokenAllowance: (tokenAddress, spender, chainId01) => {
+                const chainId = chainId01 ?? get().currentChainId;
+                if (!chainId) return null;
+                
+                const address = get()._checkAccess?.('getTokenAllowance');
+                if (!address) return null;
+                
+                // 规范化地址（小写）
+                const normalizedTokenAddress = tokenAddress.toLowerCase();
+                const normalizedSpender = spender.toLowerCase();
+                
+                const allowance =
+                    get().accounts[chainId]?.[address]?.tokenAllowances?.[normalizedTokenAddress]?.[
+                        normalizedSpender
+                    ] || null;
+                
+                if (allowance) {
+                    get().addAuditLog({
+                        action: 'read',
+                        resource: 'token_allowance',
+                        details: `Read allowance: ${tokenAddress} -> ${spender}`,
+                        chainId,
+                    });
+                }
+                
+                return allowance;
+            },
+
+            clearTokenAllowances: (tokenAddress, chainId01) => {
+                const address = get()._checkAccess?.('clearTokenAllowances');
+                if (!address) return;
+                
+                const chainId = chainId01 ?? get().currentChainId;
+                if (!chainId) return;
+                
+                const { accounts } = get();
+                const account = accounts[chainId]?.[address];
+                if (!account) return;
+                
+                if (tokenAddress) {
+                    // 清除指定代币的所有授权
+                    const normalizedTokenAddress = tokenAddress.toLowerCase();
+                    const currentAllowances = { ...account.tokenAllowances };
+                    delete currentAllowances[normalizedTokenAddress];
+                    
+                    set({
+                        accounts: {
+                            ...accounts,
+                            [chainId]: {
+                                ...accounts[chainId],
+                                [address]: {
+                                    ...account,
+                                    tokenAllowances: currentAllowances,
+                                },
+                            },
+                        },
+                    });
+                    
+                    get().addAuditLog({
+                        action: 'delete',
+                        resource: 'token_allowance',
+                        details: `Clear allowances for token: ${tokenAddress}`,
+                        chainId,
+                    });
+                } else {
+                    // 清除所有代币授权
+                    set({
+                        accounts: {
+                            ...accounts,
+                            [chainId]: {
+                                ...accounts[chainId],
+                                [address]: {
+                                    ...account,
+                                    tokenAllowances: {},
+                                },
+                            },
+                        },
+                    });
+                    
+                    get().addAuditLog({
+                        action: 'delete',
+                        resource: 'token_allowance',
+                        details: 'Clear all token allowances',
+                        chainId,
+                    });
+                }
             },
 
             // === 多签信息 ===

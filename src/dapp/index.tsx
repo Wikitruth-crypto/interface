@@ -1,4 +1,4 @@
-import { useUpdateAccount } from './hooks/Account/useUpdateAccount';
+import { useUpdateAccount } from './hooks/useUpdateAccount';
 
 const Dapp = () => {
     useUpdateAccount();

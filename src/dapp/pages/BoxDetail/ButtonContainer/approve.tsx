@@ -19,7 +19,7 @@ const ApproveButton: React.FC<Props> = ({ onClick, className }) => {
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     
     // 使用集中的按钮交互状态
-    const { currentAction, isPending } = useButtonInteractionStore();
+    const { currentActionFunction, isPending } = useButtonInteractionStore();
 
     const handleApprove = async () => {
         onClick?.();
@@ -31,8 +31,8 @@ const ApproveButton: React.FC<Props> = ({ onClick, className }) => {
     }
 
     // 计算按钮状态
-    const isLoading = currentAction === 'approve' && isPending;
-    const isDisabled = currentAction !== null && currentAction !== 'approve';
+    const isLoading = currentActionFunction === 'approve' && isPending;
+    const isDisabled = currentActionFunction !== null && currentActionFunction !== 'approve';
 
     return (
         <div className={cn('w-full', className)}>

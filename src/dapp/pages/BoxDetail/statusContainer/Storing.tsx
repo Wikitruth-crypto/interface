@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 import { 
     SellButton, 
     AuctionButton, 
@@ -13,10 +13,8 @@ interface Props {
     tokenId?: string,
 }
 
-const Storing: React.FC<Props> = ({ tokenId }) => {
-    // const store = useBoxDetailStore(state => state)
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+const Storing: React.FC<Props> = ({ }) => {
+    const { box } = useBoxContext()
 
     if (!box) {
         return <div>loading...</div>

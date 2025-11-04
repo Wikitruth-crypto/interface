@@ -21,7 +21,7 @@ const chunkItems = <T,>(items: T[], size: number): T[][] => {
 export interface UseMarketplacePaginationConfig {
   items: MarketplaceBoxData[];
   loadBatchSize: number;
-  /** 分页器每页数量（20, 40, 80, 160）, 测试数据使用8,16,32,64 */
+  /** 分页器每页数量（20, 40, 80, 160）, 测试时使用8,16,32,64 */
   pageSize: number;
   mode: 'loadMore' | 'paginator';
   onPageSizeChange?: (size: number) => void;

@@ -33,7 +33,7 @@ export interface UseEIP712SignatureResult {
  * ```tsx
  * const { signPermit, isLoading, permit } = useEIP712Signature();
  * 
- * // 生成查看余额的签名
+ * // 生成VIEW签名
  * const viewPermit = await signPermit({
  *   spender: userAddress,
  *   amount: 0,

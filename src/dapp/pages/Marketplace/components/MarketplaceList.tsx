@@ -1,11 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TruthBoxCard from '@/dapp/components/truthBoxCard';
 import { useMarketplaceBoxes } from '../hooks/useMarketplaceBoxes';
 import MarketplacePagination from './MarketplacePagination';
 import { useMarketplaceStore } from '../store/marketplaceStore';
+import { useInfiniteScroll } from '@/dapp/hooks/useInfiniteScroll';
 import { cn } from '@/lib/utils';
 
 interface MarketplaceListProps {
@@ -25,7 +26,7 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
         totalItems,
         pageSize,
         currentPage,
-        totalPages,
+        // totalPages,
         hasNextPage,
         fetchNextPage,
         isFetchingNextPage,
@@ -34,12 +35,24 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
 
     const paginationMode = useMarketplaceStore(state => state.paginationConfig.mode);
 
+    // 为容器添加 ref，用于无限滚动
+    const listContainerRef = useRef<HTMLDivElement>(null);
+
+    // 集成无限滚动 Hook
+    useInfiniteScroll(listContainerRef, {
+        threshold: 100, // 距离底部 100px 时触发
+        onLoadMore: fetchNextPage,
+        hasMore: hasNextPage,
+        isLoading: isFetchingNextPage,
+        enabled: paginationMode === 'loadMore', // 只在 Load More 模式下启用
+    });
+
     const handleCardClick = (tokenId: string | number) => {
         navigate(`/app/boxDetail/${tokenId.toString()}`);
     };
 
     return (
-        <div className={cn('w-full', className)}>
+        <div ref={listContainerRef} className={cn('w-full', className)}>
             {showDebug && (
                 <div className="mb-6 rounded-lg border border-dashed border-white/10 bg-black/30 p-4 text-xs text-white/70 space-y-1">
                     <div className="font-semibold text-white">MarketplaceList Debug</div>

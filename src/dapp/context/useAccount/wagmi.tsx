@@ -16,8 +16,6 @@ import {
 import { 
     sapphire,
     sapphireTestnet,
-    // mainnet, 
-    // sepolia 
 } from 'wagmi/chains'
 // import { getApiUrl } from './apiUrl';
 import { RPC } from '@/config/env';
@@ -59,11 +57,11 @@ export const config = createConfig ({
     chains: [
         {
             ...sapphire,
-        //     iconBackground: '#657513',
-        //     iconUrl: 'https://example.com/icons/sepolia.png',
+            iconUrl: 'https://example.com/icons/sapphire.png',
         },
         {
             ...sapphireTestnet,
+            iconUrl: 'https://example.com/icons/sapphireTestnet.png',
         },
     ],
     transports: {

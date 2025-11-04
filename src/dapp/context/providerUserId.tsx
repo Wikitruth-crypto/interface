@@ -5,12 +5,12 @@ import { ContractFunctionParams } from './provider';
 export function useProviderUserId(contract: (params: ContractFunctionParams) => Promise<any>) {
 
     // function myUserId(bytes memory token_) external view returns (uint256);
-    const myUserId = async (token: string): Promise<number> => {
+    const myUserId = async (siweToken: string): Promise<number> => {
         try {
             const tx = await contract({
                 functionName: "myUserId",
                 methodType: "read_userId",
-                args: [token],
+                args: [siweToken],
             });
             return tx ? parseInt(tx.toString()) : 0;
         } catch (error) {

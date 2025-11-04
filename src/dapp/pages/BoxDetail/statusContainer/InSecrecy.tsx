@@ -5,7 +5,7 @@ import {
     PayConfiFeeButton,
     ViewFileButton
 } from '@BoxDetail/ButtonContainer';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 // import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
 // import { selectBox, } from '@/dapp/event_sapphire/selectors';
@@ -16,11 +16,10 @@ interface Props {
     tokenId?: string,
 }
 
-const InSecrecy: React.FC<Props> = ({ tokenId }) => {
+const InSecrecy: React.FC<Props> = ({  }) => {
     const store = useBoxDetailStore(state => state)
     const { roles } = store.userState
-    // const tokenId = store.tokenId
-    const { box } = useCurrentBox(tokenId)
+    const { box } = useBoxContext()
 
 
     if (!box) {

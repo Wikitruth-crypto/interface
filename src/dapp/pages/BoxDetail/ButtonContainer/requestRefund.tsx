@@ -10,7 +10,7 @@ import { timeToDate } from '@/dapp/utils/time';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
   onClick?: () => void;
@@ -19,14 +19,14 @@ interface Props {
 
 const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
   const disabled = useButtonDisabled('requestRefundDisabled');
-  const { boxId } = useCurrentBox()
+  const { boxId } = useBoxContext()
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const deadline = deadlineCheckState.requestRefundDeadline;
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const allConfigs = useAllContractConfigs();
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const handleRequestRefund = async () => {
     onClick?.();
@@ -38,8 +38,8 @@ const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isLoading = currentAction === 'requestRefund' && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'requestRefund');
+  const isLoading = currentActionFunction === 'requestRefund' && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'requestRefund');
 
   // 如果按钮被禁用，不显示
   if (disabled) {

@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 // import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 // import { BoxRoleType } from '@dapp/types/account';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useQueryStore } from '@/dapp/store_sapphire/useQueryStore';
 // import { useMetadataStore } from '@/dapp/store/metadataStore';
 import { usePeriodRate } from '@dapp/constants/periodRate';
+import { useBoxContext } from '../contexts/BoxContext';
 
 export const useCheckDeadline = (tokenId: string) => {
     const { updateDeadlineCheckState } = useBoxDetailStore();
     // const { address, isConnected} = useWalletContext() || {};
-    const box = useQueryStore(state => state.boxes[tokenId]);
+    const { box } = useBoxContext();
     // const metadata = useMetadataStore.getState();
     const periodRate = usePeriodRate();
 

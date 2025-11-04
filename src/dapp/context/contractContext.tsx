@@ -27,15 +27,7 @@ export const ContractContext = React.createContext(
         completeCounts,
         // 状态查询
         isInBlacklist,
-        // ------------Truth NFT-------------------
-        name,
-        symbol,
-        // 密钥查询
-        logoURI,
-        tokenURI,
-        totalSupply,
-        ownerOf,
-        balanceOf,
+        
         // ------------Exchange-------------------
         refundPermit,
         acceptedToken,
@@ -97,6 +89,13 @@ export const ContractContext = React.createContext(
         DOMAIN_SEPARATOR,
         EIP_PERMIT_TYPEHASH,
         isSignatureUsed,
-        
+        // ------------Truth NFT-------------------
+        // name,
+        // symbol,
+        // logoURI,
+        // tokenURI,
+        // totalSupply,
+        // ownerOf,
+        // balanceOf,
     }
 );

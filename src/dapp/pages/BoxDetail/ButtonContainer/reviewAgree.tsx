@@ -9,6 +9,7 @@ import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useBoxContext } from '../contexts/BoxContext';
 
 interface Props {
   onClick?: () => void;
@@ -16,14 +17,14 @@ interface Props {
 }
 
 const AgreementButton: React.FC<Props> = ({ onClick, className }) => {
-  const tokenId = useBoxDetailStore(state => state.tokenId);
+  const { boxId } = useBoxContext();
   const disabled = useButtonDisabled('agreeRefundDisabled');
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const { roles } = useBoxDetailStore(state => state.userState);
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const handleAgree = async () => {
     onClick?.();
@@ -31,14 +32,14 @@ const AgreementButton: React.FC<Props> = ({ onClick, className }) => {
       await write_BoxDetail({
         contract: allConfigs.Exchange,
         functionName: 'agreeRefund',
-        args: [tokenId],
+        args: [boxId],
       });
     }
   };
 
   // 计算按钮状态
-  const isLoading = currentAction === 'agreeRefund' && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'agreeRefund');
+  const isLoading = currentActionFunction === 'agreeRefund' && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'agreeRefund');
 
   // 如果按钮被禁用，不显示
   if (disabled) {

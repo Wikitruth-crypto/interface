@@ -1,5 +1,32 @@
 
-///// 当前的eip712结构仅适应于ERC20Secret合约
+/**
+ * 
+ * // EIP-712 domain parameters
+ * 
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+    bytes32 public immutable DOMAIN_SEPARATOR;
+
+    bytes32 public constant EIP_PERMIT_TYPEHASH = keccak256(
+        "EIP712Permit(uint8 label,address owner,address spender,uint256 amount,uint256 deadline)"
+    );
+    
+    enum PermitLabel { VIEW, TRANSFER, APPROVE }
+
+    struct EIP712Permit {
+        PermitLabel label;
+        address owner;
+        address spender;
+        uint256 amount;
+        uint256 deadline;
+        SignatureRSV signature;
+    }
+
+    // function
+    
+ */
+
 
 /**
  * EIP712 许可类型枚举

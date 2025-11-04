@@ -12,7 +12,7 @@ import { usePeriodRate } from '@/dapp/constants/periodRate';
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useCurrentBox } from '../hooks/useCurrentBox';
+import { useBoxContext } from '../contexts/BoxContext';
 
 
 interface Props {
@@ -25,11 +25,11 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const disabled = useButtonDisabled('payConfiFeeDisabled');
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
-  const { box , boxId } = useCurrentBox()
+  const { box , boxId } = useBoxContext()
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
   
   // 使用集中的按钮交互状态
-  const { currentAction, isPending } = useButtonInteractionStore();
+  const { currentActionFunction, isPending } = useButtonInteractionStore();
 
   const {
     payConfiFeeExtendDeadline,
@@ -56,8 +56,8 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   }
 
   // 计算按钮状态
-  const isLoading = currentAction === 'payConfiFee' && isPending;
-  const isDisabled = disabled || (currentAction !== null && currentAction !== 'payConfiFee');
+  const isLoading = currentActionFunction === 'payConfiFee' && isPending;
+  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'payConfiFee');
 
   // 如果需要授权，显示授权按钮
   if (!isEnough) {

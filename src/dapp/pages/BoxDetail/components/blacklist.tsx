@@ -6,6 +6,7 @@ import Line from '@/components/base/line';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
+import { useBoxContext } from '../contexts/BoxContext';
 // import { useUpdateNft_array } from '@dapp/hooks/useUpdateNft_array';
 // interface Props {
 //     tokenId: number,
@@ -15,7 +16,7 @@ import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 type ActiveButton = 'AddBlackList' | 'Unblacklist' | null;
 
 const AdminFunction = () => {
-    const tokenId = useBoxDetailStore(state => state.tokenId);
+    const { boxId } = useBoxContext();
     const allConfigs = useAllContractConfigs();
     const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);
@@ -35,7 +36,7 @@ const AdminFunction = () => {
         await write_BoxDetail({
             contract: allConfigs.TruthBox,
             functionName: 'addBlackTokenId',
-            args: [tokenId],
+            args: [boxId],
         });
     }
 
