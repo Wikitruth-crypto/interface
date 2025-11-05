@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAccount, useWalletClient, usePublicClient, } from 'wagmi';
+import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { AccountRoleType } from '@/dapp/types/account';
 import { Address_0, Address_Admin } from '@/dapp/constants/addressRoles';
@@ -10,30 +10,18 @@ import { useAccountStore } from '@/dapp/store/accountStore';
 interface WalletContextType {
     address: string | undefined;
     isConnected: boolean;
-    // chainId: number | undefined;
+    chainId: number | undefined;
     publicClient: any;
     walletClient: any;
     signer: JsonRpcSigner | null;
     accountRole: AccountRoleType;
 }
 
-// interface WalletContextType {
-//     address: string | undefined;
-//     isConnected: boolean;
-//     chainId: number | undefined;
-//     publicClient: any;
-//     walletClient: any;
-//     signer: JsonRpcSigner | null;
-//     accountRole: AccountRoleType;
-//     switchNetwork: (chainId: number) => Promise<void>;
-//     error: Error | null;
-// }
-
 // 创建 WalletContext，初始值为 null
 const WalletContext = createContext<WalletContextType>({
     address: undefined,
     isConnected: false,
-    // chainId: undefined,
+    chainId: undefined,
     publicClient: null,
     walletClient: null,
     signer: null,
@@ -51,8 +39,8 @@ export const useWalletContext = () => {
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { address, isConnected } = useAccount();
-    const { setCurrentAccount, setCurrentChainId, initAccount, setRole } = useAccountStore();
-    // const { chain } = http();
+    const chainId = useChainId();
+    const { setCurrentAccount, setCurrentChainId, initAccount} = useAccountStore();
     const { data: walletClient } = useWalletClient();
     const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
     const [accountRole, setAccountRole] = useState<AccountRoleType>(null);
@@ -83,20 +71,20 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const isAdmin = (address === Address_Admin);
             setAccountRole(isAdmin ? 'Admin' : 'User');
             setCurrentAccount(address);
-            setRole(isAdmin ? 'Admin' : 'User');
+            initAccount(address, chainId);
         } else {
             setAccountRole(null);
             setCurrentAccount(null);
-            setRole(null);
+            initAccount('', chainId);
         }
-    }, [address, isConnected]);
+    }, [address, isConnected, chainId]);
 
     return (
         <WalletContext.Provider
             value={{
                 address,
                 isConnected,
-                // chainId: chain?.id, 
+                chainId, 
                 publicClient, 
                 walletClient,
                 signer,

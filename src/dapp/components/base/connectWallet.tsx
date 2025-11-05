@@ -4,8 +4,8 @@ import { lazy, Suspense } from 'react';
 import { Button } from 'antd';
 
 // 动态导入ConnectWallet组件
-const ConnectWalletClient = lazy(
-    () => import('./connectWalletClient').then(mod => ({ default: mod.ConnectWalletClient }))
+const ConnectButtonComponent = lazy(
+    () => import('@/dapp/context/useAccount/connectButton').then(mod => ({ default: mod.ConnectButtonComponent }))
 );
 
 export const ConnectWallet = () => {
@@ -15,7 +15,7 @@ export const ConnectWallet = () => {
                 Connect
             </Button>
         }>
-            <ConnectWalletClient />
+            <ConnectButtonComponent />
         </Suspense>
     );
 };

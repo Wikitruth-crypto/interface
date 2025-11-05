@@ -111,7 +111,6 @@ export interface AccountState {
     // === 基础信息 ===
     address: string; 
     chainId: number; // 这个应该移除。
-    role: AccountRoleType;
     
     // === 会话管理 ===
     loginHistory: LoginRecord[]; // 登录历史
@@ -186,10 +185,6 @@ export interface AccountStoreMethods {
     setCurrentAccount: (address: string | null) => void;
     initAccount: (address: string, chainId?: number) => void;
     removeAccount: (address: string) => void;
-    
-    // === 角色管理 ===
-    setRole: (role: AccountRoleType) => void;
-    getRole: () => AccountRoleType;
     
     // === 会话管理 ===
     startSession: (chainId: number) => void;
@@ -272,7 +267,6 @@ export interface AccountStoreMethods {
 const createDefaultAccountState = (address: string, chainId: number): AccountState => ({
     address,
     chainId,
-    role: null,
     loginHistory: [],
     currentSessionId: null,
     balance: {
@@ -425,50 +419,6 @@ export const useAccountStore = create<AccountStore>()(
                     },
                     currentAccount: currentAccount === address ? null : currentAccount,
                 });
-            },
-
-            // === 角色管理 ===
-            setRole: (role) => {
-                const address = get()._checkAccess?.('setRole');
-                if (!address) return;
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [currentChainId]: {
-                            ...accounts[currentChainId],
-                            [address]: {
-                                ...accounts[currentChainId][address],
-                                role,
-                            },
-                        },
-                    },
-                });
-                
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'role',
-                    details: `Role set to: ${role}`,
-                });
-            },
-
-            getRole: () => {
-                const address = get()._checkAccess?.('getRole');
-                if (!address) return null;
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return null;
-                
-                get().addAuditLog({
-                    action: 'read',
-                    resource: 'role',
-                    details: 'Read account role',
-                });
-                
-                return accounts[currentChainId]?.[address]?.role || null;
             },
 
             // === 会话管理 ===

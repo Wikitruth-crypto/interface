@@ -3,7 +3,7 @@
  */
 
 import { useMemo, useEffect } from 'react';
-import { usePublicClient, } from 'wagmi';
+// import { usePublicClient, } from 'wagmi';
 // import { useWalletContext } from '../context/useAccount/WalletContext';
 import {
   ContractName,
@@ -20,30 +20,15 @@ import {
   getContractAddresses,
   getAllContractConfigs,
 } from './config';
-import { DEFAULT_CHAIN , getChainConfig} from './chains';
+import { getChainConfig} from './chains';
 import { getSupportedTokens } from './tokens';
-
-/**
- * Hook: 获取当前钱包连接的链ID
- */
-export function useChainId(): SupportedChainId {
-  // const { publicClient } = useWalletContext();
-  const publicClient = usePublicClient();
-  const chainId = publicClient?.chain?.id;
-
-  return useMemo(() => {
-    if (chainId && chainId in SupportedChainId) {
-      return chainId as SupportedChainId;
-    }
-    return DEFAULT_CHAIN.id;
-  }, [chainId]);
-}
+import { useChainId } from 'wagmi';
 
 /**
  * Hook: 获取当前网络的所有合约地址
  * 当钱包切换网络时自动更新
  */
-export function useContractAddresses(): ContractAddresses {
+export function useAllContractAddresses(): ContractAddresses {
   const chainId = useChainId();
 
   // 同步更新 configManager 的 chainId

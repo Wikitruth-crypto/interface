@@ -4,26 +4,26 @@ import {
     TokenMetadata,
 } from '@dapp/contractsConfig';
 
-export const useTokenType = () => {
+export const useGetTokenMetadata = () => {
     const supportedTokens = useSupportedTokens();
 
-    const getTokenType = async (
+    const getTokenMetadata = async (
         tokenAddress: `0x${string}`, 
-    ): Promise<'ERC20' | 'Secret' | undefined> => {
+    ): Promise<TokenMetadata | undefined> => {
 
         try {
-            // 查找代币配置
-            const tokenConfig = supportedTokens.find(
-                (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress
+            // 查找代币配置，使用toLowerCase()进行大小写不敏感匹配
+            const tokenMetadata = supportedTokens.find(
+                (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress.toLowerCase()
             );
 
             // 验证代币是否支持
-            if (!tokenConfig) {
+            if (!tokenMetadata) {
                 console.error(`Token ${tokenAddress} is not supported`);
                 return undefined;
             }
 
-            return tokenConfig.types;
+            return tokenMetadata;
 
         } catch (error) {
             console.error("Get token type error:", error);
@@ -31,5 +31,5 @@ export const useTokenType = () => {
         }
     };
 
-    return { getTokenType };
+    return { getTokenMetadata };
 };

@@ -1,18 +1,18 @@
-// import { ConnectButton} from '@rainbow-me/rainbowkit'
+import { ConnectButton} from '@rainbow-me/rainbowkit'
 
-// export const Connect = () => {
+export const ConnectButtonComponent = () => {
 
-//     return (
-//         <ConnectButton
-//             label='Connect'
-//             showBalance={false}
-//             chainStatus="icon"
-//             accountStatus={{
-//                 smallScreen: 'avatar',
-//                 largeScreen: 'address',
-//             }} 
-//         />
-//     )
-// }
+    return (
+        <ConnectButton
+            label='Connect'
+            showBalance={false}
+            chainStatus="icon"
+            accountStatus={{
+                smallScreen: 'avatar',
+                largeScreen: 'address',
+            }} 
+        />
+    )
+}
 
 

@@ -7,7 +7,6 @@ import {
 import { connectorsForWallets } from '@rainbow-me/rainbowkit'
 import {
     rainbowWallet,
-    coinbaseWallet,
     ledgerWallet,
     argentWallet,
     omniWallet,
@@ -19,6 +18,9 @@ import {
 } from 'wagmi/chains'
 // import { getApiUrl } from './apiUrl';
 import { RPC } from '@/config/env';
+
+console.log('RPC：【1】', RPC.sapphire.one);
+console.log('RPC：【2】', RPC.sapphireTestnet.one);
 
 // import { publicProvider } from 'wagmi/providers/public'
 
@@ -35,7 +37,7 @@ const connectors = connectorsForWallets(
     [
         {
             groupName: 'Recommended',
-            wallets: [rainbowWallet,coinbaseWallet,],
+            wallets: [rainbowWallet],
         },
         {
             groupName: 'more',
@@ -43,7 +45,7 @@ const connectors = connectorsForWallets(
         },
     ],
     {
-        appName: 'RainbowKit demo',
+        appName: 'WikiTruth',
         projectId: 'YOUR_PROJECT_ID',
     }
 );
@@ -65,24 +67,7 @@ export const config = createConfig ({
         },
     ],
     transports: {
-        [sapphire.id]: RPC.sapphire.one,
-        [sapphireTestnet.id]: RPC.sapphireTestnet.one,
+        [sapphire.id]: http(RPC.sapphire.one),
+        [sapphireTestnet.id]: http(RPC.sapphireTestnet.one),
     },
 })
-/* New API that includes Wagmi's createConfig and replaces getDefaultWallets and connectorsForWallets */
-// const configDefault = getDefaultConfig({
-//     appName: 'RainbowKit demo',
-//     projectId: 'YOUR_PROJECT_ID',
-//     chains: [
-//         mainnet,
-//         {
-//             ...sepolia,
-//             iconBackground: '#657513',
-//             iconUrl: 'https://example.com/icons/sepolia.png',
-//         }
-//     ],
-//     transports: {
-//         [mainnet.id]: http(),
-//         [sepolia.id]: http(),
-//     },
-// })

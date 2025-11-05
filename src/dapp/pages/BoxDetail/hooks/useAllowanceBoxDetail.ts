@@ -1,4 +1,4 @@
-import { useAllowance } from '@/dapp/hooks/ERC20/useAllowance';
+import { useReadAllowance } from '@/dapp/hooks/readContracts/token/useReadAllowance';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useState } from 'react';
@@ -8,12 +8,12 @@ import { useState } from 'react';
 export const useAllowance_BoxDetail = () => {
     const [isEnough, setIsEnough] = useState(false);
     
-    const { checkAllowance } = useAllowance();
+    const { checkAllowance } = useReadAllowance();
     const { address } = useWalletContext() || {};
     const allConfigs = useAllContractConfigs();
 
     const checkAllowance_BoxDetail = async (
-        tokenAddress: string, 
+        tokenAddress: `0x${string}`, 
         amount: number | string | bigint
     ) => {
         if (!address) return;

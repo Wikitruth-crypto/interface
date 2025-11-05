@@ -1,49 +1,55 @@
-"use client";
+'use client';
 
-import { ContractFunctionParams } from './provider';
+import { useReadContract } from './useReadContract';
+import { ContractName } from '@dapp/contractsConfig';
 
-export function useProviderSiweAuth(contract: (params: ContractFunctionParams) => Promise<any>) {
-    
+/**
+ * SiweAuth 合约读取 Hook
+ */
+export function useSiweAuth() {
+    const { readContract } = useReadContract();
+
     // function getDomainCount() external view returns (uint256);
     const getDomainCount = async (): Promise<number> => {
         try {
-            const tx = await contract({
-                functionName: "getDomainCount",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'getDomainCount',
+                args: [],
             });
-            return tx ? parseInt(tx.toString()) : 0;
+            return tx ? Number(tx) : 0;
         } catch (error) {
-            console.error("getDomainCount error:", error);
+            console.error('getDomainCount error:', error);
             return 0;
         }
     };
+
     // function getDomainByIndex(uint256 index) external view returns (string memory);
     const getDomainByIndex = async (index: number): Promise<string> => {
         try {
-            const tx = await contract({
-                functionName: "getDomainByIndex",
-                methodType: "read_siweAuth",
-                args: [index],
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'getDomainByIndex',
+                args: [BigInt(index)],
             });
-            return tx || '';
+            return tx ? String(tx) : '';
         } catch (error) {
-            console.error("getDomainByIndex error:", error);
+            console.error('getDomainByIndex error:', error);
             return '';
         }
     };
-    
-    
+
     // function login(string memory siweMsg, SignatureRSV memory sig) external view returns (bytes);
     const login = async (siweMsg: string, sig: string): Promise<string> => {
         try {
-            const tx = await contract({
-                functionName: "login",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'login',
                 args: [siweMsg, sig],
             });
-            return tx || '';
+            return tx ? String(tx) : '';
         } catch (error) {
-            console.error("login error:", error);
+            console.error('login error:', error);
             return '';
         }
     };
@@ -51,14 +57,14 @@ export function useProviderSiweAuth(contract: (params: ContractFunctionParams) =
     // function getMsgSender(bytes memory token_) external view returns (address);
     const getMsgSender = async (token: string): Promise<string> => {
         try {
-            const tx = await contract({
-                functionName: "getMsgSender",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'getMsgSender',
                 args: [token],
             });
-            return tx || '';
+            return tx ? String(tx) : '';
         } catch (error) {
-            console.error("getMsgSender error:", error);
+            console.error('getMsgSender error:', error);
             return '';
         }
     };
@@ -66,31 +72,30 @@ export function useProviderSiweAuth(contract: (params: ContractFunctionParams) =
     // function isSessionValid(bytes memory token) external view returns (bool)
     const isSessionValid = async (token: string): Promise<boolean> => {
         try {
-            const tx = await contract({
-                functionName: "isSessionValid",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'isSessionValid',
                 args: [token],
             });
-            return tx || false;
+            return tx ? Boolean(tx) : false;
         } catch (error) {
-            console.error("isSessionValid error:", error);
+            console.error('isSessionValid error:', error);
             return false;
         }
     };
-
 
     // 获取声明
     // function getStatement(bytes memory token) external view returns (string memory);
     const getStatement = async (token: string): Promise<string> => {
         try {
-            const tx = await contract({
-                functionName: "getStatement",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'getStatement',
                 args: [token],
             });
-            return tx || '';
+            return tx ? String(tx) : '';
         } catch (error) {
-            console.error("getStatement error:", error);
+            console.error('getStatement error:', error);
             return '';
         }
     };
@@ -99,22 +104,19 @@ export function useProviderSiweAuth(contract: (params: ContractFunctionParams) =
     // function getResources(bytes memory token) external view returns (string[] memory);
     const getResources = async (token: string): Promise<string[]> => {
         try {
-            const tx = await contract({
-                functionName: "getResources",
-                methodType: "read_siweAuth",
+            const tx = await readContract({
+                contractName: ContractName.SIWE_AUTH,
+                functionName: 'getResources',
                 args: [token],
             });
-            return tx || [];
+            return tx && Array.isArray(tx) ? tx : [];
         } catch (error) {
-            console.error("getResources error:", error);
+            console.error('getResources error:', error);
             return [];
         }
     };
-    
 
     return {
-        // Admin,
-        // Implementation,
         getDomainCount,
         getDomainByIndex,
         isSessionValid,
@@ -124,3 +126,4 @@ export function useProviderSiweAuth(contract: (params: ContractFunctionParams) =
         getResources,
     };
 }
+

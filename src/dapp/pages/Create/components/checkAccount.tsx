@@ -7,8 +7,7 @@ import { cn } from '@/lib/utils';
 import { Alert } from "antd";
 
 export const CheckAccount = () => {
-    const { address, accountRole } = useWalletContext();
-    // const updateBoxInfoForm = useNFTCreateStore(state => state.updateBoxInfoForm);
+    const { accountRole } = useWalletContext();
     const [tips, setTips] = useState<string>('')
 
     useEffect(() => {
@@ -25,7 +24,7 @@ export const CheckAccount = () => {
             }
         }
         fatch();
-    }, [address, accountRole])
+    }, [accountRole])
 
     return (
         <div className={cn("flex flex-row w-full py-3 md:py-6 items-center justify-center", "px-1 leading-tight")}>

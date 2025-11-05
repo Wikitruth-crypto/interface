@@ -45,7 +45,7 @@ export interface ChainConfig {
 export enum ContractName {
   // Token 合约
   OFFICIAL_TOKEN = 'OfficialToken',
-  ERC20_SECRET = 'ERC20Secret',
+  OFFICIAL_TOKEN_SECRET = 'OfficialTokenSecret',
   WROSE_SECRET = 'WroseSecret',
   
   // 核心合约

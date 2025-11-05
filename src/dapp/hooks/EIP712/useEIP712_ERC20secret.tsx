@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
-import { useAccount, useSignTypedData, useChainId } from 'wagmi';
+import { useSignTypedData, useChainId, useAccount} from 'wagmi';
 import { type Hex } from 'viem';
+import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { 
     SignPermitParams, 
     EIP712Permit, 
@@ -8,6 +9,8 @@ import {
     SignatureRSV, 
     PermitType 
 } from './types_ERC20secret';
+// 使用ethers.js验证地址
+import { ethers } from 'ethers';
 
 /**
  * Hook 返回值
@@ -37,7 +40,7 @@ export interface UseEIP712SignatureResult {
  * const viewPermit = await signPermit({
  *   spender: userAddress,
  *   amount: 0,
- *   mode: PermitType.VIEW,
+ *   label: PermitType.VIEW,
  *   contractAddress: tokenAddress,
  *   domainName: 'Secret ERC20 Token'
  * });
@@ -46,14 +49,13 @@ export interface UseEIP712SignatureResult {
  * const transferPermit = await signPermit({
  *   spender: recipientAddress,
  *   amount: 1000n,
- *   mode: PermitType.TRANSFER,
+ *   label: PermitType.TRANSFER,
  *   contractAddress: tokenAddress
  * });
  * ```
  */
 export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
-    const { address } = useAccount();
-    const chainId = useChainId();
+    const { chainId, address, isConnected } = useWalletContext();
     const { signTypedDataAsync } = useSignTypedData();
     
     const [isLoading, setIsLoading] = useState(false);
@@ -78,12 +80,8 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
      * 验证地址格式
      */
     const validateAddress = (addr: string, name: string): void => {
-        if (!addr || typeof addr !== 'string') {
-            throw new Error(`${name} 地址不能为空且必须是字符串`);
-        }
-        
-        if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
-            throw new Error(`${name} 地址格式无效: ${addr}`);
+        if (!ethers.isAddress(addr)) {
+            throw new Error(`The ${name} address format is invalid: ${addr}`);
         }
     };
 
@@ -91,6 +89,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
      * 创建 EIP712 域配置
      */
     const createDomain = (
+        chainId: number,
         contractAddress: string,
         domainName?: string,
         domainVersion?: string
@@ -112,7 +111,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
         const {
             spender,
             amount,
-            mode,
+            label,
             contractAddress,
             domainName,
             domainVersion,
@@ -124,13 +123,18 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
         setIsLoading(true);
 
         try {
-            // 参数验证
-            if (!address) {
-                throw new Error('钱包未连接，请先连接钱包');
+
+            // 在 signPermit 函数开始处添加
+            if (!isConnected || !address || !chainId) {
+                throw new Error('Please connect your wallet first');
             }
 
-            validateAddress(contractAddress, '合约');
-            validateAddress(spender, '接收方');
+            validateAddress(contractAddress, 'token');
+            validateAddress(spender, 'spender');
+
+            if (!address) {
+                throw new Error('The owner address is not the current wallet address');
+            }
 
             // 验证金额
             const amountBigInt = typeof amount === 'bigint' 
@@ -138,24 +142,24 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
                 : BigInt(amount);
             
             if (Number(amountBigInt) < 0) {
-                throw new Error('金额不能为负数');
+                throw new Error('The amount cannot be negative');
             }
 
             // 验证许可类型
-            if (!Object.values(PermitType).includes(mode)) {
-                throw new Error(`无效的许可类型: ${mode}`);
+            if (!Object.values(PermitType).includes(label)) {
+                throw new Error(`The permit type is invalid: ${label}`);
             }
 
             // 对于 VIEW 类型，金额必须为 0
-            if (mode === PermitType.VIEW && Number(amountBigInt) !== 0) {
-                throw new Error('VIEW 类型的许可金额必须为 0');
+            if (label === PermitType.VIEW && Number(amountBigInt) !== 0) {
+                throw new Error('The amount of VIEW type must be 0');
             }
 
             // 设置截止时间（默认 1 小时后过期）
             const deadline = customDeadline || Math.floor(Date.now() / 1000) + 3600;
 
             // 创建域配置
-            const domain = createDomain(contractAddress, domainName, domainVersion);
+            const domain = createDomain(chainId, contractAddress, domainName, domainVersion);
 
             // EIP712 类型定义
             const types = {
@@ -170,20 +174,12 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
 
             // 签名值
             const value = {
-                label: mode,
+                label: label,
                 owner: address,
                 spender: spender as `0x${string}`,
                 amount: amountBigInt,
                 deadline: BigInt(deadline)
             };
-            // 这些信息应该会在钱包中显示
-            // console.log('📝 准备签名:', {
-            //     owner: address,
-            //     spender,
-            //     amount: amountBigInt.toString(),
-            //     mode: PermitType[mode],
-            //     deadline: new Date(deadline * 1000).toISOString()
-            // });
 
             // 执行签名
             const signature = await signTypedDataAsync({
@@ -198,7 +194,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
 
             // 构造许可对象
             const permitData: EIP712Permit = {
-                label: mode,
+                label: label,
                 owner: address,
                 spender,
                 amount: amountBigInt.toString(),
@@ -219,7 +215,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
         } finally {
             setIsLoading(false);
         }
-    }, [address, chainId, signTypedDataAsync]);
+    }, [chainId, address, isConnected, signTypedDataAsync]);
 
     /**
      * 重置状态

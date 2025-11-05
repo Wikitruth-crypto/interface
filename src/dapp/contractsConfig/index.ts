@@ -36,8 +36,7 @@ export {
 
 // 导出 Hooks
 export {
-  useChainId,
-  useContractAddresses,
+  useAllContractAddresses,
   useContractConfig,
   useAllContractConfigs,
   useSupportedTokens,

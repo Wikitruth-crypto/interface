@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useCreateForm } from '../../context/CreateFormContext';
+import { ethers } from 'ethers';
 
 /**
  * NFT Owner 地址输入 Hook (重构版)
@@ -41,15 +42,15 @@ export const useAddressInput = () => {
     });
   }, [form, inputValue]);
 
-  // 验证地址格式（用于 UI 提示，不阻塞）
   const isValidEthereumAddress = (address: string): boolean => {
-    return /^0x[a-fA-F0-9]{40}$/.test(address);
+    // return /^0x[a-fA-F0-9]{40}$/.test(address);
+    return ethers.isAddress(address);
   };
 
   return {
     inputValue,
     handleTypeChange,
-    handleBlur, // ✅ 新增：失焦处理
+    handleBlur,
     error,
     isValidFormat: isValidEthereumAddress(inputValue), // 用于 UI 提示
   };

@@ -13,14 +13,14 @@ const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider { ...{
+    <ThemeProvider {...{
       currentThemeName: 'purple', // 当前项目定义一个风格：暗黑模式，紫色主题。
       isDarkMode: true,
-    } }>
+    }}>
       <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>,

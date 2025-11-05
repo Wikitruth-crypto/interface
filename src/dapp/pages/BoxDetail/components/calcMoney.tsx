@@ -1,12 +1,11 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from 'react';
-import { ContractContext } from '@/dapp/context/contractContext';
-// import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { useBoxContext } from '../contexts/BoxContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
+import { useExchange } from '@/dapp/hooks/readContracts/useExchange';
 
 interface Props {
     tokenId?: string,
@@ -17,15 +16,12 @@ const CalcMoney: React.FC<Props> = () => {
     // const tokenId = useBoxDetailStore(state => state.tokenId);
     const { box , boxId } = useBoxContext();
     const supportedTokens = useSupportedTokens();
+    const { calcPayMoney } = useExchange();
     // const roles = useBoxDetailStore(state => state.userState.roles);
 
     if (!box) {
         return <div>loading...</div>;
     }
-
-    const {
-        calcPayMoney,
-    } = useContext(ContractContext);
 
     const [newMoney, setNewMoney] = useState<number>(0)
     const [oldMoney, setOldMoney] = useState<number>(0)

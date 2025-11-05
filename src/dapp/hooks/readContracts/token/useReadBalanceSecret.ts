@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState, useCallback } from 'react';
-import { ContractContext } from "../context/contractContext";
+import {  useEffect, useState, useCallback } from 'react';
+import { useERC20Secret, useERC20 } from '../index';
 import { useAccount} from 'wagmi';
-import { useAllContractConfigs, useContractAddress } from "../contractsConfig";
-import { useAccountStore } from "../store/accountStore";
-import { useSecretStore } from "../store/secretStore";
-import { EIP712Permit } from './EIP712';
+import { useAllContractConfigs, useContractAddress } from '@/dapp/contractsConfig';
+
+import { EIP712Permit } from '@/dapp/hooks/EIP712';
 
 /**
  * enum PermitLabel { VIEW, TRANSFER, APPROVE }
@@ -21,7 +20,8 @@ import { EIP712Permit } from './EIP712';
 export const useReadSecretBalance = (
     eip712Permit?: EIP712Permit,
 ) => {
-    const { allowance } = useContext(ContractContext);
+    const { balanceOfWithPermit: balanceOfWithPermitSecret } = useERC20Secret();
+    const { balanceOf } = useERC20();
     const { address } = useAccount();
     const allConfigs = useAllContractConfigs();
     const FundManagerAddress = useContractAddress('FundManager');

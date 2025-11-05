@@ -26,6 +26,14 @@ export function getSupportedTokens(chainId: SupportedChainId): TokenMetadata[] {
       address: addresses.WroseSecret,
       types: 'Secret',
     },
+    {
+      index: 2,
+      name: 'WikiTruth Coin Secret',
+      symbol: 'WTC.S',
+      decimals: 18,
+      address: addresses.OfficialTokenSecret,
+      types: 'Secret',
+    },
   ];
 }
 

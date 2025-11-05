@@ -77,7 +77,7 @@ export interface EIP712Domain {
 export interface SignPermitParams {
     spender: string;
     amount: bigint | number | string;
-    mode: PermitType;
+    label: PermitType;
     contractAddress: string;
     domainName?: string;
     domainVersion?: string;
