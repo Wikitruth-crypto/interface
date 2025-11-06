@@ -1,7 +1,7 @@
 import Logo from "@/components/base/logo";
 import LinkList from "@/components/customer/link";
 import { Container } from "@/components/Container";
-import { ConnectWallet } from "@/dapp/components/base/connectWallet";
+// import { ConnectWallet } from "@/dapp/components/base/connectWallet";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -43,7 +43,8 @@ export default function DappHeader() {
                         onLinkClick={setActiveKey}
                         activeKey={activeKey}
                     />
-                    <ConnectWallet />
+                    {/* <ConnectWallet /> */}
+                    <appkit-button />
                 </nav>
             </Container>
         </header>

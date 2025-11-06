@@ -1,42 +1,35 @@
-'use client'
 
-import { createConfig, http } from 'wagmi'
-import { injected, walletConnect } from '@wagmi/connectors'
-import { sapphire, sapphireTestnet } from 'wagmi/chains'
-import { RPC } from '@/config/env'
+// import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+// import { createStorage } from '@wagmi/core'
+// import { http } from 'wagmi'
+// import { sapphire, sapphireTestnet } from 'wagmi/chains'
+// import { RPC } from '@/config/env'
 
-// https://cloud.walletconnect.com/
-const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+// const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
-const connectors = [
-  injected({
-    shimDisconnect: true,
-    unstable_shimAsyncInject: true,
-  }),
-  ...(walletConnectProjectId
-    ? [
-        walletConnect({
-          projectId: walletConnectProjectId,
-          showQrModal: true,
-        }),
-      ]
-    : []),
-]
+// if (!projectId) {
+//   console.warn('VITE_WALLETCONNECT_PROJECT_ID is not set. WalletConnect features will be limited.')
+// }
 
-export const config = createConfig({
-  connectors,
-  chains: [
-    {
-      ...sapphire,
-      iconUrl: 'https://example.com/icons/sapphire.png',
-    },
-    {
-      ...sapphireTestnet,
-      iconUrl: 'https://example.com/icons/sapphireTestnet.png',
-    },
-  ],
-  transports: {
-    [sapphire.id]: http(RPC.sapphire.one),
-    [sapphireTestnet.id]: http(RPC.sapphireTestnet.one),
-  },
-})
+// // const sapphireChain = {
+// //   ...sapphire,
+// //   // iconUrl: 'https://example.com/icons/sapphire.png',
+// // }
+
+// // const sapphireTestnetChain = {
+// //   ...sapphireTestnet,
+// //   // iconUrl: 'https://example.com/icons/sapphireTestnet.png',
+// // }
+
+// export const wagmiAdapter = new WagmiAdapter({
+//   storage: createStorage({ storage: typeof window !== 'undefined' ? window.localStorage : undefined }),
+//   ssr: false, // 关键修复：改为 false，因为项目是 CSR
+//   projectId: projectId ?? '',
+//   networks: [sapphire, sapphireTestnet],
+//   transports: {
+//     [sapphire.id]: http(RPC.sapphire.one),
+//     [sapphireTestnet.id]: http(RPC.sapphireTestnet.one),
+//   },
+// })
+
+// export const config = wagmiAdapter.wagmiConfig

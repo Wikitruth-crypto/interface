@@ -1,17 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { WagmiProvider } from "wagmi";
-import { config } from "./useAccount/wagmi";
+import { WikiTruthAppKitProvider } from "./useAccount/appKit";
 import { WalletProvider } from "./useAccount/WalletContext";
-import ClientOnly from "./clientOnly";
+
 
 export function Web3ContextProvider({ children }: { children: ReactNode }) {
   return (
-    <ClientOnly>
-      <WagmiProvider config={config}>
-        <WalletProvider>{children}</WalletProvider>
-      </WagmiProvider>
-    </ClientOnly>
+
+    <WikiTruthAppKitProvider>
+      <WalletProvider>{children}</WalletProvider>
+    </WikiTruthAppKitProvider>
   );
 }

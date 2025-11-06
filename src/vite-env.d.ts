@@ -54,3 +54,10 @@ declare module '*.json' {
   export default value
 }
 
+// 声明 Reown AppKit Web Components
+declare namespace JSX {
+  interface IntrinsicElements {
+    'appkit-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+  }
+}
+
