@@ -105,7 +105,7 @@ export function useERC20() {
     // 这个两个函数可以作为常量定义，不需要进行查询
     const mintPeriod = async (): Promise<number> => {
         try {
-            return 1000;
+            return 24*60*60;
         } catch (error) {
             console.error("mintPeriod error:", error);
             return 0;

@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState, useCallback } from 'react';
-import { ContractContext } from '@/dapp/context/contractContext';
 import { useAccount, useSignMessage, useChainId } from 'wagmi';
+import { useReadSiweAuth } from '@/dapp/hooks/readContracts/useSiweAuth';
 import { SiweMessage } from 'siwe';
 import { type Hex } from 'viem';
-import { useSecretStore } from '@/dapp/store/secretStore';
+import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import {
   SiweMessageParams,
   SignatureRSV,
@@ -30,7 +30,8 @@ const NETWORK_CONFIGS: Record<number, SiweNetworkConfig> = {
 };
 
 export const useSiweAuth = (): UseSiweAuthResult => {
-  const { login: contractLogin, isSessionValid } = useContext(ContractContext);
+  // const { login: contractLogin, isSessionValid } = useContext(ContractContext);
+  const { login: contractLogin, isSessionValid } = useReadSiweAuth();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { signMessageAsync } = useSignMessage();
@@ -38,9 +39,9 @@ export const useSiweAuth = (): UseSiweAuthResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const session = useSecretStore((state) => state.currentSession);
-  const setSiweSession = useSecretStore((state) => state.setSiweSession);
-  const clearSiweSession = useSecretStore((state) => state.clearSiweSession);
+  const session = useSimpleSecretStore((state) => state.currentSession);
+  const setSiweSession = useSimpleSecretStore((state) => state.setSiweSession);
+  const clearSiweSession = useSimpleSecretStore((state) => state.clearSiweSession);
 
   useEffect(() => {
     if (!isConnected && session.isLoggedIn) {

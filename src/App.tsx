@@ -21,6 +21,7 @@ import DaoPage from '@/pages/app/Dao'
 import TokenPage from '@/pages/app/Token'
 import ProfilePage from '@/pages/app/Profile'
 import BoxDetailPage from '@/pages/app/BoxDetail'
+import TestsPage from '@/dapp/pages/Tests'
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             <Route path="token" element={<TokenPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="boxDetail/:tokenId" element={<BoxDetailPage />} />
+            <Route path="tests" element={<TestsPage />} />
           </Route>
         </Routes>
       </ConditionalLayout>

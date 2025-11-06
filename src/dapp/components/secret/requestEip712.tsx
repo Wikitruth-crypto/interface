@@ -3,7 +3,7 @@ import { Card, Button, List, Typography, Alert, Space } from 'antd';
 import { useAccount, useChainId } from 'wagmi';
 import { useEIP712_ERC20secret } from '@/dapp/hooks/EIP712';
 import { PermitType, type SignPermitParams } from '@/dapp/hooks/EIP712/types_ERC20secret';
-import { useSecretStore } from '@/dapp/store/secretStore';
+import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 
 const { Text, Paragraph } = Typography;
 
@@ -23,16 +23,16 @@ export interface RequestEip712Props {
     onComplete?: () => void;
 }
 
-const getPermitLabel = (mode: PermitType): string => {
-    switch (mode) {
+const getPermitLabel = (label: PermitType): string => {
+    switch (label) {
         case PermitType.VIEW:
-            return '查看授权';
+            return 'View';
         case PermitType.TRANSFER:
-            return '转账授权';
+            return 'Transfer';
         case PermitType.APPROVE:
-            return '批准授权';
+            return 'Approve';
         default:
-            return `授权类型 ${mode}`;
+            return `Label: ${label}`;
     }
 };
 
@@ -41,8 +41,8 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
     chainId,
     address,
     className,
-    cardTitle = '签名授权',
-    cardHint = '为了完成后续操作，需要先完成以下 EIP-712 授权签名。',
+    cardTitle = 'Signature Authorization',
+    cardHint = 'To complete the subsequent operations, you need to complete the following EIP-712 authorization signature.',
     onComplete,
 }) => {
     const { address: walletAddress } = useAccount();
@@ -52,14 +52,14 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
     const targetChainId = chainId ?? activeChainId ?? undefined;
 
     const { signPermit, isLoading, error } = useEIP712_ERC20secret();
-    const setEip712Permit = useSecretStore((state) => state.setEip712Permit);
-    const secretPermits = useSecretStore(
+    const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);
+    const permitsByType = useSimpleSecretStore(
         useCallback(
             (state) => {
-                if (!targetAddress || targetChainId === undefined || targetChainId === null) {
+                if (!targetAddress || targetChainId == null) {
                     return undefined;
                 }
-                return state.secrets[targetChainId]?.[targetAddress.toLowerCase()]?.eip712 ?? {};
+                return state.getAccountPermits(targetChainId, targetAddress);
             },
             [targetAddress, targetChainId]
         )
@@ -69,11 +69,11 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
         if (!requirements.length) {
             return [];
         }
-        if (!secretPermits || !targetAddress || targetChainId === undefined || targetChainId === null) {
+        if (!permitsByType || !targetAddress || targetChainId === undefined || targetChainId === null) {
             return requirements;
         }
         return requirements.filter((requirement) => {
-            const typePermits = secretPermits[requirement.mode];
+            const typePermits = permitsByType[requirement.label];
             if (!typePermits) {
                 return true;
             }
@@ -93,12 +93,12 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
 
             // 基于模式、授权对象以及金额进行匹配，避免误判
             return !(
-                existing.label === requirement.mode &&
+                existing.label === requirement.label &&
                 existing.spender.toLowerCase() === requirement.spender.toLowerCase() &&
                 String(existing.amount) === String(requirement.amount)
             );
         });
-    }, [requirements, secretPermits, targetAddress, targetChainId]);
+    }, [requirements, targetAddress, targetChainId]);
 
     const handleSign = useCallback(async () => {
         if (!pendingRequirements.length || !targetAddress || targetChainId === undefined || targetChainId === null) {
@@ -110,7 +110,7 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
 
         if (permit) {
             setEip712Permit(
-                nextRequirement.mode,
+                nextRequirement.label,
                 permit.spender,
                 permit,
                 targetChainId,
@@ -136,7 +136,7 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
     }
 
     return (
-        <Card className={className} title={cardTitle} bordered>
+        <Card className={className} title={cardTitle}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <Paragraph type="secondary" style={{ marginBottom: 0 }}>
                     {cardHint}
@@ -146,15 +146,18 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
                     size="small"
                     dataSource={pendingRequirements}
                     renderItem={(item) => (
-                        <List.Item key={item.id ?? `${item.mode}-${item.contractAddress}-${item.spender}`}>
+                        <List.Item key={item.id ?? `${item.label}-${item.contractAddress}-${item.spender}`}>
                             <Space direction="vertical" size={2}>
-                                <Text strong>{item.title ?? getPermitLabel(item.mode)}</Text>
+                                <Text strong>{item.title ?? getPermitLabel(item.label)}</Text>
                                 {item.description ? (
                                     <Text type="secondary">{item.description}</Text>
                                 ) : (
-                                    <Text type="secondary">
-                                        授权地址 {item.spender} 在 {item.contractAddress} 上执行 {getPermitLabel(item.mode)}
-                                    </Text>
+                                    <div>
+                                        <Text type="secondary">Spender: {item.spender} </Text>
+                                        <Text type="secondary">Destination: {item.contractAddress} </Text>
+                                        <Text type="secondary">Label: {getPermitLabel(item.label)}</Text>
+                                        {item.label !== PermitType.VIEW && <Text type="secondary">Amount: {item.amount}</Text>}
+                                    </div>
                                 )}
                             </Space>
                         </List.Item>
@@ -165,7 +168,7 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
                     <Alert
                         type="error"
                         showIcon
-                        message="签名失败"
+                        message="Signature failed!"
                         description={error.message}
                     />
                 )}
@@ -177,7 +180,7 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
                     loading={isLoading}
                     disabled={!targetAddress || targetChainId === undefined || targetChainId === null}
                 >
-                    开始签名
+                    Signature
                 </Button>
             </Space>
         </Card>

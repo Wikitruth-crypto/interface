@@ -12,6 +12,7 @@ const dappMenu = [
     { name: "DAO", href: "/app/dao" },
     { name: "Token", href: "/app/token" },
     { name: "Profile", href: "/app/profile" },
+    { name: "Tests", href: "/app/tests" },
 ];
 
 

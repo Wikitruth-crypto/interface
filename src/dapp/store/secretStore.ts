@@ -50,7 +50,7 @@ export interface SecretStoreMethods {
     _addAuditLog: (log: Omit<SecretAuditLog, 'timestamp'>) => void;
 
     setEip712Permit: (
-        permitType: PermitType,
+        permitType: PermitType, // label: VIEW, TRANSFER, APPROVE
         spender: string,
         permit: EIP712Permit | null,
         chainId?: number,

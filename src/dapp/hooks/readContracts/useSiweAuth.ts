@@ -2,11 +2,12 @@
 
 import { useReadContract } from './useReadContract';
 import { ContractName } from '@dapp/contractsConfig';
+import { SignatureRSV } from '@/dapp/hooks/SiweAuth/types';
 
 /**
  * SiweAuth 合约读取 Hook
  */
-export function useSiweAuth() {
+export function useReadSiweAuth() {
     const { readContract } = useReadContract();
 
     // function getDomainCount() external view returns (uint256);
@@ -40,7 +41,7 @@ export function useSiweAuth() {
     };
 
     // function login(string memory siweMsg, SignatureRSV memory sig) external view returns (bytes);
-    const login = async (siweMsg: string, sig: string): Promise<string> => {
+    const login = async (siweMsg: string, sig: SignatureRSV): Promise<string> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.SIWE_AUTH,

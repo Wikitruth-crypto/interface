@@ -15,10 +15,10 @@ export interface RequestSiweProps {
 
 export const RequestSiwe: React.FC<RequestSiweProps> = ({
     className,
-    title = '登录授权',
-    hint = '需要完成一次 Sign-In with Ethereum 登录以继续操作。',
-    buttonText = '连接并签名登录',
-    expiredText = '登录已过期，需要重新签名。',
+    title = 'Login Authorization',
+    hint = 'You need to complete a Sign-In with Ethereum login to continue the operation.',
+    buttonText = 'Connect and Sign Login',
+    expiredText = 'Login has expired, you need to sign again.',
     onComplete,
 }) => {
     const { session, login, logout, validateSession, isLoading, error, reset } = useSiweAuth();
@@ -55,7 +55,7 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
             extra={
                 session.isLoggedIn && (
                     <Button type="link" onClick={logout} size="small">
-                        退出
+                        Logout
                     </Button>
                 )
             }
@@ -77,7 +77,7 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
                         description={error.message}
                         action={
                             <Button type="link" size="small" onClick={reset}>
-                                重试
+                                Retry
                             </Button>
                         }
                     />

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { useEIP712_ERC20secret, EIP712Permit, PermitType } from '@/dapp/hooks/EIP712';
 import { SignPermitParams } from './types_ERC20secret';
-import { useSecretStore } from '@/dapp/store/secretStore';
+import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 
 /**
  * 获取有效 Permit 的选项
@@ -64,8 +64,8 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
     const chainId = useChainId();
     const { signPermit, isLoading: isSigningLoading } = useEIP712_ERC20secret();
     
-    const getEip712Permit = useSecretStore((state) => state.getEip712Permit);
-    const setEip712Permit = useSecretStore((state) => state.setEip712Permit);
+    const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
+    const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);
     
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);

@@ -27,7 +27,7 @@ import { useEffect } from 'react';
  * // 在子组件中使用 Store
  * function MyComponent() {
  *   const chainId = useChainId();
- *   const getEip712Permit = useSecretStore((state) => state.getEip712Permit);
+ *   const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
  *   const permit = getEip712Permit(PermitType.VIEW, someSpenderAddress, chainId);
  *   // ...
  * }
