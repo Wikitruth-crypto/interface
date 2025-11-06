@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from 'react';
-import { Card, Button, Typography, Alert, Space } from 'antd';
+import { Button, Typography, Alert, Space } from 'antd';
 import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 
 const { Paragraph } = Typography;
@@ -49,45 +49,49 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
     }
 
     return (
-        <Card
-            className={className}
-            title={title}
-            extra={
-                session.isLoggedIn && (
-                    <Button type="link" onClick={logout} size="small">
-                        Logout
-                    </Button>
-                )
-            }
-        >
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-                    {hint}
-                </Paragraph>
+        <Alert
+            type="warning"
+            showIcon
+            message={title}
+            description={
+                <Space direction="vertical" size="middle" style={{ width: '100%', marginTop: 8 }}>
+                    <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: 13 }}>
+                        {hint}
+                    </Paragraph>
 
-                {session.isLoggedIn && isExpired && (
-                    <Alert type="warning" showIcon message={expiredText} />
-                )}
+                    {session.isLoggedIn && isExpired && (
+                        <Alert type="warning" showIcon message={expiredText} />
+                    )}
 
-                {error && (
-                    <Alert
-                        type="error"
-                        showIcon
-                        message="登录失败"
-                        description={error.message}
-                        action={
-                            <Button type="link" size="small" onClick={reset}>
-                                Retry
+                    {error && (
+                        <Alert
+                            type="error"
+                            showIcon
+                            message="登录失败"
+                            description={error.message}
+                            action={
+                                <Button type="link" size="small" onClick={reset}>
+                                    Retry
+                                </Button>
+                            }
+                        />
+                    )}
+
+                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                        <Button type="primary" loading={isLoading} onClick={() => login()} block>
+                            {buttonText}
+                        </Button>
+                        {session.isLoggedIn && (
+                            <Button type="link" onClick={logout} size="small" style={{ padding: 0 }}>
+                                Logout
                             </Button>
-                        }
-                    />
-                )}
-
-                <Button type="primary" loading={isLoading} onClick={() => login()} block>
-                    {buttonText}
-                </Button>
-            </Space>
-        </Card>
+                        )}
+                    </Space>
+                </Space>
+            }
+            className={className}
+            style={{ maxWidth: 400 }}
+        />
     );
 };
 

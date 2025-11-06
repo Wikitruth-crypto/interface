@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useEffect } from 'react';
-import { Card, Button, List, Typography, Alert, Space } from 'antd';
+import { Button, Typography, Alert, Space } from 'antd';
 import { useAccount, useChainId } from 'wagmi';
 import { useEIP712_ERC20secret } from '@/dapp/hooks/EIP712';
 import { PermitType, type SignPermitParams } from '@/dapp/hooks/EIP712/types_ERC20secret';
@@ -14,7 +14,7 @@ export interface Eip712Requirement extends SignPermitParams {
 }
 
 export interface RequestEip712Props {
-    requirements: Eip712Requirement[];
+    requirement?: Eip712Requirement;
     chainId?: number;
     address?: `0x${string}`;
     className?: string;
@@ -36,8 +36,22 @@ const getPermitLabel = (label: PermitType): string => {
     }
 };
 
+/**
+ * 格式化地址显示，省略中间部分
+ * @param address 地址字符串
+ * @param startLength 开头显示的长度（默认6）
+ * @param endLength 结尾显示的长度（默认4）
+ * @returns 格式化后的地址，如 "0x1234...5678"
+ */
+const formatAddress = (address: string, startLength: number = 6, endLength: number = 4): string => {
+    if (!address || address.length <= startLength + endLength) {
+        return address;
+    }
+    return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
+};
+
 export const RequestEip712: React.FC<RequestEip712Props> = ({
-    requirements,
+    requirement,
     chainId,
     address,
     className,
@@ -65,125 +79,131 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
         )
     );
 
-    const pendingRequirements = useMemo(() => {
-        if (!requirements.length) {
-            return [];
+    // 检查单个 requirement 是否已满足
+    const isSatisfied = useMemo(() => {
+        if (!requirement) {
+            return true;
         }
         if (!permitsByType || !targetAddress || targetChainId === undefined || targetChainId === null) {
-            return requirements;
+            return false;
         }
-        return requirements.filter((requirement) => {
-            const typePermits = permitsByType[requirement.label];
-            if (!typePermits) {
-                return true;
-            }
 
-            const spenderKey = requirement.spender.toLowerCase();
-            const existing = typePermits[spenderKey];
-            if (!existing) {
-                return true;
-            }
+        const typePermits = permitsByType[requirement.label];
+        if (!typePermits) {
+            return false;
+        }
 
-            const deadline = typeof existing.deadline === 'string'
-                ? Number(existing.deadline)
-                : existing.deadline;
-            if (!deadline || Number.isNaN(deadline) || deadline <= Math.floor(Date.now() / 1000)) {
-                return true;
-            }
+        const spenderKey = requirement.spender.toLowerCase();
+        const existing = typePermits[spenderKey];
+        if (!existing) {
+            return false;
+        }
 
-            // 基于模式、授权对象以及金额进行匹配，避免误判
-            return !(
-                existing.label === requirement.label &&
-                existing.spender.toLowerCase() === requirement.spender.toLowerCase() &&
-                String(existing.amount) === String(requirement.amount)
-            );
-        });
-    }, [requirements, targetAddress, targetChainId]);
+        const deadline = typeof existing.deadline === 'string'
+            ? Number(existing.deadline)
+            : existing.deadline;
+        if (!deadline || Number.isNaN(deadline) || deadline <= Math.floor(Date.now() / 1000)) {
+            return false;
+        }
+
+        // 基于模式、授权对象以及金额进行匹配，避免误判
+        return (
+            existing.label === requirement.label &&
+            existing.spender.toLowerCase() === requirement.spender.toLowerCase() &&
+            String(existing.amount) === String(requirement.amount)
+        );
+    }, [requirement, permitsByType, targetAddress, targetChainId]);
 
     const handleSign = useCallback(async () => {
-        if (!pendingRequirements.length || !targetAddress || targetChainId === undefined || targetChainId === null) {
+        if (!requirement || !targetAddress || targetChainId === undefined || targetChainId === null) {
             return;
         }
 
-        const nextRequirement = pendingRequirements[0];
-        const permit = await signPermit(nextRequirement);
+        const permit = await signPermit(requirement);
 
         if (permit) {
             setEip712Permit(
-                nextRequirement.label,
+                requirement.label,
                 permit.spender,
                 permit,
                 targetChainId,
                 targetAddress
             );
         }
-    }, [pendingRequirements, signPermit, setEip712Permit, targetChainId, targetAddress]);
-
-    if (!requirements.length) {
-        return null;
-    }
-
-    const allSatisfied = pendingRequirements.length === 0;
+    }, [requirement, signPermit, setEip712Permit, targetChainId, targetAddress]);
 
     useEffect(() => {
-        if (allSatisfied) {
+        if (isSatisfied) {
             onComplete?.();
         }
-    }, [allSatisfied, onComplete]);
+    }, [isSatisfied, onComplete]);
 
-    if (allSatisfied) {
+    if (!requirement || isSatisfied) {
         return null;
     }
 
     return (
-        <Card className={className} title={cardTitle}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-                    {cardHint}
-                </Paragraph>
+        <Alert
+            type="warning"
+            showIcon
+            message={cardTitle}
+            description={
+                <Space direction="vertical" size="middle" style={{ width: '100%', marginTop: 8 }}>
+                    <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: 13 }}>
+                        {cardHint}
+                    </Paragraph>
 
-                <List
-                    size="small"
-                    dataSource={pendingRequirements}
-                    renderItem={(item) => (
-                        <List.Item key={item.id ?? `${item.label}-${item.contractAddress}-${item.spender}`}>
-                            <Space direction="vertical" size={2}>
-                                <Text strong>{item.title ?? getPermitLabel(item.label)}</Text>
-                                {item.description ? (
-                                    <Text type="secondary">{item.description}</Text>
-                                ) : (
+                    <div>
+                        <Text strong>Type: {requirement.title ?? getPermitLabel(requirement.label)}</Text>
+                        {requirement.description ? (
+                            <div >
+                                <Text type="secondary" style={{ fontSize: 13 }}>{requirement.description}</Text>
+                            </div>
+                        ) : (
+                            <div >
+                                <div>
+                                    <Text type="secondary" style={{ fontSize: 13 }}>
+                                        Spender: {formatAddress(requirement.spender)}
+                                    </Text>
+                                </div>
+                                <div>
+                                    <Text type="secondary" style={{ fontSize: 13 }}>
+                                        Destination: {formatAddress(requirement.contractAddress)}
+                                    </Text>
+                                </div>
+                                {requirement.label !== PermitType.VIEW && (
                                     <div>
-                                        <Text type="secondary">Spender: {item.spender} </Text>
-                                        <Text type="secondary">Destination: {item.contractAddress} </Text>
-                                        <Text type="secondary">Label: {getPermitLabel(item.label)}</Text>
-                                        {item.label !== PermitType.VIEW && <Text type="secondary">Amount: {item.amount}</Text>}
+                                        <Text type="secondary" style={{ fontSize: 13 }}>Amount: {requirement.amount}</Text>
                                     </div>
                                 )}
-                            </Space>
-                        </List.Item>
+                            </div>
+                        )}
+                    </div>
+
+                    {error && (
+                        <Alert
+                            type="error"
+                            showIcon
+                            message="Signature failed!"
+                            description={error.message}
+                            style={{ marginTop: 8 }}
+                        />
                     )}
-                />
 
-                {error && (
-                    <Alert
-                        type="error"
-                        showIcon
-                        message="Signature failed!"
-                        description={error.message}
-                    />
-                )}
-
-                <Button
-                    type="primary"
-                    block
-                    onClick={handleSign}
-                    loading={isLoading}
-                    disabled={!targetAddress || targetChainId === undefined || targetChainId === null}
-                >
-                    Signature
-                </Button>
-            </Space>
-        </Card>
+                    <Button
+                        type="primary"
+                        block
+                        onClick={handleSign}
+                        loading={isLoading}
+                        disabled={!targetAddress || targetChainId === undefined || targetChainId === null}
+                    >
+                        Signature
+                    </Button>
+                </Space>
+            }
+            className={className}
+            style={{ maxWidth: 400 }}
+        />
     );
 };
 

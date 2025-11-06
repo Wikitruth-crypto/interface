@@ -66,14 +66,14 @@ const HooksTest = () => {
                 </div>
             </Card>
             <Card title="RequestEip712">
-                <RequestEip712 requirements={
-                    [
+                <RequestEip712 requirement={
                         { 
                         label: PermitType.VIEW, 
                         spender: allConfigs.FundManager.address ,
                         amount: 0,
                         contractAddress: allConfigs.OfficialTokenSecret.address,
-                    }]} />
+                        }
+                    } />
             </Card>
             <Card title="RequestSiwe">
                 <RequestSiwe />
