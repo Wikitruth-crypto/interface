@@ -2,10 +2,10 @@
 
 // import { AppKitProvider } from '@reown/appkit/react'
 import { createAppKit } from '@reown/appkit/react'
-import { createStorage } from '@wagmi/core'
+// import { createStorage } from '@wagmi/core'
 import type { ReactNode } from 'react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { WagmiProvider,http} from 'wagmi'
+import { WagmiProvider, http} from 'wagmi'
 import { sapphire, sapphireTestnet } from '@reown/appkit/networks'
 import { RPC } from '@/config/env'
 
@@ -20,18 +20,6 @@ const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 if (!projectId) {
   console.warn('VITE_WALLETCONNECT_PROJECT_ID is not set. WalletConnect features will be limited.')
-}
-
-// 抑制 WalletConnect WebSocket 连接失败的日志（如果使用 Injected Wallet，这是正常的）
-if (typeof window !== 'undefined') {
-  const originalError = console.error
-  console.error = (...args: any[]) => {
-      // 过滤掉 WalletConnect WebSocket 连接失败的错误
-      if (args[0]?.includes?.('WebSocket connection') && args[0]?.includes?.('relay.walletconnect.org')) {
-          return // 不输出这个错误
-      }
-      originalError.apply(console, args)
-  }
 }
 
 const networks = [sapphire, sapphireTestnet]

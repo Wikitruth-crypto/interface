@@ -1,11 +1,5 @@
 'use client';
 
-import { ContractName } from '@dapp/contractsConfig';
-import { getContractConfig } from '@dapp/contractsConfig';
-import { useChainId, usePublicClient } from 'wagmi';
-import { getPublicClient } from '@wagmi/core';
-import { config } from '@/dapp/context/useAccount/wagmi';
-import { useRef } from 'react';
 import { EIP712Permit, SignatureRSV } from '@/dapp/hooks/EIP712';
 import { useReadContractERC20 } from './useReadContractERC20';
 /**
@@ -33,7 +27,7 @@ export function useERC20Secret() {
      */
     const underlyingToken = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'underlyingToken', []);
+            const tx = await readContractERC20('secret', tokenAddress, 'underlyingToken');
             return tx ? String(tx) : '';
         } catch (error) {
             console.error('underlyingToken error:', error);
@@ -83,7 +77,7 @@ export function useERC20Secret() {
      */
     const DOMAIN_SEPARATOR = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'DOMAIN_SEPARATOR', []);
+            const tx = await readContractERC20('secret', tokenAddress, 'DOMAIN_SEPARATOR');
             return tx ? String(tx) : '';
         } catch (error) {
             console.error('DOMAIN_SEPARATOR error:', error);
@@ -96,7 +90,7 @@ export function useERC20Secret() {
      */
     const EIP_PERMIT_TYPEHASH = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'EIP_PERMIT_TYPEHASH', []);
+            const tx = await readContractERC20('secret', tokenAddress, 'EIP_PERMIT_TYPEHASH');
             return tx ? String(tx) : '';
         } catch (error) {
             console.error('EIP_PERMIT_TYPEHASH error:', error);

@@ -8,6 +8,7 @@ export const TESTNET_ADDRESSES: ContractAddresses = {
   // Token 合约
   [ContractName.OFFICIAL_TOKEN]: deployedAddresses['MockERC20_20251009'] as `0x${string}`,
   [ContractName.OFFICIAL_TOKEN_SECRET]: deployedAddresses['ERC20Secret_20251009'] as `0x${string}`,
+  [ContractName.ERC20_SECRET]: deployedAddresses['ERC20Secret_20251009'] as `0x${string}`,
   [ContractName.WROSE_SECRET]: deployedAddresses['WROSESecret_20251009'] as `0x${string}`,
   
   // 核心合约（使用 Proxy 地址）

@@ -57,7 +57,7 @@ export const useMetadataStore = create<MetadataStoreType>()(
                 set((state) => {
                     const existingData = state.boxesMetadata[tokenId];
                     if (!existingData) {
-                        console.warn(`尝试更新不存在的Box元数据，tokenId: ${tokenId}`);
+                        console.warn(`Box metadata not found, tokenId: ${tokenId}`);
                         return state;
                     }
                     return {

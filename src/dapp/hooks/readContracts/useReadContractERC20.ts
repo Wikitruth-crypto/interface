@@ -2,7 +2,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePublicClient, useChainId } from 'wagmi';
 import { getPublicClient } from '@wagmi/core';
-import { config } from '@/dapp/context/useAccount/wagmi';
+// import { config } from '@/dapp/context/useAccount/wagmi';
+import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { getContractConfig, ContractName } from '@dapp/contractsConfig';
 import { useRef, useCallback } from 'react';
 
@@ -11,8 +12,9 @@ import { useRef, useCallback } from 'react';
  */
 export function useReadContractERC20() {
     const queryClient = useQueryClient();
-    const chainId = useChainId();
-    const publicClient = usePublicClient();
+    const { publicClient, chainId } = useWalletContext();
+    // const chainId = useChainId();
+    // const publicClient = usePublicClient();
     const publicClientRef = useRef(publicClient);
     
     // 保持 ref 与最新值同步
@@ -25,7 +27,7 @@ export function useReadContractERC20() {
         args?: readonly unknown[]
     ) => {
         // 使用可选链，如果 publicClient 不存在，尝试从 core 获取
-        let client = publicClientRef.current || getPublicClient(config);
+        let client = publicClientRef.current || publicClient;
         
         // 如果还是不存在，等待初始化（最多 3 秒，因为通常很快）
         if (!client) {
@@ -34,7 +36,7 @@ export function useReadContractERC20() {
             
             while (!client && Date.now() - start < maxWait) {
                 await new Promise(resolve => setTimeout(resolve, 50));
-                client = publicClientRef.current || getPublicClient(config);
+                client = publicClientRef.current || publicClient;
             }
         }
         
@@ -49,13 +51,36 @@ export function useReadContractERC20() {
         let contractName = type === 'erc20' ? ContractName.OFFICIAL_TOKEN : ContractName.ERC20_SECRET;
 
         const config_contract = getContractConfig(contractName, chainId);
-        const queryKey = [
-            type,
-            tokenAddress,
-            functionName,
-            args,
-            chainId,
-        ];
+
+        let queryKey: any[] = [];
+        let readContractParams: any = {};
+        if (args && args.length > 0) {
+            queryKey = [
+                type,
+                tokenAddress,
+                functionName,
+                args,
+                chainId,
+            ];
+            readContractParams = {
+                address: tokenAddress,
+                abi: config_contract.abi,
+                functionName: functionName,
+                args: args,
+            };
+        } else {
+            queryKey = [
+                type,
+                tokenAddress,
+                functionName,
+                chainId,
+            ];
+            readContractParams = {
+                address: tokenAddress,
+                abi: config_contract.abi,
+                functionName: functionName,
+            };
+        }
 
         // 先检查缓存
         const cached = queryClient.getQueryData(queryKey);
@@ -64,12 +89,7 @@ export function useReadContractERC20() {
         }
 
         // 执行查询并缓存
-        const result = await client.readContract({
-            address: tokenAddress,
-            abi: config_contract.abi,
-            functionName: functionName,
-            args: args,
-        });
+        const result = await client.readContract(readContractParams);
 
         queryClient.setQueryData(queryKey, result);
         return result;

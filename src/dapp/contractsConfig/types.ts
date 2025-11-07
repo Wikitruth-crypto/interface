@@ -46,6 +46,7 @@ export enum ContractName {
   // Token 合约
   OFFICIAL_TOKEN = 'OfficialToken',
   OFFICIAL_TOKEN_SECRET = 'OfficialTokenSecret',
+  ERC20_SECRET = 'ERC20Secret',
   WROSE_SECRET = 'WroseSecret',
   
   // 核心合约

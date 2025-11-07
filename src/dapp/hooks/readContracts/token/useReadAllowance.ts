@@ -54,14 +54,6 @@ export const useReadAllowance = () => {
             let allowanceAmount = 0;
 
             if (tokenMetadata?.types === 'ERC20') {
-                // 标准 ERC20 代币
-                // const params1: AllowanceERC20Params = {
-                //     type: 'ERC20',
-                //     amount: amount,
-                //     owner: owner as `0x${string}`,
-                //     spender: spender as `0x${string}`,
-                // };
-                // params = params1;
                 allowanceAmount = await allowance(tokenAddress, owner, spender);
                 
                 console.log(`[ERC20] Allowance: ${allowanceAmount}, Target: ${targetAmount}`);
