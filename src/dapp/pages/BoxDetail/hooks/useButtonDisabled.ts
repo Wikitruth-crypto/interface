@@ -1,9 +1,7 @@
-import { useQueryStore } from '@/dapp/store_sapphire/useQueryStore';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useMemo } from 'react';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
-import { selectBox } from '@/dapp/store_sapphire/selectors';
 import { useBoxContext } from '../contexts/BoxContext';
 
 type ButtonDisabledNameType = 
@@ -22,9 +20,8 @@ type ButtonDisabledNameType =
 'viewFileDisabled';
 
 export const useButtonDisabled = (name: ButtonDisabledNameType) => {
-  const { boxId } = useBoxContext();
+  const { boxId, box } = useBoxContext();
   const { userState, deadlineCheckState, modalStatus} = useBoxDetailStore(state => state);
-  const box = useQueryStore(selectBox(boxId));
   const { address } = useWalletContext() || {};
 
   // 导入accountStore中记录的写入成功列表

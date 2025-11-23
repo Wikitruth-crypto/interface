@@ -1,16 +1,14 @@
 "use client"
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
-import { useMetadataStore } from '@/dapp/event_sapphire/useMetadataStore';
-import { BoxStored } from '@/dapp/event_sapphire/types';
+import { useMemo } from 'react';
+import type { BoxData } from '../types/profile.types';
 
 interface ProcessedBoxData {
     id: string;
     tokenId: string;
-    // Box 数据（从新架构 - 存储类型）
-    box?: BoxStored;
-    // Metadata 数据
+    // Box 数据
+    box?: BoxData;
+    // Metadata 数据（已从 Supabase 查询中获取）
     metadata?: any;
     // 处理状态
     isLoading: boolean;
@@ -19,155 +17,44 @@ interface ProcessedBoxData {
 }
 
 /**
- * useProcessData - 处理 Box 数据和元数据
+ * useProcessData - 处理 Box 数据和元数据（基于 Supabase）
  *
  * 重构说明：
- * - 使用新的 useQueryStore 和 selectors
- * - 移除对旧的 boxProfiles 的依赖
- * - 使用 selectBox 获取 Box 数据
- * - 保持元数据处理逻辑不变
+ * - 移除 store_sapphire 依赖
+ * - 元数据已从 Supabase 查询中获取，无需额外处理
+ * - 简化逻辑，主要用于数据转换和状态管理
+ * - 保持与旧版本相同的接口（向后兼容）
  */
-export const useProcessData = (boxIds: string[]) => {
-    const metadataStore = useMetadataStore();
-
-    const [processedData, setProcessedData] = useState<Record<string, ProcessedBoxData>>({});
-    const [isProcessing, setIsProcessing] = useState(false);
-
-    // 获取需要处理的Box数据
-    const boxesToProcess = useMemo(() => {
-        return boxIds.map(boxId => {
-            // 使用 selector 获取 Box 数据
-            const box = useQueryStore.getState().boxes.entities[boxId];
-            const metadata = metadataStore.boxesMetadata[box?.tokenId];
-
-            return {
-                id: boxId,
-                tokenId: box?.tokenId || '',
-                box,
-                metadata,
-                needsMetadata: box && !metadata,
-            };
-        });
-    }, [boxIds, metadataStore.boxesMetadata]);
-
-    // 处理单个Box的metadata
-    const processBoxMetadata = useCallback(async (boxId: string, tokenId: string) => {
-        try {
-            // 更新处理状态
-            setProcessedData(prev => ({
-                ...prev,
-                [boxId]: {
-                    ...prev[boxId],
-                    isLoading: true,
-                    hasError: false,
-                }
-            }));
-
-            // 获取 Box 数据
-            const box = useQueryStore.getState().boxes.entities[boxId];
-            if (!box?.tokenURI) {
-                throw new Error('TokenURI not found');
-            }
-
-            // TODO: 等待元数据处理模块开发完成
-            // const metadata = await processMetadata(tokenId, box.tokenURI);
-            const metadata = null; // 暂时返回 null
-
-            // 更新成功状态
-            setProcessedData(prev => ({
-                ...prev,
-                [boxId]: {
-                    ...prev[boxId],
-                    metadata,
-                    isLoading: false,
-                    hasError: false,
-                }
-            }));
-
-            return metadata;
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '处理metadata失败';
-            console.error(`Error processing metadata for box ${boxId}:`, error);
-
-            // 更新错误状态
-            setProcessedData(prev => ({
-                ...prev,
-                [boxId]: {
-                    ...prev[boxId],
-                    isLoading: false,
-                    hasError: true,
-                    errorMessage,
-                }
-            }));
-
-            return null;
-        }
-    }, []);
-
-    // 批量处理metadata
-    const processAllMetadata = useCallback(async () => {
-        const boxesNeedingMetadata = boxesToProcess.filter(box => box.needsMetadata);
-        
-        if (boxesNeedingMetadata.length === 0) {
-            return;
-        }
-
-        setIsProcessing(true);
-
-        try {
-            // 并发处理多个metadata，但限制并发数量
-            const batchSize = 5; // 每批处理5个
-            for (let i = 0; i < boxesNeedingMetadata.length; i += batchSize) {
-                const batch = boxesNeedingMetadata.slice(i, i + batchSize);
-                
-                await Promise.allSettled(
-                    batch.map(box => 
-                        processBoxMetadata(box.id, box.tokenId)
-                    )
-                );
-            }
-        } finally {
-            setIsProcessing(false);
-        }
-    }, [boxesToProcess, processBoxMetadata]);
-
-    // 初始化处理数据状态
-    useEffect(() => {
-        const newProcessedData: Record<string, ProcessedBoxData> = {};
-
-        boxesToProcess.forEach(item => {
-            newProcessedData[item.id] = {
-                id: item.id,
-                tokenId: item.tokenId,
-                box: item.box,
-                metadata: item.metadata,
-                isLoading: false,
-                hasError: false,
-            };
-        });
-
-        setProcessedData(newProcessedData);
-    }, [boxesToProcess]);
-
-    // 自动处理需要metadata的Box
-    useEffect(() => {
-        const needsProcessing = boxesToProcess.some(box => box.needsMetadata);
-        if (needsProcessing && !isProcessing) {
-            processAllMetadata();
-        }
-    }, [boxesToProcess, isProcessing, processAllMetadata]);
-
-    // 获取处理完成的数据列表
-    const getProcessedBoxes = useMemo(() => {
-        return boxIds.map(boxId => processedData[boxId]).filter(Boolean);
-    }, [boxIds, processedData]);
+export const useProcessData = (boxDataList: BoxData[]) => {
+    // 将 BoxData 转换为 ProcessedBoxData
+    const processedBoxes = useMemo((): ProcessedBoxData[] => {
+        return boxDataList.map(box => ({
+            id: box.id,
+            tokenId: box.tokenId,
+            box,
+            // 元数据已包含在 BoxData 中（title, description, image 等）
+            metadata: {
+                title: box.title,
+                description: box.description,
+                image: box.image,
+                boxImage: box.boxImage,
+                country: box.country,
+                state: box.state,
+                eventDate: box.eventDate,
+                typeOfCrime: box.typeOfCrime,
+            },
+            isLoading: false,
+            hasError: box.hasError || false,
+            errorMessage: box.hasError ? 'Failed to load metadata' : undefined,
+        }));
+    }, [boxDataList]);
 
     // 统计信息
     const processingStats = useMemo(() => {
-        const total = boxIds.length;
-        const processed = getProcessedBoxes.filter(box => box.metadata).length;
-        const loading = getProcessedBoxes.filter(box => box.isLoading).length;
-        const errors = getProcessedBoxes.filter(box => box.hasError).length;
+        const total = boxDataList.length;
+        const processed = processedBoxes.filter(box => box.metadata && !box.hasError).length;
+        const loading = 0; // 所有数据已从 Supabase 加载完成
+        const errors = processedBoxes.filter(box => box.hasError).length;
 
         return {
             total,
@@ -177,22 +64,22 @@ export const useProcessData = (boxIds: string[]) => {
             progress: total > 0 ? (processed / total) * 100 : 0,
             isComplete: processed === total && loading === 0,
         };
-    }, [boxIds.length, getProcessedBoxes]);
+    }, [boxDataList.length, processedBoxes]);
 
     return {
         // 处理后的数据
-        processedBoxes: getProcessedBoxes,
+        processedBoxes,
         
-        // 处理状态
-        isProcessing,
+        // 处理状态（已从 Supabase 加载完成，无需额外处理）
+        isProcessing: false,
         processingStats,
         
-        // 方法
-        processBoxMetadata,
-        processAllMetadata,
+        // 方法（保留接口兼容性，但无需实际处理）
+        processBoxMetadata: async () => null,
+        processAllMetadata: async () => {},
         
         // 便捷属性
-        hasData: getProcessedBoxes.length > 0,
+        hasData: processedBoxes.length > 0,
         isComplete: processingStats.isComplete,
         hasErrors: processingStats.errors > 0,
     };

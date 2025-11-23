@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { RuntimeEvent } from '../../../../oasis-nexus/api'
 import { decodeRuntimeEvents } from '../../events'
-import { WIKI_TRUTH_EVENT_SIGNATURES } from '../../../../contractsConfig/eventSignatures/wikiTruthEvents'
+import { WIKI_TRUTH_EVENT_SIGNATURES } from '../../../../../contractsConfig/eventSignatures/wikiTruthEvents'
 
 const CONTRACT_ADDRESS = '0xdeadbeef00000000000000000000000000c0ffee' as const
 const FROM_ADDRESS = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const

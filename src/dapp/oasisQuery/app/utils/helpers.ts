@@ -78,6 +78,15 @@ export const isValidTxHash = (hash: string) => isValidTxOasisHash(hash) || isVal
 export const base64ToHex = (base64Data: string): string =>
   `0x${Buffer.from(base64Data, 'base64').toString('hex')}`
 
+// Convert data from hex (with or without 0x prefix) to base64
+export const hexToBase64 = (hexData: string): string => {
+  const normalized = hexData.startsWith('0x') ? hexData.slice(2) : hexData
+  if (normalized.length % 2 !== 0) {
+    throw new Error('Hex input must contain full bytes')
+  }
+  return Buffer.from(normalized, 'hex').toString('base64')
+}
+
 // Convert address from base64 to hex, add prefix, and convert to checksum address
 export function getEthAccountAddressFromBase64(base64Address: string): string {
   return toChecksumAddress(base64ToHex(base64Address))

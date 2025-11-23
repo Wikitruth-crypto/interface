@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-// import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ApproveButton from './approve';
@@ -21,7 +19,6 @@ interface Props {
 
 const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
-    const disabled = useButtonDisabled('buyDisabled');
     // const { address } = useWalletContext();
     const { box , boxId } = useBoxContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
@@ -33,7 +30,6 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
 
 
     const handleBuy = async () => {
-        if (disabled) return;
         onClick?.();
         await write_BoxDetail({
             contract: allConfigs.Exchange,
@@ -46,7 +42,7 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     useEffect(() => {
         if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
             checkAllowance_BoxDetail(
-                box?.acceptedToken?.id || '',
+                box?.acceptedToken?.id as `0x${string}` || '',
                 box?.price || 0
             )
         }
@@ -54,17 +50,13 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
 
     // 计算按钮状态
     const isLoading = currentActionFunction === 'buy' && isPending;
-    const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'buy');
+    const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'buy');
 
     // 如果需要授权，显示授权按钮
     if (!isEnough) {
         return <ApproveButton className={className} />;
     }
 
-    // 如果按钮被禁用，不显示
-    if (disabled) {
-        return null;
-    }
 
     return (
         <div className={cn('w-full', className)}>

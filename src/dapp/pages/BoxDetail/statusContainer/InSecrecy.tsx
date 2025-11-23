@@ -7,8 +7,6 @@ import {
 } from '@BoxDetail/ButtonContainer';
 import { useBoxContext } from '../contexts/BoxContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-// import { useQueryStore } from '@/dapp/event_sapphire/useQueryStore';
-// import { selectBox, } from '@/dapp/event_sapphire/selectors';
 // import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
 import { Alert } from 'antd'; // 直接使用antd的Alert组件
 

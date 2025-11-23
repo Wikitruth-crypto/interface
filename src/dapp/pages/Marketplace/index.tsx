@@ -1,20 +1,22 @@
 "use client";
 
-import React, { } from 'react';
-import TruthBoxEventsSynchronizer from '@/dapp/store_sapphire/query/TruthBoxEventsSynchronizer';
+import React, { useState } from 'react';
 import Marketplace from './containers/Marketplace';
-// import { useReadContract } from '@dapp/hooks/readContracts/useReadContract';
-// import { ContractName } from '@dapp/contractsConfig';
+import PromptModal from '@/dapp/components/promptModal2';
 
 const MarketplacePage = () => {
+    const [isPromptModalOpen, setIsPromptModalOpen] = useState(true);
+
+    const handleClosePromptModal = () => {
+        setIsPromptModalOpen(false);
+    };
 
     return (
         <>
-            <TruthBoxEventsSynchronizer debug={true}/>
+            <PromptModal isOpen={isPromptModalOpen} onClose={handleClosePromptModal} />
             <Marketplace />
         </>
     );
 };
 
 export default MarketplacePage;
-

@@ -25,8 +25,12 @@ import { ContractName } from './types';
 export const ABIS: Record<ContractName, Abi> = {
   // Token 合约
   [ContractName.OFFICIAL_TOKEN]: officialTokenJson.abi as Abi,
-  [ContractName.ERC20_SECRET]: erc20SecretJson.abi as Abi,
+  [ContractName.OFFICIAL_TOKEN_SECRET]: erc20SecretJson.abi as Abi,
   [ContractName.WROSE_SECRET]: wroseSecretJson.abi as Abi,
+  [ContractName.ERC20_SECRET]: erc20SecretJson.abi as Abi,
+  // [ContractName.USDC_SECRET]: erc20SecretJson.abi as Abi,
+  // [ContractName.WBTC_SECRET]: erc20SecretJson.abi as Abi,
+  // [ContractName.WETH_SECRET]: erc20SecretJson.abi as Abi,
   
   // 核心合约
   [ContractName.TRUTH_NFT]: truthNFTJson.abi as Abi,

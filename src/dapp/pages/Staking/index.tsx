@@ -1,46 +1,73 @@
+import React from 'react';
+import { Card, Typography, Space, Alert, Row, Col } from 'antd';
+import { LockOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
+const { Title, Paragraph, Text } = Typography;
 
-// HomePage.tsx
-// import React from 'react';
-import styles from './styles.module.scss';
-
-function Staking() {
-
+/**
+ * Staking 页面
+ * 
+ * 占位页面，显示 Staking 功能即将推出的提示
+ */
+const Staking: React.FC = () => {
     return (
-        <>
-            <div className={styles.home}>
-                <div className={styles.first}>
-                    <div className={styles.left}>
-                        <span>
-                            <h1 className={styles.title01}>Truth</h1>
-                            <h1 className={styles.title02}>Market</h1>
-                        </span>
-                        <p>
-                            The truth will eventually be revealed, <br />
-                            and the criminals will eventually be judged!
-                        </p>
-                    </div>
-                    <div className={styles.right}>
-                        <p>Staking will be in the subsequent development plan</p>
-                        <p>Please wait!</p>
-                    </div>
-                </div>
-            
-                <div className={styles.second}>
+        <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                {/* 标题区域 */}
+                <Card>
+                    <Row gutter={[24, 24]} align="middle">
+                        <Col xs={24} md={12}>
+                            <Space direction="vertical" size="middle">
+                                <div>
+                                    <Title level={1} style={{ margin: 0, display: 'inline-block', marginRight: 8 }}>
+                                        Truth
+                                    </Title>
+                                    <Title level={1} style={{ margin: 0, display: 'inline-block' }}>
+                                        Market
+                                    </Title>
+                                </div>
+                                <Paragraph style={{ fontSize: '16px', marginBottom: 0 }}>
+                                    The truth will eventually be revealed,<br />
+                                    and the criminals will eventually be judged!
+                                </Paragraph>
+                            </Space>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Alert
+                                message={
+                                    <Space direction="vertical" size="small">
+                                        <Space>
+                                            <LockOutlined />
+                                            <Text strong>Staking Coming Soon</Text>
+                                        </Space>
+                                        <Text type="secondary">
+                                            Staking will be in the subsequent development plan
+                                        </Text>
+                                        <Text type="secondary">Please wait!</Text>
+                                    </Space>
+                                }
+                                type="info"
+                                showIcon
+                            />
+                        </Col>
+                    </Row>
+                </Card>
 
-                    <div className={styles.horizontalLine}></div> 
-                    <div className={styles.third}>
-
-                    </div>
-                    <div className={styles.horizontalLine}></div> 
-
-                </div>
-                
-            </div>
-        </>
-        
-
+                {/* 内容区域 */}
+                <Card>
+                    <Space direction="vertical" size="large" style={{ width: '100%', textAlign: 'center' }}>
+                        <ClockCircleOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
+                        <Title level={3}>Staking & Rewards</Title>
+                        <Paragraph>
+                            Token staking features are under development.
+                            <br />
+                            This will include staking pools, rewards distribution, and yield farming mechanisms.
+                        </Paragraph>
+                    </Space>
+                </Card>
+            </Space>
+        </div>
     );
-}
+};
 
 export default Staking;

@@ -3,7 +3,6 @@ import React from 'react';
 import { Typography } from 'antd';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import { timeToDate } from '@/dapp/utils/time';
@@ -18,7 +17,6 @@ interface Props {
 }
 
 const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
-  const disabled = useButtonDisabled('requestRefundDisabled');
   const { boxId } = useBoxContext()
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const deadline = deadlineCheckState.requestRefundDeadline;
@@ -39,12 +37,7 @@ const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = currentActionFunction === 'requestRefund' && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'requestRefund');
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'requestRefund');
 
   return (
     <div className={cn('w-full', className)}>

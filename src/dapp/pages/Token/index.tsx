@@ -1,200 +1,256 @@
-import React, {
-    useState,
-    useEffect,
-    useContext
-} from 'react';
-import InputBox from '@/dapp/components/base/inputBox';
-import BaseButton from '@/dapp/components/base/baseButton';
-import styles from './styles.module.scss';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, Button, Input, Space, Typography, Divider, Alert, Row, Col } from 'antd';
 import { useSupportedTokens, useAllContractConfigs } from '@/dapp/contractsConfig';
+import { OFFICIAL_TOKEN_CONFIG } from '@/dapp/contractsConfig/tokens';
 import { Address_0 } from '@/dapp/constants';
 import { useAccount } from 'wagmi';
 import { useWriteContract } from 'wagmi';
-import { ContractContext } from '@/dapp/context/contractContext';
+import { parseUnits, formatUnits } from 'viem';
 import { timeToDate } from '@dapp/utils/time';
+import { useERC20 } from '@/dapp/hooks/readContracts/useERC20';
+
+const { Title, Text } = Typography;
 
 type ActiveButton = 'mint' | 'burn' | 'transfer' | null;
 
 const Token: React.FC = () => {
-    const { writeContract, status } = useWriteContract();
-    const { balanceOf, mintDate } = useContext(ContractContext);
-    // const []
+    const { writeContract, status, isPending } = useWriteContract();
+    const { balanceOf, mintDate } = useERC20();
     const { address } = useAccount();
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);
-    const [transferAmount, setTransferAmount] = useState<number>(0);
+    const [transferAmount, setTransferAmount] = useState<string>('');
     const [transferAddress, setTransferAddress] = useState<string>('');
-    const [burnAmount, setBurnAmount] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(false);
-    // const [data,setData] = useState<string>('')
-    // if (address === undefined) {
-    //     return<div> Please </div>
-    // }
-    const balance = balanceOf(address || Address_0);
-    const mint_data = mintDate(address || Address_0);
+    const [burnAmount, setBurnAmount] = useState<string>('');
+    const allContracts = useAllContractConfigs();
+    const supportedTokens = useSupportedTokens();
 
+    const [balance, setBalance] = useState<number>(0);
+    const [mint_data, setMint_data] = useState<number>(0);
+    
+    const tokenContract = allContracts.OfficialToken;
+    useEffect(() => {
+        const fetchBalance = async () => {
+            if (!address && address !== Address_0) return;
+            const balance = await balanceOf(tokenContract.address, address);
+            setBalance(balance);
+            const mint_data = await mintDate(tokenContract.address, address);
+            setMint_data(mint_data);
+        }
+
+        fetchBalance();
+    }, [address]);
+
+    // 获取代币信息
+    const tokenInfo = useMemo(() => {
+        return supportedTokens.find(token => token.address.toLowerCase() === tokenContract.address.toLowerCase()) || {
+            name: OFFICIAL_TOKEN_CONFIG.name,
+            symbol: OFFICIAL_TOKEN_CONFIG.symbol,
+            decimals: OFFICIAL_TOKEN_CONFIG.decimals,
+            address: tokenContract.address,
+        };
+    }, [supportedTokens, tokenContract]);
 
     useEffect(() => {
         if (status === 'success' || status === 'error') {
-            setLoading(true);
             setActiveButton(null);
-        } else {
-            setLoading(false);
+            // 成功后清空输入
+            if (status === 'success') {
+                setTransferAmount('');
+                setTransferAddress('');
+                setBurnAmount('');
+            }
         }
     }, [status]);
 
-    const handleTransferAmount = (value: string) => {
-        // 只允许输入数字
-        const numberRegex = /^[1-9]\d*$/;
-        // 允许清空输入框
-        if (value === '') {
-            setTransferAmount(0);
-            return;
-        }
-        // 验证输入是否符合要求：不能以0开头，只能是数字
-        if (numberRegex.test(value)) {
-            const tx = Number(value)
-            setTransferAmount(tx);
+    const handleTransferAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        // 只允许输入数字和小数点
+        const numberRegex = /^\d*\.?\d*$/;
+        if (value === '' || numberRegex.test(value)) {
+            setTransferAmount(value);
         }
     };
 
-    const handleTransferAddress = (value: string) => {
-        // 允许清空输入框
-        if (value === '') {
-            setTransferAddress('');
-            return;
-        } else {
-            setTransferAddress(value);
-
-        }
-
-    }
-
+    const handleTransferAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTransferAddress(e.target.value);
+    };
 
     const handleAll = () => {
         if (balance) {
-            setBurnAmount(balance)
+            const formattedBalance = formatUnits(BigInt(balance), tokenInfo.decimals);
+            setBurnAmount(formattedBalance);
         }
-    }
+    };
 
-    const handleBurnAmount = (value: string) => {
-
-        const numberRegex = /^[1-9]\d*$/;
-        if (value === '') {
-            setBurnAmount(0);
-            return;
+    const handleBurnAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        // 只允许输入数字和小数点
+        const numberRegex = /^\d*\.?\d*$/;
+        if (value === '' || numberRegex.test(value)) {
+            setBurnAmount(value);
         }
-        if (numberRegex.test(value)) {
-            const tx = Number(value)
-            setBurnAmount(tx);
+    };
+
+    const handleMint = () => {
+        if (!address) return;
+        setActiveButton('mint');
+        writeContract({
+            ...tokenContract,
+            functionName: 'mint',
+            args: [address],
+        });
+    };
+
+    const handleTransfer = () => {
+        if (!transferAmount || !transferAddress || !address) return;
+        
+        try {
+            const amount = parseUnits(transferAmount, tokenInfo.decimals);
+            setActiveButton('transfer');
+            writeContract({
+                ...tokenContract,
+                functionName: 'transfer',
+                args: [transferAddress as `0x${string}`, amount],
+            });
+        } catch (error) {
+            console.error('Transfer error:', error);
         }
     };
 
     const handleBurn = () => {
+        if (!burnAmount) return;
+        
+        try {
+            const amount = parseUnits(burnAmount, tokenInfo.decimals);
+            setActiveButton('burn');
+            writeContract({
+                ...tokenContract,
+                functionName: 'burn',
+                args: [amount],
+            });
+        } catch (error) {
+            console.error('Burn error:', error);
+        }
+    };
 
-    }
-
-    const handleMint = () => {
-        writeContract({
-            ...Config_OfficeToken,
-            functionName: 'mint',
-            args: [address],
-        });
-    }
-
-    const handleTransfer = () => {
-        writeContract({
-            ...Config_OfficeToken,
-            functionName: 'transfer',
-            args: [address],
-        });
-    }
+    const isLoading = isPending || activeButton !== null;
+    const formattedBalance = balance ? formatUnits(BigInt(balance), tokenInfo.decimals) : '0';
 
     return (
-
-        <div className={styles.home}>
-            <div className={styles.container}>
-                <div className={styles.account}>
-                    <h2>Test Token</h2>
-                    <h3>{officeToken.name} ---- {officeToken.symbol}</h3>
-                    <p>{Config_OfficeToken.address}</p>
-                </div>
-
-                <div className={styles.content}>
-                    <div className={styles.dataRow}>
-                        <h3>Your balance: {balance}</h3>
-                        <BaseButton
-                            onClick={handleMint}
-                            loading={loading || activeButton === 'mint'}
-                        >
-                            mint
-                        </BaseButton>
+        <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+            <Card>
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    {/* 代币信息 */}
+                    <div>
+                        <Title level={2}>Test Token</Title>
+                        <Space direction="vertical" size="small">
+                            <Text strong>
+                                {tokenInfo.name} ({tokenInfo.symbol})
+                            </Text>
+                            <Text type="secondary" copyable>
+                                {tokenContract.address}
+                            </Text>
+                        </Space>
                     </div>
-                    {/* <div className={styles.horizontalLine}></div> */}
 
-                    <div className={styles.tipsRow}>
-                        <span className={styles.spanCloum}>
-                            <p className='tips'>You can mint 1,000,000 tokens each time.</p>
-                            <p className='tips'>
-                                You last minted on: {timeToDate(mint_data || 0)}, <br />
-                                Each minting requires an interval of 72 hours.
-                            </p>
-                        </span>
+                    <Divider />
 
-                    </div>
-                    <div className={styles.horizontalLine}></div>
-                    <div className={styles.dataRow}>
-                        <span className={styles.spanRow}>
-                            <InputBox
-                                onChange={handleTransferAmount}
+                    {/* Mint 区域 */}
+                    <Card size="small" title="Mint Tokens">
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <Row justify="space-between" align="middle">
+                                <Col>
+                                    <Text strong>Your Balance: </Text>
+                                    <Text>{formattedBalance} {tokenInfo.symbol}</Text>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        type="primary"
+                                        onClick={handleMint}
+                                        loading={isLoading && activeButton === 'mint'}
+                                        disabled={!address || isLoading}
+                                    >
+                                        Mint
+                                    </Button>
+                                </Col>
+                            </Row>
+                            <Alert
+                                type="info"
+                                message={
+                                    <Space direction="vertical" size="small">
+                                        <Text>You can mint 1,000,000 tokens each time.</Text>
+                                        <Text>
+                                            You last minted on: {timeToDate(mint_data || 0)}
+                                        </Text>
+                                        <Text>Each minting requires an interval of 72 hours.</Text>
+                                    </Space>
+                                }
+                                showIcon
+                            />
+                        </Space>
+                    </Card>
+
+                    {/* Transfer 区域 */}
+                    <Card size="small" title="Transfer Tokens">
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <Input
+                                placeholder="Amount"
                                 value={transferAmount}
+                                onChange={handleTransferAmount}
+                                addonAfter={tokenInfo.symbol}
+                                disabled={isLoading || !address}
                             />
-                            <div className={styles.spaceRow}></div>
-                            <InputBox
-                                onChange={handleTransferAddress}
+                            <Input
+                                placeholder="Recipient Address"
                                 value={transferAddress}
+                                onChange={handleTransferAddress}
+                                disabled={isLoading || !address}
                             />
-                            <div className={styles.spaceRow}></div>
-                            <BaseButton
+                            <Button
+                                type="primary"
                                 onClick={handleTransfer}
-                                loading={loading || activeButton === 'transfer'}
+                                loading={isLoading && activeButton === 'transfer'}
+                                disabled={!address || !transferAmount || !transferAddress || isLoading}
+                                block
                             >
-                                transfer
-                            </BaseButton>
-                        </span>
-                    </div>
-                    <div className={styles.dataRow}>
-                        <span className={styles.spanRow}>
-                            <InputBox
-                                onChange={handleBurnAmount}
-                                value={burnAmount}
-                            />
-                            <div className={styles.spaceRow}></div>
-                            <BaseButton
-                                onClick={handleAll}
-                                loading={false}
-                            >
-                                all
-                            </BaseButton>
-                            <div className={styles.spaceRow}></div>
-                            <BaseButton
-                                onClick={handleBurn}
-                                loading={loading || activeButton === 'burn'}
-                            >
-                                burn
-                            </BaseButton>
+                                Transfer
+                            </Button>
+                        </Space>
+                    </Card>
 
-                        </span>
-                    </div>
-                    {/* <div className={styles.horizontalLine}></div> */}
-
-                </div>
-
-                <div className={styles.spaceFooter}>
-
-                </div>
-            </div>
+                    {/* Burn 区域 */}
+                    <Card size="small" title="Burn Tokens">
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <Space.Compact style={{ width: '100%' }}>
+                                <Input
+                                    placeholder="Amount"
+                                    value={burnAmount}
+                                    onChange={handleBurnAmount}
+                                    addonAfter={tokenInfo.symbol}
+                                    disabled={isLoading || !address}
+                                    style={{ flex: 1 }}
+                                />
+                                <Button
+                                    onClick={handleAll}
+                                    disabled={!address || !balance || isLoading}
+                                >
+                                    All
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    danger
+                                    onClick={handleBurn}
+                                    loading={isLoading && activeButton === 'burn'}
+                                    disabled={!address || !burnAmount || isLoading}
+                                >
+                                    Burn
+                                </Button>
+                            </Space.Compact>
+                        </Space>
+                    </Card>
+                </Space>
+            </Card>
         </div>
-
     );
 };
 

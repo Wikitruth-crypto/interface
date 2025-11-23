@@ -30,6 +30,8 @@
       "@Token/*": ["./src/dapp/pages/Token/*"],
       "@Staking/*": ["./src/dapp/pages/Staking/*"],
       "@Dao/*": ["./src/dapp/pages/Dao/*"],
+      "@supabaseDocs/*": ["./supabaseDocs/*"],
+
     }
   },
   "include": ["src", "vite.config.ts", "project.ts"],

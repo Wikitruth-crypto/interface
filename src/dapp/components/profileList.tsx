@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import CardProfileContainer from '@/dapp/pages/Profile/containers/CardProfileContainer';
 import SkeletonProfile from '@/dapp/components/base/skeletonProfile';
 import { testBoxProfileList } from "../store/testBox";
-import { Container } from "@/components/Container";
+// import { Container } from "@/components/Container";
 import ProgressiveRevealCard from '@/dapp/components/base/progressiveRevealCard';
 import { useProgressiveReveal } from '@/dapp/hooks/useProgressiveReveal';
 

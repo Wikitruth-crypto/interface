@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { useMetadataStore } from '@/dapp/store_sapphire/useMetadataStore';
+import { useMetadataStore } from '@/dapp/store/processMetadata/useMetadataStore';
 import ImageSwiper from '@/dapp/components/imageSwiper';
 import Paragraph from '@/components/base/paragraph';
 import Line from '@/components/base/line';

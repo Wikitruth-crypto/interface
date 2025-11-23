@@ -9,28 +9,58 @@ import { boxStatus } from '@/dapp/types/contracts/truthBox';
 import { getSupportedTokens } from '@/dapp/contractsConfig/tokens';
 import { SupportedChainId } from '@/dapp/contractsConfig/types';
 import StatusLabel from './base/statusLabel';
+import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
+import { useEffect, useState, useCallback } from 'react';
 
 // 获取默认支持的代币列表（用于非 DApp 页面的展示）
 const DEFAULT_SUPPORTED_TOKENS = getSupportedTokens(SupportedChainId.SAPPHIRE_TESTNET);
 
 interface TruthBoxCardProps {
-    /** 卡片数据 */
     data: any;
-    /** 点击事件回调 */
+    // 是否启用ipfsUrl
+    enableIpfsUrl?: boolean;
     onClick?: () => void;
-    /** 自定义样式类名 */
     className?: string;
+    /** 图片加载完成回调（用于渐进式加载） */
+    onImageLoad?: () => void; // 新增
 }
 
 const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     data,
+    enableIpfsUrl = true,
     onClick,
-    className
+    className,
+    onImageLoad, // 新增
 }) => {
     const supportedTokens = DEFAULT_SUPPORTED_TOKENS;
 
     // 判断是否显示价格（Storing 和 Published 状态不显示价格）
     const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6];
+
+    const boxImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.boxImage) : data.boxImage;
+    const nftImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.nftImage) : data.nftImage;
+
+    const [imagesLoaded, setImagesLoaded] = useState(0);
+    const expectedImages = 2; // boxImage + nftImage
+
+    // 处理图片加载完成 - 使用 useEffect 延迟执行，避免在渲染期间更新父组件状态
+    const handleImageLoad = useCallback(() => {
+        setImagesLoaded(prev => {
+            const newCount = prev + 1;
+            if (newCount >= expectedImages && onImageLoad) {
+                // 延迟执行，避免在渲染期间更新状态
+                setTimeout(() => {
+                    onImageLoad();
+                }, 0);
+            }
+            return newCount;
+        });
+    }, [onImageLoad, expectedImages]);
+
+    // 当 data 变化时重置计数
+    useEffect(() => {
+        setImagesLoaded(0);
+    }, [data?.boxImage, data?.nftImage]);
 
     return (
         <div
@@ -58,9 +88,10 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                 // "rounded-t-xl md:rounded-t-2xl"
             )}>
                 <ImageSwiper
-                    images={[data.boxImage, data.nftImage]}
+                    images={[boxImageUrl, nftImageUrl]}
                     altPrefix={`truthbox-${data.tokenId}`}
                     className="w-full"
+                    onImageLoad={handleImageLoad} // 传递给 ImageSwiper
                 />
             </div>
 
@@ -75,18 +106,18 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
             )}>
                 {/* 标题 - 响应式字体大小 */}
                 {/* <div className="w-full"> */}
-                    <Typography.Paragraph
-                        ellipsis={{ rows: 2 }}
-                        className={cn(
-                            "text-gray-300 font-light",
-                            // 响应式字体大小：从小到大
-                            "text-xs sm:text-sm md:text-md",
-                            // 响应式行高
-                            "leading-tight md:leading-normal"
-                        )}
-                    >
-                        {data.title}
-                    </Typography.Paragraph>
+                <Typography.Paragraph
+                    ellipsis={{ rows: 2 }}
+                    className={cn(
+                        "text-gray-300 font-light",
+                        // 响应式字体大小：从小到大
+                        "text-xs sm:text-sm md:text-md",
+                        // 响应式行高
+                        "leading-tight md:leading-normal"
+                    )}
+                >
+                    {data.title}
+                </Typography.Paragraph>
                 {/* </div> */}
 
                 {/* 信息行 - 国家和日期 */}
@@ -116,11 +147,14 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                     >
                         {data.country} {data.state}
                     </Typography.Paragraph>
-                    <Typography.Paragraph ellipsis={{ rows: 1 }} className="text-gray-300 text-sm font-light">{data.eventDate}
+                    <Typography.Paragraph 
+                        ellipsis={{ rows: 1 }} 
+                        className="text-gray-300 text-sm font-light"
+                    >
+                        {data.eventDate}
                     </Typography.Paragraph>
                 </div>
 
-                {/* 分割线 - 响应式宽度 */}
                 <Divider style={{ margin: '8px 0' }} />
 
                 {/* 底部信息 - ID、价格、状态 */}
@@ -131,7 +165,7 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                     "min-h-[24px] sm:min-h-[26px] md:min-h-[28px]"
                 )}>
                     {/* Token ID */}
-                    <p className="text-white font-medium flex-shrink-0">
+                    <p className="text-white font-medium shrink-0">
                         {data.tokenId}
                     </p>
 
@@ -149,13 +183,13 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                                 tokens={supportedTokens}
                                 variant="small"
                                 responsive={true}
-                                className="flex-shrink min-w-0"
+                                className="shrink min-w-0"
                             />
                         )}
 
                         {/* 状态标签 */}
-                        <StatusLabel 
-                            status={data.status} 
+                        <StatusLabel
+                            status={data.status}
                             size="sm"
                             responsive={true}
                         />

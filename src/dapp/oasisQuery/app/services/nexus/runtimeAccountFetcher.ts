@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { keccak256 } from 'viem'
 import { stringToBytes } from 'viem/utils'
-import type { RuntimeEvent } from '../../../oasis-nexus/api'
+import type { RuntimeEvent,Runtime } from '../../../oasis-nexus/api'
 import { Network } from '../../../types/network'
-import { Runtime } from '../../../oasis-nexus/api'
 import { buildRuntimeEndpoint } from './endpoints'
 import type { GetRuntimeEventsParams } from '../../../oasis-nexus/generated/api'
 

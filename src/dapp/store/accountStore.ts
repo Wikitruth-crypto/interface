@@ -31,17 +31,6 @@ export interface LoginRecord {
     sessionId: string; // 会话唯一标识
 }
 
-/**
- * 安全审计日志
- */
-export interface AuditLog {
-    timestamp: number;
-    action: 'read' | 'write' | 'delete' | 'access_denied';
-    resource: string; // 访问的资源类型
-    details: string; // 详细信息
-    chainId?: number;
-}
-
 
 
 /**
@@ -136,9 +125,6 @@ export interface AccountState {
     
     // === Box 交互记录 ===
     boxInteractions: BoxInteractionsMap; // 记录在各个 Box 中的交互
-    
-    // === 安全审计 ===
-    auditLogs: AuditLog[]; // 最多保留最近 100 条
     
     // === 交易缓存 ===
     txCache: TransactionCache;
@@ -240,11 +226,6 @@ export interface AccountStoreMethods {
     hasBoxInteraction: (boxId: string, functionName: FunctionNameType) => boolean;
     clearBoxInteractions: (boxId?: string) => void;
     
-    // === 安全审计 ===
-    addAuditLog: (log: Omit<AuditLog, 'timestamp'>) => void;
-    getAuditLogs: (limit?: number) => AuditLog[];
-    clearAuditLogs: () => void;
-    
     // === 交易缓存 ===
     cacheTx: ( txHash: string, data: any, chainId?: number,) => void;
     getTxCache: (txHash: string) => any | null;
@@ -277,7 +258,6 @@ const createDefaultAccountState = (address: string, chainId: number): AccountSta
     tokenAllowances: {},
     multiSig: null,
     boxInteractions: {},
-    auditLogs: [],
     txCache: {},
     createdAt: Date.now(),
     lastActiveAt: Date.now(),
@@ -452,13 +432,7 @@ export const useAccountStore = create<AccountStore>()(
                         },
                     },
                 });
-                
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'session',
-                    details: `Start session: ${sessionId}`,
-                    chainId,
-                });
+
             },
 
             endSession: () => {
@@ -492,11 +466,6 @@ export const useAccountStore = create<AccountStore>()(
                         },
                     });
                     
-                    get().addAuditLog({
-                        action: 'write',
-                        resource: 'session',
-                        details: `End session: ${account.currentSessionId}`,
-                    });
                 }
             },
 
@@ -592,12 +561,6 @@ export const useAccountStore = create<AccountStore>()(
                     },
                 });
                 
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'token_allowance',
-                    details: `Update allowance: ${tokenAddress} -> ${spender} = ${amount}`,
-                    chainId,
-                });
                 
                 console.log(
                     `[AccountStore] Token allowance updated: ${tokenAddress} -> ${spender} = ${amount}`
@@ -619,16 +582,7 @@ export const useAccountStore = create<AccountStore>()(
                     get().accounts[chainId]?.[address]?.tokenAllowances?.[normalizedTokenAddress]?.[
                         normalizedSpender
                     ] || null;
-                
-                if (allowance) {
-                    get().addAuditLog({
-                        action: 'read',
-                        resource: 'token_allowance',
-                        details: `Read allowance: ${tokenAddress} -> ${spender}`,
-                        chainId,
-                    });
-                }
-                
+
                 return allowance;
             },
 
@@ -662,12 +616,6 @@ export const useAccountStore = create<AccountStore>()(
                         },
                     });
                     
-                    get().addAuditLog({
-                        action: 'delete',
-                        resource: 'token_allowance',
-                        details: `Clear allowances for token: ${tokenAddress}`,
-                        chainId,
-                    });
                 } else {
                     // 清除所有代币授权
                     set({
@@ -683,12 +631,6 @@ export const useAccountStore = create<AccountStore>()(
                         },
                     });
                     
-                    get().addAuditLog({
-                        action: 'delete',
-                        resource: 'token_allowance',
-                        details: 'Clear all token allowances',
-                        chainId,
-                    });
                 }
             },
 
@@ -769,12 +711,6 @@ export const useAccountStore = create<AccountStore>()(
                     },
                 });
                 
-                get().addAuditLog({
-                    action: 'write',
-                    resource: 'box_interaction',
-                    details: `Box ${boxId} - Function ${functionName}`,
-                    chainId: targetChainId,
-                });
                 
                 console.log(`[AccountStore] Box interaction recorded: ${functionName} on Box ${boxId}`);
             },
@@ -788,11 +724,6 @@ export const useAccountStore = create<AccountStore>()(
                 
                 const interactions = accounts[currentChainId]?.[address]?.boxInteractions[boxId] || [];
                 
-                get().addAuditLog({
-                    action: 'read',
-                    resource: 'box_interaction',
-                    details: `Box ${boxId} - Query interactions`,
-                });
                 
                 return interactions;
             },
@@ -807,11 +738,6 @@ export const useAccountStore = create<AccountStore>()(
                 const interactions = accounts[currentChainId]?.[address]?.boxInteractions[boxId] || [];
                 const hasInteraction = interactions.some((record: BoxInteractionRecord) => record.functionName === functionName);
                 
-                get().addAuditLog({
-                    action: 'read',
-                    resource: 'box_interaction',
-                    details: `Box ${boxId} - Check ${functionName}: ${hasInteraction}`,
-                });
                 
                 return hasInteraction;
             },
@@ -843,12 +769,6 @@ export const useAccountStore = create<AccountStore>()(
                             },
                         },
                     });
-                    
-                    get().addAuditLog({
-                        action: 'delete',
-                        resource: 'box_interaction',
-                        details: `Clear Box ${boxId}`,
-                    });
                 } else {
                     // 清除所有 Box 的交互记录
                     set({
@@ -864,77 +784,9 @@ export const useAccountStore = create<AccountStore>()(
                         },
                     });
                     
-                    get().addAuditLog({
-                        action: 'delete',
-                        resource: 'box_interaction',
-                        details: 'Clear all Boxes',
-                    });
                 }
             },
 
-            // === 安全审计 ===
-            addAuditLog: (log) => {
-                const address = get().currentAccount;
-                const { currentChainId } = get();
-                if (!address || !currentChainId) return;
-                
-                const { accounts } = get();
-                const account = accounts[currentChainId]?.[address];
-                if (!account) return;
-                
-                const newLog: AuditLog = {
-                    ...log,
-                    timestamp: Date.now(),
-                };
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [currentChainId]: {
-                            ...accounts[currentChainId],
-                            [address]: {
-                                ...account,
-                                auditLogs: limitArraySize([...account.auditLogs, newLog], 100),
-                            },
-                        },
-                    },
-                });
-            },
-
-            getAuditLogs: (limit = 20) => {
-                const address = get()._checkAccess?.('getAuditLogs');
-                if (!address) return [];
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return [];
-                
-                const logs = accounts[currentChainId]?.[address]?.auditLogs || [];
-                return logs.slice(-limit);
-            },
-
-            clearAuditLogs: () => {
-                const address = get()._checkAccess?.('clearAuditLogs');
-                if (!address) return;
-                
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
-                
-                const account = accounts[currentChainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [currentChainId]: {
-                            ...accounts[currentChainId],
-                            [address]: {
-                                ...account,
-                                auditLogs: [],
-                            },
-                        },
-                    },
-                });
-            },
 
             // === 交易缓存 ===
             cacheTx: (txHash, data, chainId01) => {

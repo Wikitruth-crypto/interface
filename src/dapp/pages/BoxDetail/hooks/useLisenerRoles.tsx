@@ -5,7 +5,7 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useBoxContext } from '../contexts/BoxContext';
 
 export const useLisenerRoles = () => {
-    const { boxId, box } = useBoxContext();
+    const { box } = useBoxContext();
 
     const { 
         updateUserState, 

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Typography } from 'antd';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
@@ -22,7 +21,6 @@ interface Props {
 
 const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
-  const disabled = useButtonDisabled('payConfiFeeDisabled');
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const { box , boxId } = useBoxContext()
@@ -40,7 +38,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   useEffect(() => {
     if (!roles.includes('Admin') && !roles.includes('Minter')) {
       checkAllowance_BoxDetail(
-        box?.acceptedToken?.id || '',
+        box?.acceptedToken?.id as `0x${string}` || '',
         box?.price || 0
       )
     }
@@ -57,16 +55,11 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = currentActionFunction === 'payConfiFee' && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'payConfiFee');
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'payConfiFee');
 
   // 如果需要授权，显示授权按钮
   if (!isEnough) {
     return <ApproveButton className={className} onClick={onClick} />;
-  }
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
   }
 
   return (

@@ -1,43 +1,31 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAccount, usePublicClient, } from 'wagmi';
-// import { BrowserProvider, JsonRpcSigner } from 'ethers';
-// import { AccountRoleType } from '@/dapp/types/account';
-import { Address_Admin } from '@/dapp/constants/addressRoles';
+import { useEffect } from 'react';
+import { useAccount, usePublicClient, useChainId } from 'wagmi';
+import { Address_0} from '@/dapp/constants/addressRoles';
 import { useAccountStore } from '@/dapp/store/accountStore';
 
 
 export const useUpdateAccount = () => {
     const { address, isConnected } = useAccount();
-    const { setCurrentAccount, setCurrentChainId, initAccount, setRole } = useAccountStore();
-    // const { chain } = http();
+    const { setCurrentAccount, setCurrentChainId, initAccount} = useAccountStore();
+    const chainId = useChainId();
     const publicClient = usePublicClient();
 
     useEffect(() => {
         if (publicClient) {
             setCurrentChainId(publicClient.chain?.id);
         } 
-        if (publicClient && address && isConnected) {
-            initAccount(address, publicClient.chain?.id);
-        } 
-        if (address && isConnected) {
-            setCurrentAccount(address);
-            const isAdmin = (address === Address_Admin);
-            setRole(isAdmin ? 'Admin' : 'User');
-        } else {
-            setCurrentAccount(null);
-            setRole(null);
-        }
-    }, [publicClient, address, isConnected]);
+    }, [publicClient]);
 
     useEffect(() => {
-        if (address && isConnected) {
-            
+        if (address && isConnected && address !== Address_0) {
+            setCurrentAccount(address);
+            initAccount(address, chainId);
         } else {
             setCurrentAccount(null);
-            setRole(null);
+            initAccount('', chainId);
         }
-    }, [address, isConnected]);
+    }, [address, isConnected, chainId]);
 
 };

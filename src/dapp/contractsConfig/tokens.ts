@@ -34,6 +34,8 @@ export function getSupportedTokens(chainId: SupportedChainId): TokenMetadata[] {
       address: addresses.OfficialTokenSecret,
       types: 'Secret',
     },
+
+    // TODO 此处可以添加未来可能添加的代币
   ];
 }
 

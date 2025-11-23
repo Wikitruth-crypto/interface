@@ -7,7 +7,6 @@ import { useWrite_BoxDetail } from '@BoxDetail/hooks/useWriteBoxDetail';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { MAX_UINT256 } from '@/dapp/constants';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
-import Paragraph from '@/components/base/paragraph';
 
 interface Props {
     onClick?: () => void;

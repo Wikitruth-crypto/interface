@@ -32,7 +32,7 @@ import { toChecksumAddress } from '@ethereumjs/util'
 import { fromBaseUnits } from '../app/utils/number-utils'
 import { getConsensusTransactionAmount, getConsensusTransactionToAddress } from '../app/utils/transaction'
 import { API_MAX_TOTAL_COUNT } from '../config'
-import { hasTextMatchesForAll } from '../app/utils/text-utils'
+import { hasTextMatchesForAll } from '../app/utils/text-matching'
 import { decodeAbiParameters } from 'viem'
 import * as oasis from '@oasisprotocol/client'
 import { yamlDump } from '../app/utils/yamlDump'
@@ -921,21 +921,13 @@ export const useGetRuntimeEvents: typeof generated.useGetRuntimeEvents = (
       transformResponse: [
         ...arrayify(axios.defaults.transformResponse),
         (data: generated.RuntimeEventList, headers, status) => {
-          if (status !== 200) return data
+          if (status !== 200 || !data?.events) return data
 
-          const payload =
-            data && typeof data === 'object' && 'events' in data
-              ? data
-              : (data as any)?.data && typeof (data as any).data === 'object'
-                ? ((data as any).data as generated.RuntimeEventList)
-                : (data as any)
-
-          const sourceEvents = Array.isArray(payload.events) ? payload.events : []
-
+          const normalizedEvents = data.events;
           return {
-            ...payload,
-            events: sourceEvents
-              .map((event: generated.RuntimeEvent): generated.RuntimeEvent => {
+            ...data,
+            events: normalizedEvents
+              .map((event): generated.RuntimeEvent => {
                 return {
                   ...event,
                   body: {
@@ -954,10 +946,10 @@ export const useGetRuntimeEvents: typeof generated.useGetRuntimeEvents = (
                   network,
                 }
               })
-              .map((event: generated.RuntimeEvent) => {
+              .map(event => {
                 return addTokenToParams(event)
               })
-              .map((event: generated.RuntimeEvent): generated.RuntimeEvent => {
+              .map((event): generated.RuntimeEvent => {
                 if (
                   event.type === RuntimeEventType.accountstransfer ||
                   event.type === RuntimeEventType.accountsmint ||

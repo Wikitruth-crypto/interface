@@ -2,7 +2,6 @@
 import React from 'react';
 import { Typography } from 'antd';
 import BaseButton from '@/dapp/components/base/baseButton';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
@@ -21,7 +20,6 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const inRequestRefundPeriod = deadlineCheckState.inRequestRefundPeriod;
-  const disabled = useButtonDisabled('completeDisabled');
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   
@@ -41,12 +39,7 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = currentActionFunction === 'completeOrder' && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'completeOrder');
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'completeOrder');
 
   return (
     <div className={cn('w-full', className)}>

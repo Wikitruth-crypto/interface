@@ -5,7 +5,6 @@ import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi'
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { AccountRoleType } from '@/dapp/types/account';
 import { Address_0, Address_Admin } from '@/dapp/constants/addressRoles';
-import { useAccountStore } from '@/dapp/store/accountStore';
 
 interface WalletContextType {
     address: string | undefined;
@@ -40,7 +39,6 @@ export const useWalletContext = () => {
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { address, isConnected } = useAccount();
     const chainId = useChainId();
-    const { setCurrentAccount, setCurrentChainId, initAccount} = useAccountStore();
     const { data: walletClient } = useWalletClient();
     const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
     const [accountRole, setAccountRole] = useState<AccountRoleType>(null);
@@ -61,21 +59,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, [walletClient]);
 
     useEffect(() => {
-        if (publicClient) {
-            setCurrentChainId(publicClient.chain?.id);
-        }
-    }, [publicClient]);
-
-    useEffect(() => {
         if (address && isConnected && address !== Address_0) {
             const isAdmin = (address === Address_Admin);
             setAccountRole(isAdmin ? 'Admin' : 'User');
-            setCurrentAccount(address);
-            initAccount(address, chainId);
         } else {
             setAccountRole(null);
-            setCurrentAccount(null);
-            initAccount('', chainId);
         }
     }, [address, isConnected, chainId]);
 

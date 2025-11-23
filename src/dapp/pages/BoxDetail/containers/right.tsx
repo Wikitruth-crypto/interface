@@ -17,7 +17,7 @@ import { useCheckDeadline, } from '../hooks/useCheckDeadline';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import Line from '@/components/base/line';
 import ShareSocial from '@/dapp/components/shareSoical';
-import { useMetadataStore } from '@/dapp/store_sapphire/useMetadataStore';
+import { useMetadataStore } from '@/dapp/store/processMetadata/useMetadataStore';
 import { useBoxContext } from '../contexts/BoxContext';
 // import Paragraph from '@/components/base/paragraph';
 

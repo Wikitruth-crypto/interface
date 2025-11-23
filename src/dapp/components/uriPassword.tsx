@@ -4,7 +4,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { Button, Typography } from 'antd';
 import { cn } from "@/lib/utils";
 import { Copy, Check, Eye, EyeOff } from "lucide-react";
-import { ipfsCidToUrl } from '@/dapp/utils/ipfsUrl/ipfsCidToUrl';
+import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
 
 export interface UriPasswordProps {
     fileCid: string;
@@ -34,22 +34,18 @@ const UriPassword: FC<UriPasswordProps> = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        const fetchFileUri = async () => {
-            if (!fileCid) return;
+        if (!fileCid) {
+            setFileUri('');
+            return;
+        }
 
-            setIsLoading(true);
-            try {
-                const uri = await ipfsCidToUrl(fileCid);
-                setFileUri(uri);
-            } catch (error) {
-                console.error('Failed to convert CID to URL:', error);
-                setFileUri('');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchFileUri();
+        try {
+            const uri = ipfsCidToUrl(fileCid);
+            setFileUri(uri);
+        } catch (error) {
+            console.error('Failed to convert CID to URL:', error);
+            setFileUri('');
+        }
     }, [fileCid]);
 
     const copyItems: CopyItem[] = [

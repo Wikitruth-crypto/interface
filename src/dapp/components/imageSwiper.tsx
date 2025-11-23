@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ImageSwiperProps {
-    /** 图片URL列表 */
     images: string[];
     /** 宽高比，默认1（1:1）。常用值：1 (1:1), 16/9 (16:9), 4/3 (4:3), 3/2 (3:2) */
     aspectRatio?: number;
@@ -12,7 +11,6 @@ interface ImageSwiperProps {
     autoPlayInterval?: number;
     /** 是否启用自动播放，默认true */
     autoPlay?: boolean;
-    /** 图片容器的className */
     className?: string;
     /** 图片的alt属性前缀，默认为'image' */
     altPrefix?: string;
@@ -20,6 +18,8 @@ interface ImageSwiperProps {
     transitionDuration?: number;
     /** 是否启用动态遮罩效果，默认true */
     enableMask?: boolean;
+    /** 图片加载完成回调 */
+    onImageLoad?: () => void; // 新增
 }
 
 type MaskDirection = 'lt' | 'rt' | 'lb' | 'rb';
@@ -33,6 +33,7 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
     altPrefix = 'image',
     transitionDuration = 2,
     enableMask = true,
+    onImageLoad, // 新增
 }) => {
     // 当前显示的图片索引
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -116,6 +117,23 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
         };
     };
 
+    const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+    // 处理图片加载完成
+    const handleImageLoad = useCallback((imageSrc: string) => {
+        setLoadedImages(prev => {
+            const newSet = new Set(prev);
+            newSet.add(imageSrc);
+            
+            // 如果所有图片都加载完成，触发回调
+            if (newSet.size === images.length && onImageLoad) {
+                onImageLoad();
+            }
+            
+            return newSet;
+        });
+    }, [images.length, onImageLoad]);
+
     return (
         <div 
             className={cn(
@@ -147,6 +165,12 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
                                     : 'opacity',
                             }}
                             loading={isVisible ? 'eager' : 'lazy'}
+                            onLoad={() => handleImageLoad(image)} // 新增
+                            onError={(e) => {
+                                console.error(`Failed to load image: ${image}`, e);
+                                // 即使加载失败也触发回调（避免阻塞）
+                                handleImageLoad(image);
+                            }}
                         />
                     );
                 })}

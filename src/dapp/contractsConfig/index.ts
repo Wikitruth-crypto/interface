@@ -51,6 +51,9 @@ export {
   OFFICIAL_TOKEN_CONFIG,
 } from './tokens';
 
+// 导出事件配置
+export * from './eventSignatures';
+
 /**
  * ⚠️ 常量已迁移说明：
  * - 区块链常量（MAX_UINT256, ZERO_ADDRESS等）请从 '@dapp/constants' 导入

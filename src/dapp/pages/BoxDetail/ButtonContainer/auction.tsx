@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { usePeriodRate } from '@dapp/constants/periodRate';
@@ -14,7 +13,6 @@ interface Props {
 }
 
 const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
-  const disabled = useButtonDisabled('auctionDisabled');
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { currentActionFunction } = useButtonInteractionStore();
   
@@ -29,20 +27,12 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
     setModalOpen(false);
   };
 
-  // 计算按钮状态
-  const isDisabled = disabled || (currentActionFunction !== null);
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
-
   return (
     <div className={cn('w-full', className)}>
       <div className='flex flex-col md:flex-row items-center gap-2'>
         <BaseButton
           onClick={handleAuction}
-          disabled={isDisabled}
+          disabled={currentActionFunction !== null}
         >
           Auction
         </BaseButton>

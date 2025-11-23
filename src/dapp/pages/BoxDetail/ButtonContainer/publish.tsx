@@ -3,7 +3,6 @@
 import React from 'react';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { FunctionNameType } from '@dapp/types/contracts';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useBoxContext } from '../contexts/BoxContext';
@@ -18,7 +17,6 @@ interface Props {
 
 const PublishButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
-  const disabled = useButtonDisabled('publishDisabled');
   const { box , boxId } = useBoxContext()
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
@@ -56,12 +54,7 @@ const PublishButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = (currentActionFunction === 'publishByMinter' || currentActionFunction === 'publishByBuyer') && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'publishByMinter' && currentActionFunction !== 'publishByBuyer');
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'publishByMinter' && currentActionFunction !== 'publishByBuyer');
 
   return (
     <div className={cn('w-full', className)}>

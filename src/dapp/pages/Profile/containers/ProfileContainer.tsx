@@ -68,12 +68,18 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
     // 监听器：处理tab切换时的数据重置
     useLisener();
     
-    // 数据获取 - 使用原有的真实数据hooks
+    // TODO: 获取 userId
+    // 目前 userId 为 null,这意味着只能查询 'owned' tab
+    // 要支持其他 tab (minted, sold, bought, bade, completed, published),
+    // 需要通过合约调用获取 userId,例如使用 useUserId hook
+    const userId: string | null = null;
+    
+    // 数据获取 - 使用 Supabase 查询
     const { 
         data: userProfile, 
         isLoading: userLoading,
         error: userError 
-    } = useUserProfile(address);
+    } = useUserProfile(address, userId);
     
     const {
         data: boxPages,
@@ -82,7 +88,7 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
         hasNextPage,
         isFetchingNextPage,
         error: boxesError
-    } = useUserBoxes(address, filters);
+    } = useUserBoxes(address, filters, userId);
 
     // 扁平化数据 - 与原有逻辑保持一致
     const flatData = useMemo(() => 
@@ -111,8 +117,14 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
 
     // 统一的错误处理
     const errorMessage = useMemo(() => {
-        if (userError) return `User data error: ${userError.message}`;
-        if (boxesError) return `Boxes data error: ${boxesError.message}`;
+        if (userError) {
+            const message = userError instanceof Error ? userError.message : String(userError);
+            return `User data error: ${message}`;
+        }
+        if (boxesError) {
+            const message = boxesError instanceof Error ? boxesError.message : String(boxesError);
+            return `Boxes data error: ${message}`;
+        }
         return null;
     }, [userError, boxesError]);
 

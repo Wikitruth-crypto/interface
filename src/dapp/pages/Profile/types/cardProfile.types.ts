@@ -1,4 +1,3 @@
-import { Box } from '@/dapp/event_sapphire/types';
 import { FilterState, BoxData } from './profile.types';
 
 // 定义Tab类型别名
@@ -83,13 +82,13 @@ export const CONTRACT_METHOD_MAPPING = {
 export const FUND_TYPE_MAPPING = {
     publicReward: {
         tokenType: 'officeToken',
-        condition: (box: Box, tab: ProfileTab) =>
+        condition: (box: BoxData, tab: ProfileTab) =>
             tab === 'published' && box.status === 'Published',
         claimMethod: 'withdrawPublicRewards'
     },
     orderRefund: {
         tokenType: 'acceptedToken',
-        condition: (box: Box, tab: ProfileTab, userAddress: string) =>
+        condition: (box: BoxData, tab: ProfileTab, userAddress: string) =>
             (tab === 'bought' || tab === 'bade') &&
             box.status === 'InSecrecy' && // 注意：新架构中 'Completed' 改为 'InSecrecy'
             box.refundPermit === true,
@@ -97,7 +96,7 @@ export const FUND_TYPE_MAPPING = {
     },
     orderBid: {
         tokenType: 'acceptedToken',
-        condition: (box: Box, tab: ProfileTab, userAddress: string) =>
+        condition: (box: BoxData, tab: ProfileTab, userAddress: string) =>
             (tab === 'bought' || tab === 'bade') &&
             box.buyer?.id !== userAddress.toLowerCase() &&
             box.listedMode === 'Auctioning',
@@ -105,7 +104,7 @@ export const FUND_TYPE_MAPPING = {
     },
     minterRewards: {
         tokenType: 'both',
-        condition: (box: Box, tab: ProfileTab, userAddress: string) =>
+        condition: (box: BoxData, tab: ProfileTab, userAddress: string) =>
             tab === 'minted' &&
             (box.status === 'InSecrecy' || box.status === 'Published') && // 注意：'Completed' 改为 'InSecrecy'
             box.minter.id === userAddress.toLowerCase(),
@@ -113,7 +112,7 @@ export const FUND_TYPE_MAPPING = {
     },
     otherRewards: {
         tokenType: 'officeToken',
-        condition: (box: Box, tab: ProfileTab) =>
+        condition: (box: BoxData, tab: ProfileTab) =>
             (tab === 'sold' || tab === 'completed') &&
             (box.status === 'InSecrecy' || box.status === 'Published'), // 注意：'Completed' 改为 'InSecrecy'
         claimMethod: 'withdrawOtherRewards'

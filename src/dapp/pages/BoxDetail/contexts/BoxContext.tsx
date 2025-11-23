@@ -8,9 +8,9 @@
  */
 
 import React, { createContext, useContext, useMemo } from 'react';
-import type { Box } from '@/dapp/store_sapphire/types';
+import type { Box } from '../hooks/useCurrentBox';
 import { useCurrentBox } from '../hooks/useCurrentBox';
-import { MetadataBoxType } from '@/dapp/types/contracts/metadataBox';
+import type { MetadataBoxType } from '@/dapp/types/contracts/metadataBox';
 
 interface BoxContextType {
   box: Box | undefined;
@@ -32,15 +32,15 @@ export const BoxProvider: React.FC<{
   children: React.ReactNode 
 }> = ({ tokenId, children }) => {
   // 在 Provider 中只调用一次 useCurrentBox，避免子组件重复调用
-  const { box, boxId, metadataBox } = useCurrentBox(tokenId );
+  const { box, boxId, metadataBox, isLoading } = useCurrentBox(tokenId );
   
-  // 使用 useMemo 优化性能，只有当 box 或 boxId 变化时才重新创建 context value
+  // 使用 useMemo 优化性能，只有当 box、boxId、metadataBox 或 isLoading 变化时才重新创建 context value
   const contextValue = useMemo(() => ({
     box,
     boxId,
     metadataBox,
-    isLoading: !box,
-  }), [box, boxId, metadataBox]);
+    isLoading: isLoading || !box, // 如果正在加载或没有数据，则标记为加载中
+  }), [box, boxId, metadataBox, isLoading]);
 
   return (
     <BoxContext.Provider value={contextValue}>

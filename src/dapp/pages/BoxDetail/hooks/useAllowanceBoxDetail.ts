@@ -8,7 +8,7 @@ import { useState } from 'react';
 export const useAllowance_BoxDetail = () => {
     const [isEnough, setIsEnough] = useState(false);
     
-    const { checkAllowance } = useReadAllowance();
+    const { readAllowance } = useReadAllowance();
     const { address } = useWalletContext() || {};
     const allConfigs = useAllContractConfigs();
 
@@ -20,7 +20,7 @@ export const useAllowance_BoxDetail = () => {
         const owner = address ;
         const spender = allConfigs.FundManager.address;
 
-        const result = await checkAllowance(tokenAddress, owner, spender, amount);
+        const result = await readAllowance(tokenAddress, owner, spender, amount);
         setIsEnough(result.isEnough);
 
         return result;

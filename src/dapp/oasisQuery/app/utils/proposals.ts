@@ -1,4 +1,4 @@
-import { Proposal } from 'oasis-nexus/api'
+import { Proposal } from '../../oasis-nexus/generated/api'
 import { detectProposalType, ProposalType } from '../../types/proposalType'
 import { exhaustedTypeWarning } from '../../types/errors'
 

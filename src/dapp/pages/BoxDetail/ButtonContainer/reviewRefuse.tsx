@@ -2,10 +2,8 @@
 import React from 'react';
 import { Typography } from 'antd';
 import BaseButton from '@/dapp/components/base/baseButton';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
-import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
@@ -18,7 +16,6 @@ interface Props {
 
 const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
   const { boxId } = useBoxContext();
-  const disabled = useButtonDisabled('refuseRefundDisabled');
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const allConfigs = useAllContractConfigs();
   
@@ -36,12 +33,7 @@ const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = currentActionFunction === 'refuseRefund' && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'refuseRefund');
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'refuseRefund');
 
   return (
     <div className={cn('w-full', className)}>

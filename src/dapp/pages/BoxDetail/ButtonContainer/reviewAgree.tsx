@@ -2,7 +2,6 @@
 import React from 'react';
 import { Typography } from 'antd';
 import { Button } from 'antd';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
@@ -18,7 +17,6 @@ interface Props {
 
 const AgreementButton: React.FC<Props> = ({ onClick, className }) => {
   const { boxId } = useBoxContext();
-  const disabled = useButtonDisabled('agreeRefundDisabled');
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const { roles } = useBoxDetailStore(state => state.userState);
@@ -39,12 +37,7 @@ const AgreementButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态
   const isLoading = currentActionFunction === 'agreeRefund' && isPending;
-  const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'agreeRefund');
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'agreeRefund');
 
   return (
     <div className={cn('w-full', className)}>

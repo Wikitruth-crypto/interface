@@ -66,13 +66,17 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 }) => {
     const [searchTerm, setSearchTerm] = useState(initialTerm);
 
+    useEffect(() => {
+        setSearchTerm(initialTerm);
+    }, [initialTerm]);
+
     const stableOnSearch = useCallback(onSearch || (() => {}), [onSearch]);
     const stableOnSelectResult = useCallback(onSelectResult || (() => {}), [onSelectResult]);
     const stableOnSubmit = useCallback(onSubmit || (() => {}), [onSubmit]);
 
     // 自动搜索功能
     useEffect(() => {
-        if (!autoSearch || !searchTerm) return;
+        if (!autoSearch) return;
 
         const timer = setTimeout(() => {
             stableOnSearch(searchTerm);
@@ -116,7 +120,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 
     const handleSearch = (value: string) => {
         setSearchTerm(value);
-        if (!autoSearch && value) {
+        if (!autoSearch) {
             stableOnSearch(value);
         }
     };

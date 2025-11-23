@@ -1,17 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import type { ProgressiveItem } from '@/dapp/hooks/useProgressiveReveal';
 
 export interface ProgressiveRevealCardProps<T = any> {
-    /** 项目状态数据 */
     item: ProgressiveItem<T>;
-    /** 骨架屏组件 */
     skeletonComponent: React.ComponentType<any>;
-    /** 真实内容组件 */
     contentComponent: React.ComponentType<{ data: T; [key: string]: any }>;
-    /** 额外的容器样式类名 */
     className?: string;
-    /** 过渡动画持续时间（毫秒）*/
     transitionDuration?: number;
     /** 过渡动画类型 */
     animationType?: 'fade' | 'fade-scale' | 'slide-up' | 'slide-down' | 'bounce' | 'flip';
@@ -36,21 +31,11 @@ export interface ProgressiveRevealCardProps<T = any> {
     enableWillChange?: boolean;
     /** 调试模式：显示状态指示器 */
     debug?: boolean;
+    /** 图片加载完成回调（用于渐进式加载） */
+    onImageLoad?: (index: number) => void; // 新增
 }
 
-/**
- * 优化的渐进式显示卡片组件
- * 
- * 功能特点：
- * 1. 支持更多过渡动画类型（包括弹跳和翻转效果）
- * 2. 性能优化：useMemo缓存动画样式、will-change优化
- * 3. 增强交互性：hover和focus状态
- * 4. 更好的无障碍访问性支持
- * 5. 调试模式支持
- * 6. 错误状态处理增强
- * 
- * @param props 组件属性
- */
+
 function ProgressiveRevealCard<T = any>({
     item,
     skeletonComponent: SkeletonComponent,
@@ -63,7 +48,8 @@ function ProgressiveRevealCard<T = any>({
     contentProps = {},
     interactive = true,
     enableWillChange = true,
-    debug = false
+    debug = false,
+    onImageLoad, // 新增
 }: ProgressiveRevealCardProps<T>) {
     const { data, status } = item;
     const [isHovered, setIsHovered] = useState(false);
@@ -174,6 +160,34 @@ function ProgressiveRevealCard<T = any>({
         );
     }, [interactive, isContentVisible, isHovered]);
 
+    // 新增：跟踪图片加载状态
+    const imageLoadCountRef = useRef(0);
+    const expectedImageCount = 2; // boxImage + nftImage
+
+    // 新增：图片加载完成处理 - 使用 useEffect 延迟执行，避免在渲染期间更新父组件状态
+    const handleImageLoad = useCallback(() => {
+        imageLoadCountRef.current += 1;
+        if (imageLoadCountRef.current >= expectedImageCount && onImageLoad) {
+            // 延迟执行，避免在渲染期间更新状态
+            setTimeout(() => {
+                onImageLoad(item.index);
+            }, 0);
+        }
+    }, [item.index, onImageLoad, expectedImageCount]);
+
+    // 重置图片加载计数（当数据变化时）
+    useEffect(() => {
+        if (item.status === 'transitioning' || item.status === 'revealed') {
+            imageLoadCountRef.current = 0;
+        }
+    }, [item.status, item.data]);
+
+    // 修改 contentProps，添加图片加载回调
+    const enhancedContentProps = useMemo(() => ({
+        ...contentProps,
+        onImageLoad: handleImageLoad, // 传递给内容组件
+    }), [contentProps, handleImageLoad]);
+
     // 用于清理will-change，提升性能
     useEffect(() => {
         if (!enableWillChange) return;
@@ -229,64 +243,11 @@ function ProgressiveRevealCard<T = any>({
                 >
                     <ContentComponent 
                         data={data} 
-                        {...contentProps}
+                        {...enhancedContentProps} // 使用增强的 props
                     />
                 </div>
             )}
 
-            {/* 错误状态层 */}
-            {hasError && (
-                <div
-                    className={cn(
-                        "absolute top-0 left-0 w-full",
-                        animationClasses.content.visible,
-                        "border-2 border-red-200 rounded-lg bg-red-50"
-                    )}
-                    role="alert"
-                    aria-live="assertive"
-                >
-                    {ErrorComponent ? (
-                        <ErrorComponent error={data} />
-                    ) : (
-                        <div className="p-4 text-center">
-                            <div className="text-red-600 text-sm font-medium mb-2">
-                                ⚠️ 加载失败
-                            </div>
-                            <div className="text-red-500 text-xs">
-                                请稍后重试或联系技术支持
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* 调试模式：状态指示器 */}
-            {debug && (
-                <div className="absolute top-2 right-2 z-10">
-                    <div className={cn(
-                        "px-2 py-1 text-xs rounded bg-black/70 text-white font-mono",
-                        "border border-white/20 backdrop-blur-sm",
-                        {
-                            'bg-gray-600': status === 'skeleton',
-                            'bg-yellow-600': status === 'transitioning',
-                            'bg-green-600': status === 'revealed',
-                            'bg-red-600': status === 'error',
-                        }
-                    )}>
-                        <div>{status}</div>
-                        <div className="text-xs opacity-70">
-                            {animationType}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 加载进度指示器（过渡状态） */}
-            {isTransitioning && (
-                <div className="absolute inset-0 flex items-center justify-center z-5">
-                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-            )}
         </div>
     );
 }

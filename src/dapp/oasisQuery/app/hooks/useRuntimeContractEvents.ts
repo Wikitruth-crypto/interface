@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { RuntimeScope } from '../../types/searchScope'
-import { ContractName } from '../../../contractsConfig/types'
-import { getContractAddressByScope } from '../../../contractsConfig/helpers'
-import { getContractEventSignatures } from '../../../contractsConfig/eventSignatures'
+import { ContractName } from '@/dapp/contractsConfig/types'
+import { getContractAddressByScope } from '@/dapp/contractsConfig/helpers'
+import { getContractEventSignatures } from '@/dapp/contractsConfig/eventSignatures'
 import {
   DecodedRuntimeEvent,
   RuntimeEventFormatterConfig,
@@ -14,12 +14,13 @@ import {
   RuntimeEventsFetchFilters,
 } from '../services/nexus/runtimeAccountFetcher'
 
-export interface UseRuntimeContractEventsParams {
+interface UseRuntimeContractEventsParams {
   scope: RuntimeScope
   contract: ContractName
   limit?: number
   offset?: number
   eventNames?: readonly string[]
+  eventFilters?: Record<string, string>
   enabled?: boolean
   batchSize?: number
   maxPages?: number
@@ -36,6 +37,7 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
   limit = 50,
   offset = 0,
   eventNames,
+  eventFilters,
   enabled = true,
   batchSize = 100,
   maxPages,
@@ -48,7 +50,7 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
   const contractAddress = getContractAddressByScope(scope, contract)
   const signatures = getContractEventSignatures(contract)
 
-  const targetResultCount = Math.max(0, offset + limit)
+  const targetResultCount = Math.max(200, offset + limit)
   const effectiveBatchSize = Math.max(1, Math.min(500, Math.floor(batchSize)))
 
   const queryEnabled = Boolean(enabled && contractAddress && signatures?.length)
@@ -60,19 +62,26 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
       scope.layer,
       contract,
       contractAddress,
-      limit,
-      offset,
-      eventNames,
-      effectiveBatchSize,
-      maxPages,
-      fromRound,
-      toRound,
-      fromTimestamp,
-      toTimestamp,
-      useEvmSignatureFilter,
+      JSON.stringify(eventNames ?? []),
+      JSON.stringify(eventFilters ?? {}),
     ],
     enabled: queryEnabled,
     queryFn: async () => {
+      console.log('[useRuntimeContractEvents] performing fetch', {
+        scope,
+        contract,
+        contractAddress,
+        batchSize: effectiveBatchSize,
+        maxPages,
+        targetResultCount,
+        eventNames,
+        eventFilters,
+        fromRound,
+        toRound,
+        fromTimestamp,
+        toTimestamp,
+        useEvmSignatureFilter,
+      })
       if (!contractAddress || !signatures) {
         return { events: [], pagesFetched: 0 }
       }
@@ -98,6 +107,14 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
   })
 
   useEffect(() => {
+    console.log('[useRuntimeContractEvents] query state', {
+      // queryKey: query.queryKey,
+      // isLoading: query.isLoading,
+      // isFetching: query.isFetching,
+      // isRefetching: query.isRefetching,
+      fromCache: !query.isFetching && query.dataUpdatedAt !== 0,
+      dataUpdatedAt: query.dataUpdatedAt,
+    })
     console.log('[useRuntimeContractEvents] fetch result', {
       scope,
       contract,
@@ -105,6 +122,7 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
       limit,
       offset,
       eventNames,
+      eventFilters,
       isLoading: query.isLoading,
       isError: query.isError,
       data: query.data,
@@ -118,6 +136,7 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
   }, [
     contract,
     contractAddress,
+    eventFilters,
     eventNames,
     effectiveBatchSize,
     fromRound,
@@ -145,8 +164,17 @@ export const useRuntimeContractEvents = <TArgs = Record<string, unknown>>({
       allowEvents: eventNames,
     }
 
-    return decodeRuntimeEvents<TArgs>(query.data?.events ?? [], formatterConfig)
-  }, [contractAddress, eventNames, query.data?.events, signatures])
+    const decoded = decodeRuntimeEvents<TArgs>(query.data?.events ?? [], formatterConfig)
+    if (!eventFilters || Object.keys(eventFilters).length === 0) {
+      return decoded
+    }
+    return decoded.filter(event =>
+      Object.entries(eventFilters).every(([key, value]) => {
+        const argValue = (event.args as Record<string, unknown> | undefined)?.[key]
+        return argValue !== undefined && String(argValue) === value
+      }),
+    )
+  }, [contractAddress, eventFilters, eventNames, query.data?.events, signatures])
 
   const slicedEvents = useMemo(() => {
     if (!decodedEvents.length) return decodedEvents

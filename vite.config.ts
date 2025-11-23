@@ -28,6 +28,7 @@ export default defineConfig({
       '@Token': path.resolve(__dirname, './src/dapp/pages/Token'),
       '@Staking': path.resolve(__dirname, './src/dapp/pages/Staking'),
       '@Dao': path.resolve(__dirname, './src/dapp/pages/Dao'),
+      '@supabaseDocs': path.resolve(__dirname, './supabaseDocs'),
     }
   },
 
@@ -48,7 +49,7 @@ export default defineConfig({
         manualChunks: {
           // 将大型依赖分离到单独的 chunk
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'web3-vendor': ['wagmi', 'viem', 'ethers', '@rainbow-me/rainbowkit'],
+          'web3-vendor': ['wagmi', 'viem', 'ethers', ],
           'ui-vendor': ['antd', '@radix-ui/react-dialog', '@radix-ui/react-select'],
           'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
         }
@@ -65,9 +66,11 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       'wagmi',
+      '@wagmi/core',
       'viem',
       'ethers',
-      '@rainbow-me/rainbowkit',
+      '@tanstack/react-query',
+      '@tanstack/query-core',
       'antd',
       'zustand',
     ],

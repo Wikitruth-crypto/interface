@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { cn } from '@/lib/utils';
 import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
@@ -19,7 +18,6 @@ interface Props {
 
 const BidButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
-    const disabled = useButtonDisabled('bidDisabled');
     const { box , boxId } = useBoxContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
@@ -41,7 +39,7 @@ const BidButton: React.FC<Props> = ({ onClick, className }) => {
     useEffect(() => {
         if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
             checkAllowance_BoxDetail(
-                box?.acceptedToken?.id || '',
+                box?.acceptedToken?.id as `0x${string}` || '',
                 box?.price || 0
             )
         }
@@ -49,16 +47,11 @@ const BidButton: React.FC<Props> = ({ onClick, className }) => {
 
     // 计算按钮状态
     const isLoading = currentActionFunction === 'bid' && isPending;
-    const isDisabled = disabled || (currentActionFunction !== null && currentActionFunction !== 'bid');
+    const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'bid');
 
     // 如果额度不足，则需要授权
     if (!isEnough) {
         return <ApproveButton className={className} />;
-    }
-
-    // 如果按钮被禁用，不显示
-    if (disabled) {
-        return null;
     }
 
     return (

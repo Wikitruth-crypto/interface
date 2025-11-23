@@ -1,18 +1,25 @@
 {
-  "AddressManager_Implementation": "0xcE080eE502Bd0C236DB39E774612e8A2e7a51592",
-  "AddressManager_Proxy": "0xd74Bc2842F5aE5bA4f285C7F4aBB5876A590b7Ee",
-  "Exchange_Implementation": "0x46AeEbA5517642763f970cFE2C2B3821Dd38dD3B",
-  "FundManager_Implementation": "0x037a4846FCf0839045f7aE7830C97D4C26921cca",
-  "SiweAuth_Implementation": "0x80e3c8400143861d0F7D7cc53AddAfb991bAB609",
-  "TruthBox_Implementation": "0xBAAcB21Ba4Ff28380D503FB2982beadA8027f4a3",
-  "TruthNFT_Implementation": "0xBA1467e41550070740ee270AE68431eF69800Aeb",
-  "UserId_Implementation": "0x844fb20eBE2418E70F2635f10f4ba2436FC456A9",
-  "Exchange_Proxy": "0x830e94063989b075DFB1D76eBc1d8129C3be13f2",
-  "FundManager_Proxy": "0xca5583C33b5F5Caf1156b72a04955a98C20e2037",
-  "TruthBox_Proxy": "0x33b4AEdA66B1FaA848578Dd2e5133676414C9E70",
-  "TruthNFT_Proxy": "0x0D74C9598865Adb9a050EE80bE7A8eBf68D7f249",
-  "UserId_Proxy": "0xe35f2286d86700ffB1bf26F7C1D9F292d06820F8",
-  "WROSESecret_20251009": "0xDf698806B03C54e9CafE81caCaE54Ce1727DD134",
-  "MockERC20_20251009": "0x990DE401CD0103a0107D27F82283db60F4844203",
-  "ERC20Secret_20251009": "0x449e2CD61F0328Ae68f4A530170C892B45b4B269"
+  
+  "AddressManager_Proxy": "0x7609F2617c6e4A8757809dB67a7EAd55A5B33195",
+  "Exchange_Proxy":"0xFD4C4CFA8B1dF3aF3F7a07A630B2FbBa6b45b40d",
+  "FundManager_Proxy":"0x28FE0c45e9730a89ABDdD4DC817b532F802Fe1E3",
+  "TruthBox_Proxy":"0x1aec0197b0Ddc0412393813F863382748Da5C01e",
+  "TruthNFT_Proxy":"0x4994C64ABC6A7BAE72C3b58133F8AAAB4dF1CbE7",
+  "UserId_Proxy":"0xB1F04fB48490F3B37D5FEe3731c140dbF2224F5e",
+
+  "Contracts_2": "-------------------------------------------------",
+  "SiweAuth": "0x6547F0a925BD522F029D0aFEC3A239aCDcE0122a",
+  "WROSESecret": "0xDf698806B03C54e9CafE81caCaE54Ce1727DD134",
+  "OfficialToken": "0x990DE401CD0103a0107D27F82283db60F4844203",
+  "OfficialToken_ERC20Secret": "0x449e2CD61F0328Ae68f4A530170C892B45b4B269",
+  "ERC20Secret": "",
+
+  "Implementation_Current": "------------------ Now we use the implementation -------------------------------",
+  "AddressManager_Implementation": "0xd16b46d33e24464454c9D900B65E3b2f02de045c",
+  "Exchange_Implementation": "0xf963A9afD6F4463D662B56D8A0fa304d68Dcc403",
+  "FundManager_Implementation": "0x69CAe2422Cb8CF00663Bf1C53869e1340b19B272",
+  "TruthBox_Implementation": "0x4058F87ac5703c4929D43901FAA464bC139bB9D5",
+  "TruthNFT_Implementation": "0xa67C79a3016CCd8522B51e90aE7C0AaD39748E62",
+  "UserId_Implementation": "0x828230Dfcb432A778f1f48e2C2DdC12353f58BE1"
+
 }

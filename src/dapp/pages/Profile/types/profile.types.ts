@@ -1,10 +1,39 @@
 // Profile页面类型定义
 
-import { User, Box, BoxStatus } from '@/dapp/event_sapphire/types';
+import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 
-// 扩展Box数据接口，添加元数据字段
-export interface BoxData extends Box {
-    // 元数据字段（等待元数据处理模块开发）
+// 导出 BoxStatus 类型
+export type { BoxStatus };
+
+// 用户类型（简化版，只包含 id）
+export interface User {
+    id: string;
+}
+
+// Box数据接口（基于 Supabase 数据结构）
+export interface BoxData {
+    // 基础字段
+    id: string;
+    tokenId: string;
+    price: string;
+    deadline: string;
+    status: BoxStatus;
+    createTimestamp: string;
+    boxInfoCID?: string;
+    acceptedToken?: string;
+    refundPermit?: boolean;
+    listedMode?: 'Selling' | 'Auctioning';
+    
+    // 用户关系字段
+    owner: User;
+    minter: User;
+    seller?: User;
+    buyer?: User;
+    completer?: User;
+    publisher?: User;
+    bidders: User[];
+    
+    // 元数据字段（从 Supabase metadata_boxes 表获取）
     title?: string;
     description?: string;
     image?: string;
@@ -15,9 +44,6 @@ export interface BoxData extends Box {
     typeOfCrime?: string;
     hasError?: boolean;
 }
-
-// 导出 BoxStatus 类型（从新架构）
-export type { BoxStatus };
 
 // Box元数据接口
 export interface BoxMetadata {
@@ -41,10 +67,19 @@ export interface UserStats {
     publishedBoxes: number;
 }
 
-// 扩展用户Profile数据接口，基于新的 User 类型
-export interface UserProfileData extends User {
+// 用户Profile数据接口
+export interface UserProfileData {
+    id: string;
+    address: string;
     stats: UserStats;
     allBoxes: string[];
+    ownedBoxes: any[];
+    mintedBoxes: any[];
+    soldBoxes: any[];
+    boughtBoxes: any[];
+    bidBoxes: any[];
+    completedBoxes: any[];
+    publishedBoxes: any[];
 }
 
 export type SelectedTabType = 'all' | 'owned' | 'minted' | 'sold' | 'bought' | 'bade' | 'completed' | 'published';

@@ -64,7 +64,7 @@ export default function TruthBoxSection() {
                                     <p className="text-gray-400 text-sm">Live Example</p>
                                 </div>
                             </div>
-                            <TruthBoxCard data={testBox2} />
+                            <TruthBoxCard data={testBox2} enableIpfsUrl={false} />
                         </div>
 
                         

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
-import { useButtonDisabled } from '@BoxDetail/hooks/useButtonDisabled';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { usePeriodRate } from '@/dapp/constants/periodRate';
@@ -15,7 +14,6 @@ interface Props {
 }
 
 const SellButton: React.FC<Props> = ({ onClick, className }) => {
-  const disabled = useButtonDisabled('sellDisabled');
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { roles } = useBoxDetailStore(state => state.userState);
   const { helperRewardRate } = usePeriodRate();
@@ -33,12 +31,7 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isDisabled = disabled || (currentActionFunction !== null);
-
-  // 如果按钮被禁用，不显示
-  if (disabled) {
-    return null;
-  }
+  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'sell');
 
   return (
     <div className={cn('w-full', className)}>
