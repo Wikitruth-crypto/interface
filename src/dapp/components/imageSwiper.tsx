@@ -18,8 +18,7 @@ interface ImageSwiperProps {
     transitionDuration?: number;
     /** 是否启用动态遮罩效果，默认true */
     enableMask?: boolean;
-    /** 图片加载完成回调 */
-    onImageLoad?: () => void; // 新增
+    onImageLoad?: () => void; 
 }
 
 type MaskDirection = 'lt' | 'rt' | 'lb' | 'rb';
@@ -33,7 +32,7 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
     altPrefix = 'image',
     transitionDuration = 2,
     enableMask = true,
-    onImageLoad, // 新增
+    onImageLoad, 
 }) => {
     // 当前显示的图片索引
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -118,21 +117,37 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
     };
 
     const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+    const hasNotifiedRef = useRef(false); // 跟踪是否已经通知过
 
     // 处理图片加载完成
     const handleImageLoad = useCallback((imageSrc: string) => {
         setLoadedImages(prev => {
             const newSet = new Set(prev);
             newSet.add(imageSrc);
-            
-            // 如果所有图片都加载完成，触发回调
-            if (newSet.size === images.length && onImageLoad) {
-                onImageLoad();
-            }
-            
             return newSet;
         });
-    }, [images.length, onImageLoad]);
+    }, []);
+
+    // 使用 useEffect 监听所有图片加载完成，避免在渲染期间更新父组件状态
+    useEffect(() => {
+        if (loadedImages.size === images.length && onImageLoad && !hasNotifiedRef.current) {
+            hasNotifiedRef.current = true;
+            // 使用 setTimeout 确保在下一个事件循环中执行，避免在渲染期间更新状态
+            const timer = setTimeout(() => {
+                onImageLoad();
+                if (import.meta.env.DEV) {
+                    console.log('onImageLoad: imageSwiper');
+                }
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [loadedImages.size, images.length]);
+
+    // 当 images 变化时重置加载状态和通知标志
+    useEffect(() => {
+        setLoadedImages(new Set());
+        hasNotifiedRef.current = false;
+    }, [images]);
 
     return (
         <div 

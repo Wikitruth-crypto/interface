@@ -19,21 +19,7 @@ export interface FundsSectionProps {
     className?: string;
 }
 
-/**
- * FundsSection - 纯UI组件
- * 
- * 功能：
- * - 展示资金信息（Office Token、Accepted Token）
- * - 提供代币选择界面
- * - 支持单选逻辑
- * - 响应式布局
- * 
- * 设计原则：
- * - 纯UI组件，不包含状态管理
- * - 通过props接收所有数据和回调
- * - 专注于展示和用户交互
- * - 状态管理由父组件或容器组件处理
- */
+
 const FundsSection: React.FC<FundsSectionProps> = ({
     title,
     officeToken,

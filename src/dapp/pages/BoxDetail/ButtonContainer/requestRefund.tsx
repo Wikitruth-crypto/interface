@@ -9,7 +9,7 @@ import { timeToDate } from '@/dapp/utils/time';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
   onClick?: () => void;

@@ -34,6 +34,7 @@
     "antd-img-crop": "^4.25.0",
     "autoprefixer": "^10.4.21",
     "bignumber.js": "^9.1.2",
+    "camelcase-keys": "^10.0.1",
     "chrono-node": "^2.8.2",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",

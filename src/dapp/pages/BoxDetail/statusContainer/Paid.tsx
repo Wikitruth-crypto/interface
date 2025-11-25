@@ -6,8 +6,7 @@ import {
     CompleteButton,
     ViewFileButton,
 } from '@BoxDetail/ButtonContainer';
-import { useBoxContext } from '../contexts/BoxContext';
-// import { useBoxDetailStore } from '../store/boxDetailStore';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import Line from '@/components/base/line';
 
 interface Props {

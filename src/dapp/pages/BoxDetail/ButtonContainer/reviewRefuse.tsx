@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
   onClick?: () => void;

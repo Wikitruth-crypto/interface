@@ -6,7 +6,7 @@ import { NETWORK_CONTRACTS } from './contracts';
  * @param chainId - 链ID
  * @returns 支持的代币列表
  */
-export function getSupportedTokens(chainId: SupportedChainId): TokenMetadata[] {
+export function getSupportedTokens_WithChainId(chainId: SupportedChainId): TokenMetadata[] {
   const addresses = NETWORK_CONTRACTS[chainId];
   
   return [
@@ -44,14 +44,15 @@ export function getSupportedTokens(chainId: SupportedChainId): TokenMetadata[] {
  */
 export interface OfficialTokenConfig {
   decimals: number;
-  mintPeriod: number; // seconds
   name: string;
   symbol: string;
   types: 'ERC20' | 'Secret';
+  mintPeriod?: number; // seconds
+
 }
 
 export const OFFICIAL_TOKEN_CONFIG: OfficialTokenConfig = {
-  decimals: 3,
+  decimals: 18,
   mintPeriod: 3 * 24 * 60 * 60, // 3 days in seconds
   name: 'WikiTruth Coin',
   symbol: 'WTC',

@@ -1,5 +1,5 @@
-import { projectDataStore, ProjectDataType, } from "@/dapp/types/contracts/metadataBase";
-import { EncryptionDataType } from "@/dapp/types/mint/encryption";
+import { projectDataStore, ProjectDataType, } from "./metadataBase";
+import { EncryptionDataType } from "./encryption";
 
 
 export type MintMethodType = 'create' | 'createAndPublish';
@@ -23,7 +23,6 @@ export interface BoxInfoType {
 
 export interface FileInfoType {
     fileList: string[]; // 存储多个分片的文件CID
-    // password: string;
 }
 
 export interface MetadataBoxType extends BoxInfoType, ProjectDataType, FileInfoType, EncryptionDataType {}
@@ -55,7 +54,5 @@ export const initialMetadataBox: MetadataBoxType = {
         password_iv: "",
     },
     publicKey: "",
-    // privateKey: "",
     fileList: [],
-    // password: "",
 };

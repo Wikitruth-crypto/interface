@@ -84,7 +84,9 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
         const expired = now >= permit.deadline;
         
         if (expired) {
-            console.log(`[EIP712] Permit expired. Deadline: ${permit.deadline}, Now: ${now}`);
+            if (import.meta.env.DEV) {
+                console.log(`[EIP712] Permit expired. Deadline: ${permit.deadline}, Now: ${now}`);
+            }
         }
         
         return expired;
@@ -129,7 +131,9 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
                 }
                 
                 // 已过期，需要重新生成签名
-                console.log('[EIP712] Permit expired, regenerating signature...');
+                if (import.meta.env.DEV) {
+                    console.log('[EIP712] Permit expired, regenerating signature...');
+                }
                 
                 // 从 permit 中提取参数
                 label = params.label;
@@ -146,8 +150,8 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
                 
                 if (!contractAddress) {
                     throw new Error(
-                        'Permit 已过期，需要 contractAddress 来重新生成签名。' +
-                        '请通过 options 参数提供: getValidPermit(permit, { contractAddress: "0x..." })'
+                        'Permit expired, need contractAddress to regenerate signature.' +
+                        'Please provide contractAddress through options parameter: getValidPermit(permit, { contractAddress: "0x..." })'
                     );
                 }
                 
@@ -172,11 +176,11 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
             }
 
             if (!spender) {
-                throw new Error('缺少 spender 参数');
+                throw new Error('Missing spender parameter');
             }
 
             if (!contractAddress) {
-                throw new Error('缺少 contractAddress 参数');
+                throw new Error('Missing contractAddress parameter');
             }
 
             // 尝试从 store 获取已存在的 permit
@@ -184,7 +188,10 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
 
             // 检查是否存在且未过期
             if (existingPermit && !isExpired(existingPermit)) {
-                console.log('[EIP712] Using cached permit');
+
+                if (import.meta.env.DEV) {
+                    console.log('[EIP712] Using cached permit');
+                }
                 return existingPermit;
             }
 
@@ -208,20 +215,22 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
                 // 保存到 store
                 setEip712Permit(label, spender, newPermit, chainId);
                 
-                console.log('[EIP712] Permit generated and cached');
+                if (import.meta.env.DEV) {
+                    console.log('[EIP712] Permit generated and cached');
+                }
                 return newPermit;
 
             } catch (signError) {
                 const error = signError instanceof Error 
                     ? signError 
-                    : new Error('生成 EIP712 签名失败');
+                    : new Error('Failed to generate EIP712 signature');
                 console.error('[EIP712] Failed to generate permit:', error);
                 setError(error);
                 throw error;
             }
 
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('检查 permit 失败');
+            const error = err instanceof Error ? err : new Error('Failed to check permit');
             console.error('[useIsPermitExpired] Error:', error);
             setError(error);
             throw error;

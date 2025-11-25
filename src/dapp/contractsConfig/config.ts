@@ -12,7 +12,7 @@ import {
 } from './types';
 import { ABIS } from './abis';
 import { NETWORK_CONTRACTS } from './contracts';
-import { DEFAULT_CHAIN, isSupportedChain } from './chains';
+import { currentChainConfig, isSupportedChain } from './chains';
 
 /**
  * 配置管理类
@@ -20,42 +20,21 @@ import { DEFAULT_CHAIN, isSupportedChain } from './chains';
 class ConfigManager {
   private currentChainId: SupportedChainId;
 
-  constructor(initialChainId: SupportedChainId = DEFAULT_CHAIN.id) {
+  constructor(initialChainId: SupportedChainId = currentChainConfig.id) {
     this.currentChainId = initialChainId;
-  }
-
-  /**
-   * 设置当前链ID
-   */
-  setChainId(chainId: number): void {
-    if (!isSupportedChain(chainId)) {
-      console.warn(
-        `Unsupported chain ID: ${chainId}. Falling back to default chain: ${DEFAULT_CHAIN.id}`
-      );
-      this.currentChainId = DEFAULT_CHAIN.id;
-      return;
-    }
-    this.currentChainId = chainId;
-  }
-
-  /**
-   * 获取当前链ID
-   */
-  getChainId(): SupportedChainId {
-    return this.currentChainId;
   }
 
   /**
    * 获取指定网络的所有合约地址
    */
-  getContractAddresses(chainId?: number): ContractAddresses {
+  getContractAddresses_WithChainId(chainId?: number): ContractAddresses {
     const targetChainId = chainId ?? this.currentChainId;
     
     if (!isSupportedChain(targetChainId)) {
       console.warn(
-        `Unsupported chain ID: ${targetChainId}. Using default chain: ${DEFAULT_CHAIN.id}`
+        `Unsupported chain ID: ${targetChainId}. Using default chain: ${currentChainConfig.id}`
       );
-      return NETWORK_CONTRACTS[DEFAULT_CHAIN.id];
+      return NETWORK_CONTRACTS[currentChainConfig.id];
     }
 
     return NETWORK_CONTRACTS[targetChainId];
@@ -72,7 +51,7 @@ class ConfigManager {
     chainId?: number
   ): ContractConfig {
     const targetChainId = (chainId ?? this.currentChainId) as SupportedChainId;
-    const addresses = this.getContractAddresses(targetChainId);
+    const addresses = this.getContractAddresses_WithChainId(targetChainId);
     const address = addresses[contractName];
 
     return {
@@ -87,7 +66,7 @@ class ConfigManager {
    * 
    * 注意：保证总是返回完整的配置对象
    */
-  getAllContractConfigs(chainId?: number): ContractConfigs {
+  getAllContractConfigs_WithChainId(chainId?: number): ContractConfigs {
     const targetChainId = chainId ?? this.currentChainId;
     const configs: Partial<ContractConfigs> = {};
 
@@ -100,20 +79,6 @@ class ConfigManager {
     });
 
     return configs as ContractConfigs;
-  }
-
-  /**
-   * 检查合约是否已部署
-   * 
-   * 注意：由于 mainnet 暂时使用 testnet 配置，此方法始终返回 true
-   * 未来主网部署后，可以根据实际地址判断
-   */
-  isContractDeployed(
-    contractName: ContractName,
-    chainId?: number
-  ): boolean {
-    const config = this.getContractConfig(contractName, chainId);
-    return !!config.address && config.address !== '0x';
   }
 }
 
@@ -145,24 +110,12 @@ export function getContractAddress(
 /**
  * 便捷函数：获取所有合约地址
  */
-export function getContractAddresses(chainId?: number): ContractAddresses {
-  return configManager.getContractAddresses(chainId);
+export function getContractAddresses_WithChainId(chainId?: number): ContractAddresses {
+  return configManager.getContractAddresses_WithChainId(chainId);
 }
 
-/**
- * 便捷函数：获取所有合约配置
- */
-export function getAllContractConfigs(chainId?: number): ContractConfigs {
-  return configManager.getAllContractConfigs(chainId);
-}
 
-/**
- * 便捷函数：检查合约是否已部署
- */
-export function isContractDeployed(
-  contractName: ContractName,
-  chainId?: number
-): boolean {
-  return configManager.isContractDeployed(contractName, chainId);
+export function getAllContractConfigs_WithChainId(chainId?: number): ContractConfigs {
+  return configManager.getAllContractConfigs_WithChainId(chainId);
 }
 

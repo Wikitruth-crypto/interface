@@ -17,8 +17,7 @@ import { useCheckDeadline, } from '../hooks/useCheckDeadline';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import Line from '@/components/base/line';
 import ShareSocial from '@/dapp/components/shareSoical';
-import { useMetadataStore } from '@/dapp/store/processMetadata/useMetadataStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import Paragraph from '@/components/base/paragraph';
 
 interface Props {
@@ -27,9 +26,9 @@ interface Props {
 }
 
 const ContentRight: React.FC<Props> = ({ tokenId }) => {
-    const { box, boxId, metadataBox ,isLoading} = useBoxContext();
+    const { box, metadataBox ,isLoading} = useBoxDetailContext();
 
-    useCheckDeadline(boxId);
+    useCheckDeadline();
 
     const [price, setPrice] = useState('');
     const [status, setStatus] = useState<BoxStatus>('Storing');
@@ -41,7 +40,7 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             setStatus(box.status as BoxStatus);
             setPrice(box.price ?? '');
             setDeadline(Number(box.deadline));
-            setToken(box.acceptedToken?.id ?? '');
+            setToken(box.acceptedToken ?? '');
         }
     }, [box]);
 
@@ -83,7 +82,7 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             {/* </div> */}
             <StatusStep
                 status={status}
-                listedMode={box?.listedMode}
+                listedMode={box?.listedMode ?? ''}
                 size="sm"
                 enableHorizontalScroll={true}
             />

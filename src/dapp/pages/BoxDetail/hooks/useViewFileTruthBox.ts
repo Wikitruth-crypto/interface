@@ -1,9 +1,6 @@
 import { useState } from "react"
-// import { jsonToObjectService } from "@/dapp/services/metadata/jsonToObjectService"
-// import { useMetadataStore } from "@/dapp/store/metadataStore"
-// import { useBoxDetailStore } from "../store/nftDetailStore";
 import { useDecryption } from "@/dapp/hooks/Cryption/useDecryption";
-import { MetadataBoxType } from "@/dapp/types/contracts/metadataBox";
+import { MetadataBoxType } from "@/dapp/types/metadata/metadataBox";
 
 export type ViewFileResult = {
     fileCIDList: string[];

@@ -4,18 +4,7 @@ import { useAccount} from 'wagmi';
 import { useAllContractConfigs, useContractAddress } from '@/dapp/contractsConfig';
 
 import { EIP712Permit } from '@/dapp/hooks/EIP712';
-
-/**
- * enum PermitLabel { VIEW, TRANSFER, APPROVE }
- * function allowanceWithPermit(
-        EIP712Permit memory permit
-    ) external view returns (uint256)
-
- * function balanceOfWithPermit(
-        EIP712Permit memory permit
-    ) external view returns (uint256)
- * @returns 
- */
+import { ContractName } from '@/dapp/contractsConfig';
 
 export const useReadSecretBalance = (
     eip712Permit?: EIP712Permit,
@@ -24,7 +13,7 @@ export const useReadSecretBalance = (
     const { balanceOf } = useERC20();
     const { address } = useAccount();
     const allConfigs = useAllContractConfigs();
-    const FundManagerAddress = useContractAddress('FundManager');
+    const FundManagerAddress = useContractAddress(ContractName.FUND_MANAGER);
 
     const balanceOfWithPermit = async (permit: EIP712Permit): Promise<number> => {
         if (typeof allowance !== 'function') {

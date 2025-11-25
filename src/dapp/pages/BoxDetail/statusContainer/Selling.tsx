@@ -2,9 +2,8 @@
 import React from 'react';
 import { BuyButton, ViewFileButton, PublishButton } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-// import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
-import { Alert } from 'antd'; // 直接使用antd的Alert组件
-import { useBoxContext } from '../contexts/BoxContext';
+import { Alert } from 'antd'; 
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string, // 保留以备后用
@@ -22,7 +21,7 @@ const Selling: React.FC<Props> = ({ }) => {
     return (
         <div className="flex flex-col items-start justify-center gap-4">
             {
-                (!box.buyer && deadlineCheckState.isOverDeadline) &&
+                (!box.buyerId && deadlineCheckState.isOverDeadline) &&
                 <div className="mb-4">
                     <Alert
                         type="warning"

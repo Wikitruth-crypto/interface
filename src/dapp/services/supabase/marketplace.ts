@@ -2,10 +2,9 @@
 import { supabase, Database  } from '@supabaseDocs/supabase.config';
 import type { MarketplaceFilters } from '@/dapp/pages/Marketplace/types/marketplace.types';
 import type { SearchBoxesResult, StatisticalState } from './types';
+import { currentChainConfig } from '@/dapp/contractsConfig/chains';
 
-const DEFAULT_NETWORK: 'testnet' | 'mainnet' = 'testnet';
-const DEFAULT_LAYER: 'sapphire' = 'sapphire';
-const MAX_COUNT_LIMIT = 2000;
+const MAX_COUNT_LIMIT = 200;
 
 type SearchBoxesArgs = Database['public']['Functions']['search_boxes']['Args'];
 type QueryError = PostgrestError | Error | null;
@@ -22,7 +21,9 @@ const toNullableNumber = (value: number | undefined): number | null => {
 
 const normalizeString = (value?: string | null): string => value?.trim() ?? '';
 
-function convertFiltersToSearchParams(filters: MarketplaceFilters): SearchBoxesArgs {
+function convertFiltersToSearchParams(
+    filters: MarketplaceFilters
+): SearchBoxesArgs {
     // 默认排序：有搜索时按相关性，否则按 ID 降序（最新的在前面）
     let sort_by: SearchBoxesArgs['sort_by'] = filters.search ? 'relevance' : 'box_id';
     let sort_direction: SearchBoxesArgs['sort_direction'] = 'desc';
@@ -64,9 +65,11 @@ function convertFiltersToSearchParams(filters: MarketplaceFilters): SearchBoxesA
     const countryFilter = normalizeString(filters.country);
     const priceRange = filters.priceRange ?? {};
 
+    const { network, layer } = currentChainConfig;
+
     return {
-        network_filter: DEFAULT_NETWORK,
-        layer_filter: DEFAULT_LAYER,
+        network_filter: network,
+        layer_filter: layer,
         search_query: normalizeString(filters.search) || null,
         status_filter: statusFilter,
         country_filter: countryFilter ? [countryFilter] : null,
@@ -133,6 +136,7 @@ export async function queryMarketplaceBoxes(
     limit: number = 20,
     offset: number = 0
 ): Promise<{ data: SearchBoxesResult[] | null; error: QueryError }> {
+
     try {
         const searchParams: SearchBoxesArgs = {
             ...convertFiltersToSearchParams(filters),
@@ -161,12 +165,13 @@ export async function queryMarketplaceStats(): Promise<{
     data: StatisticalState | null;
     error: QueryError;
 }> {
+    const { network, layer } = currentChainConfig;
     try {
         const { data, error } = await supabase
             .from('statistical_state')
             .select('*')
-            .eq('network', DEFAULT_NETWORK)
-            .eq('layer', DEFAULT_LAYER)
+            .eq('network', network)
+            .eq('layer', layer)
             .eq('id', 'statistical')
             .single();
 
@@ -182,7 +187,7 @@ export async function queryMarketplaceStats(): Promise<{
 }
 
 export async function countMarketplaceBoxes(
-    filters: MarketplaceFilters
+    filters: MarketplaceFilters,
 ): Promise<{ count: number | null; error: QueryError }> {
     try {
         const searchParams: SearchBoxesArgs = {

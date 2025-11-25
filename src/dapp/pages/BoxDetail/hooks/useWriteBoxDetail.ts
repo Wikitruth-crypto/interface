@@ -4,7 +4,7 @@ import {
     useWriteContract
 } from 'wagmi';
 import { ContractConfig } from '@/dapp/contractsConfig/types';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useButtonInteractionStore } from '../store/buttonInteractionStore';
 import { FunctionNameType } from '@/dapp/types/contracts';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';

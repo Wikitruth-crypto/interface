@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { 
     SellButton, 
     AuctionButton, 

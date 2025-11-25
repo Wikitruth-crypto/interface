@@ -224,14 +224,14 @@ const Filter: React.FC<FilterProps> = ({ className, totalItems = 0 }) => {
 
                     <div className="flex-shrink-0 w-full lg:w-auto lg:min-w-[200px]">
                         <div className="flex flex-row gap-3 justify-center lg:justify-end items-center">
-                            <div className="w-full lg:w-auto">
+                            {/* <div className="w-full lg:w-auto">
                                 <Select
                                     value={paginationConfig.mode}
                                     onChange={handleModeChange}
                                     options={paginationModeOptions}
                                     className="w-full lg:min-w-[140px]"
                                 />
-                            </div>
+                            </div> */}
 
                             <div className="text-sm text-muted-foreground px-3 py-2 whitespace-nowrap">
                                 <span className="font-medium">Total:</span>

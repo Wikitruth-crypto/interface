@@ -2,7 +2,7 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useMemo } from 'react';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 type ButtonDisabledNameType = 
 'extendDisabled' | 
@@ -20,7 +20,7 @@ type ButtonDisabledNameType =
 'viewFileDisabled';
 
 export const useButtonDisabled = (name: ButtonDisabledNameType) => {
-  const { boxId, box } = useBoxContext();
+  const { boxId, box } = useBoxDetailContext();
   const { userState, deadlineCheckState, modalStatus} = useBoxDetailStore(state => state);
   const { address } = useWalletContext() || {};
 
@@ -57,7 +57,7 @@ export const useButtonDisabled = (name: ButtonDisabledNameType) => {
     const isBuyer = roles.includes('Buyer');
     const isUnRole = roles.length === 0;
 
-    const buyer = box.buyer;
+    const buyer = box.buyerId;
     const noBuyer = buyer === undefined || buyer === null;
 
     const publicInStatus = (): boolean => {

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import ContentLeft from './containers/left';
 import ContentRight from './containers/right';
 import { Container } from '@/components/Container';
-import { BoxProvider } from './contexts/BoxContext';
+import { BoxDetailProvider } from './contexts/BoxDetailContext';
 import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
 
 const BoxDetail: React.FC = () => {
@@ -23,7 +23,7 @@ const BoxDetail: React.FC = () => {
                 {/* Main Content */}
                 <div className="bg-muted/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 lg:p-12">
 
-                    <BoxProvider tokenId={tokenId || ''}>
+                    <BoxDetailProvider boxId={tokenId || ''}>
                         <div className="flex w-full flex-col lg:flex-row gap-8 lg:gap-12">
                             {/* Left Content */}
                             <div className="flex-1 lg:max-w-2xl">
@@ -38,7 +38,7 @@ const BoxDetail: React.FC = () => {
                                 <ContentRight tokenId={tokenId || ''} />
                             </div>
                         </div>
-                    </BoxProvider>
+                    </BoxDetailProvider>
                 </div>
             </Container>
         </>

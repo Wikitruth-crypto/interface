@@ -28,7 +28,7 @@ export interface MarketplaceBoxData {
   tokenIdNumeric?: number;
   price: string;
   status: BoxStatus | string;
-  // deadline?: string | null;
+  deadline?: string | null;
   boxInfoCID?: string | null;
   acceptToken?: string | null;
 

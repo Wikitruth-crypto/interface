@@ -5,7 +5,7 @@ import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ApproveButton from './approve';
 import BaseButton from '@/dapp/components/base/baseButton';
@@ -39,7 +39,7 @@ const BidButton: React.FC<Props> = ({ onClick, className }) => {
     useEffect(() => {
         if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
             checkAllowance_BoxDetail(
-                box?.acceptedToken?.id as `0x${string}` || '',
+                box?.acceptedToken as `0x${string}` || '',
                 box?.price || 0
             )
         }

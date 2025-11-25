@@ -4,19 +4,17 @@ import {
     Modal,
     // Button,
     Typography,
+    InputNumber,
 } from 'antd';
 import {
     useState,
     useEffect,
 } from 'react';
-// import './modal.css';
-// import { useWriteContract } from 'wagmi';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import InputNumber from '@dapp/components/base/inputNumber';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 // import { usePermissionContext } from '../useState/permission/PermissionContext';
 
 interface Props {
@@ -58,7 +56,9 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
     }, [error, isPending, isSuccessed]);
 
     const handleInputTime = (value: string) => {
-        console.log("value days:", value)
+        if (import.meta.env.DEV) {
+            console.log("value days:", value)
+        }
         setDays(Number(value))
         setTimestamp(Number(value) * 24 * 60 * 60)
     }
@@ -120,13 +120,13 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
                         /> */}
                         <div className='flex flex-row w-full'>
                             <InputNumber
-                                value={days}
+                                value={days.toString() || ''}
                                 suffix='days'
-                                decimals={0}
-                                min={1}
+                                precision={0}
+                                min="1"
                                 step={10}
                                 placeholder="Input timestamp"
-                                onChange={(value: string) => handleInputTime(value)}
+                                onChange={(value) => handleInputTime(value || '')}
                             />
                         </div>
                     </div>

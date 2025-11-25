@@ -1,4 +1,4 @@
-import { MintMethodType } from "@/dapp/types/contracts/metadataBox";
+import { MintMethodType } from "./metadataBox";
 
 export interface ResultDataType {
     title: string;

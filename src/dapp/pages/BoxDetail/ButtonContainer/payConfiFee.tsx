@@ -11,7 +11,7 @@ import { usePeriodRate } from '@/dapp/constants/periodRate';
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 
 interface Props {
@@ -38,7 +38,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   useEffect(() => {
     if (!roles.includes('Admin') && !roles.includes('Minter')) {
       checkAllowance_BoxDetail(
-        box?.acceptedToken?.id as `0x${string}` || '',
+        allConfigs.OfficialToken.address as `0x${string}`,
         box?.price || 0
       )
     }

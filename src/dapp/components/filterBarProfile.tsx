@@ -8,16 +8,7 @@ interface FilterBarProps {
     className?: string;
 }
 
-/**
- * FilterBar - 状态筛选栏组件
- * 
- * 用于 Profile 页面的状态筛选功能，支持多种 Truth Box 状态的筛选。
- * 使用 shadcn/ui 设计系统重构，符合项目整体风格。
- * 
- * @param filters - 当前筛选状态
- * @param onStatusChange - 状态变化回调
- * @param className - 额外样式类名
- */
+
 const FilterBar: React.FC<FilterBarProps> = ({
     onStatusChange,
     className

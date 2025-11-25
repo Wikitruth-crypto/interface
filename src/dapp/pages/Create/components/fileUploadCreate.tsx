@@ -10,14 +10,7 @@ interface FileUploadProps {
     className?: string;
 }
 
-/**
- * 文件上传组件 (重构版)
- * 使用 React Hook Form 进行验证
- * 
- * 关键改进：
- * - 集成 RHF 验证
- * - 保留文件大小检查逻辑
- */
+
 const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
     const { fileList, error, handleChange } = useAddFile();
 

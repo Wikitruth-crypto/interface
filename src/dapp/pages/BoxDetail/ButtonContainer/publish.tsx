@@ -5,7 +5,7 @@ import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import { FunctionNameType } from '@dapp/types/contracts';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';

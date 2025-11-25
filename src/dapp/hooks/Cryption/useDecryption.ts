@@ -2,31 +2,6 @@ import { useState } from "react";
 import { DecryptionResult, DecryptionService } from "@/dapp/services/cryption";
 import { CryptionDataBytesType } from "@/dapp/services/cryption";
 
-/**
- * 解密 Hook（基于 Service 层实现）
- * 
- * 职责：为 React 组件提供解密功能的 Hook 封装
- * 
- * @特点
- * - 基于 DecryptionService 实现
- * - 管理解密状态（data, error, isLoading）
- * - 保持原有的 API 接口不变
- * 
- * @使用示例
- * ```typescript
- * const { decryption, data, error, isLoading } = useDecryption();
- * 
- * const handleDecrypt = async () => {
- *   const results = await decryption(publicKey, privateKey, cryptionDatas);
- *   if (results) {
- *     console.log('解密成功:', results.data);
- *   } else {
- *     console.error('解密失败:', results.error);
- *     return null;
- *   }
- * };
- * ```
- */
 
 export const useDecryption = () => {
     const [data, setData] = useState<string | null>(null);

@@ -8,14 +8,7 @@ interface ImageUploadProps {
     className?: string;
 }
 
-/**
- * 图片上传组件 (重构版)
- * 使用 React Hook Form 进行验证
- * 
- * 关键改进：
- * - 集成 RHF 验证
- * - 改进错误显示逻辑
- */
+
 const ImageUpload: React.FC<ImageUploadProps> = ({ className }) => {
     const { boxImageList, error, onChange, onModalOk } = useAddImage();
 

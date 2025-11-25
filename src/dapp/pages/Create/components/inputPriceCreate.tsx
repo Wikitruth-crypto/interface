@@ -2,7 +2,7 @@ import React from 'react';
 import { usePriceInput } from '../hooks/Input/usePriceInput';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
-import InputNumber from '@/dapp/components/base/inputNumber';
+import { InputNumber } from 'antd';
 import { useCreateForm } from '../context/CreateFormContext';
 
 interface InputPriceCreateProps {
@@ -38,12 +38,11 @@ export const InputPriceCreate: React.FC<InputPriceCreateProps> = ({className}) =
                 </div>
                 <div className="flex items-center w-full">
                     <InputNumber
-                        onChange={handlePriceChange}
+                        onChange={(value) => handlePriceChange(value || '')}
                         onBlur={handleBlur} // ✅ 绑定失焦事件
                         value={inputValue}
-                        error={error}
-                        showControls={false}
-                        min={0.001}
+                        controls={false}
+                        min="0.001"
                         placeholder={
                             isRequired 
                                 ? "Please enter the price (min: 0.001)" 
@@ -51,6 +50,8 @@ export const InputPriceCreate: React.FC<InputPriceCreateProps> = ({className}) =
                         }
                         suffix={<p className="ml-2">{supportedTokens[0].symbol}</p>}
                     />
+                    {error && <p className="text-sm text-error font-light">{error}</p>}
+
                 </div>
             </div>
         </div>

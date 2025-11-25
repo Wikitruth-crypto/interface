@@ -14,7 +14,8 @@ export enum SupportedChainId {
 export interface ChainConfig {
   id: SupportedChainId;
   name: string;
-  network: string;
+  network: 'testnet' | 'mainnet';
+  layer: 'sapphire';
   nativeCurrency: {
     name: string;
     symbol: string;

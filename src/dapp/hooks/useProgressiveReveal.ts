@@ -59,7 +59,7 @@ export function useProgressiveReveal<T = any>(
         transitionDuration = 300,
         initialCount = 20,
         cleanupOnUnmount = true,
-        waitForImageLoad = false, // 新增
+        waitForImageLoad = false, 
     } = config;
 
     const [items, setItems] = useState<ProgressiveItem<T>[]>([]);
@@ -236,7 +236,9 @@ export function useProgressiveReveal<T = any>(
                             setIsRevealing(false);
                             // 更新已处理的数据长度
                             processedDataLengthRef.current = data.length;
-                            console.log(`✅ useProgressiveReveal: ${resetMode ? '重置' : '增量'}显示完成，总共处理 ${data.length} 个项目`);
+                            if (import.meta.env.DEV) {
+                                console.log(`✅ useProgressiveReveal: ${resetMode ? 'Reset' : 'Incremental'} display completed, total ${data.length} projects processed`);
+                            }
                         }
                         return newCount;
                     });
@@ -255,6 +257,9 @@ export function useProgressiveReveal<T = any>(
 
     // 新增：处理图片加载完成的函数
     const handleImageLoaded = useCallback((index: number) => {
+        if (import.meta.env.DEV) {
+            console.log('handleImageLoaded: useProgressiveReveal', index);
+        }
         if (!waitForImageLoad) return;
 
         // 使用 setTimeout 延迟执行，避免在渲染期间更新状态
@@ -325,21 +330,27 @@ export function useProgressiveReveal<T = any>(
 
     // 开始渐进式显示（重置模式）
     const startReveal = useCallback((data: T[]) => {
-        console.log(`🔄 useProgressiveReveal: 重置显示模式 - ${data.length} 个项目`);
+        if (import.meta.env.DEV) {
+            console.log(`🔄 useProgressiveReveal: Reset display mode - ${data.length} projects`);
+        }
         revealItems(data, 0, true);
     }, [revealItems]);
 
     // 增量渐进式显示（保留已显示项目）
     const appendReveal = useCallback((newData: T[]) => {
         const startIndex = processedDataLengthRef.current;
-        console.log(`➕ useProgressiveReveal: 增量显示模式 - 从索引 ${startIndex} 开始显示 ${newData.length} 个新项目（总共 ${newData.length} 个项目）`);
+        if (import.meta.env.DEV) {
+            console.log(`➕ useProgressiveReveal: Incremental display mode - start from index ${startIndex} to display ${newData.length} new projects (total ${newData.length} projects)`);
+        }
         
         revealItems(newData, startIndex, false);
     }, [revealItems]);
 
     // 重置到初始状态
     const reset = useCallback(() => {
-        console.log(`🔄 useProgressiveReveal: 重置到初始状态`);
+        if (import.meta.env.DEV) {
+            console.log(`🔄 useProgressiveReveal: Reset to initial state`);
+        }
         clearAllTimeouts();
         setIsRevealing(false);
         initializeItems(initialCount);

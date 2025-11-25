@@ -10,7 +10,7 @@ import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionSto
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     onClick?: () => void;
@@ -42,7 +42,7 @@ const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     useEffect(() => {
         if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
             checkAllowance_BoxDetail(
-                box?.acceptedToken?.id as `0x${string}` || '',
+                box?.acceptedToken as `0x${string}` || '',
                 box?.price || 0
             )
         }

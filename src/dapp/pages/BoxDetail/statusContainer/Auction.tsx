@@ -1,10 +1,9 @@
 'use client'
 import React from 'react';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { BidButton, ViewFileButton, PublishButton } from '@BoxDetail/ButtonContainer';
-// import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
-import { Alert } from 'antd'; // 直接使用antd的Alert组件
+import { Alert } from 'antd'; 
 
 interface Props {
     tokenId?: string,
@@ -14,7 +13,7 @@ const Auction: React.FC<Props> = ({ }) => {
     const store = useBoxDetailStore(state => state)
     const { roles } = store.userState
     const deadlineCheckState = store.deadlineCheckState
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     if (!box) {
         return <div>loading...</div>
@@ -36,7 +35,7 @@ const Auction: React.FC<Props> = ({ }) => {
                 />
             )}
             {
-                (box.bidders?.length === 0 && deadlineCheckState.isOverDeadline) &&
+                (box.biddersIds?.length === 0 && deadlineCheckState.isOverDeadline) &&
                 <div className="mb-4">
                     <Alert
                         type="warning"

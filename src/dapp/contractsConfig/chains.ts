@@ -1,12 +1,14 @@
+import { useChainId } from 'wagmi';
 import { ChainConfig, SupportedChainId } from './types';
-
+import { useEffect } from 'react';
 /**
  * Sapphire Testnet 配置
  */
 export const sapphireTestnet: ChainConfig = {
   id: SupportedChainId.SAPPHIRE_TESTNET,
   name: 'Oasis Sapphire Testnet',
-  network: 'sapphire-testnet',
+  network: 'testnet',
+  layer: 'sapphire',
   nativeCurrency: {
     name: 'Testnet ROSE',
     symbol: 'TEST',
@@ -37,7 +39,8 @@ export const sapphireTestnet: ChainConfig = {
 export const sapphireMainnet: ChainConfig = {
   id: SupportedChainId.SAPPHIRE_MAINNET,
   name: 'Oasis Sapphire',
-  network: 'sapphire-mainnet',
+  network: 'mainnet',
+  layer: 'sapphire',
   nativeCurrency: {
     name: 'ROSE',
     symbol: 'ROSE',
@@ -70,10 +73,8 @@ export const CHAINS: Record<SupportedChainId, ChainConfig> = {
   [SupportedChainId.SAPPHIRE_MAINNET]: sapphireMainnet,
 };
 
-/**
- * 默认链（测试网）
- */
-export const DEFAULT_CHAIN = sapphireTestnet;
+export let currentChainId = 293295;
+export let currentChainConfig = sapphireTestnet;
 
 /**
  * 根据 chainId 获取链配置
@@ -89,3 +90,22 @@ export function isSupportedChain(chainId: number): chainId is SupportedChainId {
   return chainId in CHAINS;
 }
 
+/**
+ * 监听当前链的变化, 
+ * 被顶层组件调用, 用于获取当前链配置
+ */
+export function useSetCurrentChainConfig(): ChainConfig {
+  const chainId  = useChainId();
+  useEffect(() => {
+    if (chainId) {
+      const chainConfig = getChainConfig(chainId);
+      if (chainConfig) {
+        currentChainConfig = chainConfig;
+      }
+      currentChainId = chainId;
+    }
+
+  }, [chainId]);
+
+  return currentChainConfig;
+}

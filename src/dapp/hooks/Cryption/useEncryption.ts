@@ -1,28 +1,7 @@
 import { useState } from "react";
 import { CryptionDataBytesType, EncryptionService } from "@/dapp/services/cryption";
 
-/**
- * 加密 Hook（基于 Service 层实现）
- * 
- * 职责：为 React 组件提供加密功能的 Hook 封装
- * 
- * @特点
- * - 基于 EncryptionService 实现
- * - 管理加密状态（data, error, isLoading）
- * - 保持原有的 API 接口不变
- * 
- * @使用示例
- * ```typescript
- * const { encryption, data, error, isLoading } = useEncryption();
- * 
- * const handleEncrypt = async () => {
- *   const result = await encryption(publicKey, privateKey, fileCid, password);
- *   if (result) {
- *     console.log('加密成功:', result);
- *   }
- * };
- * ```
- */
+
 export const useEncryption = () => {
     const [dataList, setDataList] = useState<CryptionDataBytesType[] | null>(null);
     const [data, setData] = useState<CryptionDataBytesType | null>(null);

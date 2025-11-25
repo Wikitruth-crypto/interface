@@ -6,7 +6,7 @@ import Line from '@/components/base/line';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 // import { useUpdateNft_array } from '@dapp/hooks/useUpdateNft_array';
 // interface Props {
 //     tokenId: number,

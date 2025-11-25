@@ -1,6 +1,7 @@
 "use client"
 import {
     Modal,
+    InputNumber,
 } from 'antd';
 import { parseUnits } from 'viem';
 import {
@@ -12,10 +13,8 @@ import { useAllContractConfigs, useSupportedTokens } from '@/dapp/contractsConfi
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
-// import { useQueryStore } from '@/dapp/store/useQueryStore';
 import PriceLabel from '@/dapp/components/base/priceLabel';
-import { useBoxContext } from '../contexts/BoxContext';
-import InputNumber from '@/dapp/components/base/inputNumber';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
@@ -164,7 +163,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
                                 <Paragraph color='muted-foreground'>Price:</Paragraph>
                                 <div className='flex flex-row items-center '>
                                     <InputNumber
-                                        onChange={handlePriceChange}
+                                        onChange={(value) => handlePriceChange(value || '')}
                                         value={price}
                                         placeholder={`Enter price`}
                                     />

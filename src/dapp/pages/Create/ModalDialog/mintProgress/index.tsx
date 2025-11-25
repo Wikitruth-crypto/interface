@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-// import { useMintWorkflow } from '../../hooks/useMintworkflow';
-// import { useNFTCreateStore } from '../../store/useNFTCreateStore';
 import { Modal, Button, Progress } from 'antd';
 import { useCreateWorkflowStore } from '../../store/useCreateWorkflowStore';
 import ResultItem from '@/dapp/components/base/alertResult';
-// import AlertBox from '@/dapp/components/base/alertBox';
-// import AlertResult from '@/dapp/components/base/alertResult';
 import { useSmartWorkflow } from '../../hooks/useSmartWorkflow';
 
 

@@ -201,15 +201,16 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
                 deadline,
                 signature: sig
             };
-            // 这些信息应该会在钱包中显示
-            // console.log('✅ EIP712 签名成功:', permitData);
+            // if (import.meta.env.DEV) {
+            //     console.log('✅ EIP712 signature successful:', permitData);
+            // }
             
             setPermit(permitData);
             return permitData;
 
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('签名失败');
-            console.error('❌ EIP712 签名失败:', error);
+            const error = err instanceof Error ? err : new Error('Failed to generate EIP712 signature');
+            console.error('❌ EIP712 signature failed:', error);
             setError(error);
             return null;
         } finally {

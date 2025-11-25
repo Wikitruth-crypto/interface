@@ -8,14 +8,6 @@ interface DateSelectorCreateProps {
     className?: string;
 }
 
-/**
- * DateSelectorCreate - Create页面专用的日期选择器 (重构版)
- * 使用 React Hook Form 进行验证
- * 
- * 关键改进：
- * - 移除 someInputIsEmpty 验证逻辑
- * - 使用 RHF 统一管理错误状态
- */
 const DateSelectorCreate: React.FC<DateSelectorCreateProps> = ({
     className
 }) => {

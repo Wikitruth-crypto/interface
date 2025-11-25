@@ -21,7 +21,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useCreateWorkflowStore } from '../store/useCreateWorkflowStore';
 import { useNFTCreateStore } from '../store/useNFTCreateStore';
-import { MintMethodType } from '@/dapp/types/contracts/metadataBox';
+import { MintMethodType } from '@/dapp/types/metadata/metadataBox';
 import { 
   SmartWorkflowOrchestrator,
   createWorkflowContext,

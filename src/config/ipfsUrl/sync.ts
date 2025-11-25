@@ -45,7 +45,9 @@ const checkAndUpdateGateway = async (): Promise<void> => {
 
         if (bestGateway) {
             setCurrentGateway(bestGateway);
-            console.log(`[IPFS Gateway] Updated to: ${bestGateway}`);
+            if (import.meta.env.DEV) {
+                console.log(`[IPFS Gateway] Updated to: ${bestGateway}`);
+            }
         } else {
             console.warn('[IPFS Gateway] No healthy gateway found, keeping current gateway');
         }
@@ -74,7 +76,9 @@ export const startIpfsGatewayPolling = (): void => {
         checkAndUpdateGateway();
     }, POLLING_CONFIG.INTERVAL);
 
-    console.log(`[IPFS Gateway] Polling started, interval: ${POLLING_CONFIG.INTERVAL / 1000 / 60} minutes`);
+    if (import.meta.env.DEV) {
+        console.log(`[IPFS Gateway] Polling started, interval: ${POLLING_CONFIG.INTERVAL / 1000 / 60} minutes`);
+    }
 };
 
 /**
@@ -84,7 +88,10 @@ export const stopIpfsGatewayPolling = (): void => {
     if (pollingIntervalId) {
         clearInterval(pollingIntervalId);
         pollingIntervalId = null;
-        console.log('[IPFS Gateway] Polling stopped');
+
+        if (import.meta.env.DEV) {
+            console.log('[IPFS Gateway] Polling stopped');
+        }
     }
 };
 

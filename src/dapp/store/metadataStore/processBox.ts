@@ -1,6 +1,6 @@
 import { ipfsCidToUrl } from "@/config/ipfsUrl/ipfsCidToUrl";
 import { useMetadataStore } from "./useMetadataStore";
-import { MetadataBoxType } from "@/dapp/types/contracts/metadataBox";
+import { MetadataBoxType } from "@/dapp/types/metadata/metadataBox";
 
 /**
  * 处理NFT元数据，从IPFS获取数据并解析存储到Zustand

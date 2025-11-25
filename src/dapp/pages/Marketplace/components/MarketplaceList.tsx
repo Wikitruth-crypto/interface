@@ -8,7 +8,7 @@ import { useInfiniteScroll } from '@/dapp/hooks/useInfiniteScroll';
 import { cn } from '@/lib/utils';
 import type { MarketplaceBoxData, PaginationMode } from '../types/marketplace.types';
 import SkeletonCard from '@/dapp/components/base/skeletonCard';
-import ProgressiveRevealCard from '@/dapp/components/base/progressiveRevealCard';
+import ProgressiveRevealCard from '@/dapp/components/progressiveRevealCard';
 import { useProgressiveReveal } from '@/dapp/hooks/useProgressiveReveal';
 
 interface MarketplaceListProps {
@@ -65,6 +65,18 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
             // 无分页回调时的占位，避免 Pagination 组件告警
         });
 
+    // 使用 useRef 来跟踪上一次的 items，避免不必要的重置
+    const prevItemsRef = useRef<MarketplaceBoxData[]>([]);
+    const itemsKeyRef = useRef<string>('');
+
+    // 生成 items 的唯一标识（基于长度和第一个/最后一个项目的 id）
+    const currentItemsKey = useMemo(() => {
+        if (visibleItems.length === 0) return '';
+        const firstId = visibleItems[0]?.id || visibleItems[0]?.tokenId || '';
+        const lastId = visibleItems[visibleItems.length - 1]?.id || visibleItems[visibleItems.length - 1]?.tokenId || '';
+        return `${visibleItems.length}-${firstId}-${lastId}`;
+    }, [visibleItems]);
+
     // 使用渐进式加载 hook（启用图片加载等待模式）
     const {
         items: progressiveItems,
@@ -78,14 +90,23 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
         transitionDuration: 300,
     });
 
-    // 当 items 数据变化时，开始渐进式显示
+    // 当 items 数据真正变化时，才开始渐进式显示（避免重复重置）
     useEffect(() => {
+        // 如果 itemsKey 没有变化，说明数据没有真正改变，不需要重置
+        if (itemsKeyRef.current === currentItemsKey) {
+            return;
+        }
+
+        // 更新引用
+        itemsKeyRef.current = currentItemsKey;
+        prevItemsRef.current = visibleItems;
+
         if (visibleItems.length > 0) {
             startReveal(visibleItems);
         } else {
             reset();
         }
-    }, [visibleItems, startReveal, reset]);
+    }, [currentItemsKey, visibleItems, startReveal, reset]);
 
     return (
         <div ref={listContainerRef} className={cn('w-full', className)}>

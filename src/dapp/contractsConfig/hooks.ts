@@ -17,38 +17,22 @@ import {
 import {
   configManager,
   getContractConfig,
-  getContractAddresses,
-  getAllContractConfigs,
+  getContractAddresses_WithChainId,
+  getAllContractConfigs_WithChainId,
 } from './config';
 import { getChainConfig} from './chains';
-import { getSupportedTokens } from './tokens';
+import { getSupportedTokens_WithChainId } from './tokens';
 import { useChainId } from 'wagmi';
 
-/**
- * Hook: 获取当前网络的所有合约地址
- * 当钱包切换网络时自动更新
- */
+
 export function useAllContractAddresses(): ContractAddresses {
   const chainId = useChainId();
 
-  // 同步更新 configManager 的 chainId
-  useEffect(() => {
-    configManager.setChainId(chainId);
-  }, [chainId]);
-
   return useMemo(() => {
-    return getContractAddresses(chainId);
+    return getContractAddresses_WithChainId(chainId);
   }, [chainId]);
 }
 
-/**
- * Hook: 获取单个合约的配置
- * 
- * Mainnet 暂时使用 Testnet 配置作为 fallback
- * 
- * @param contractName - 合约名称
- * @returns 合约配置对象（地址、ABI、chainId）
- */
 export function useContractConfig(contractName: ContractName): ContractConfig {
   const chainId = useChainId();
 
@@ -57,58 +41,27 @@ export function useContractConfig(contractName: ContractName): ContractConfig {
   }, [contractName, chainId]);
 }
 
-/**
- * Hook: 获取当前网络的所有合约配置
- * 
- */
 export function useAllContractConfigs(): ContractConfigs {
   const chainId = useChainId();
 
   return useMemo(() => {
-    return getAllContractConfigs(chainId);
+    return getAllContractConfigs_WithChainId(chainId);
   }, [chainId]);
 }
 
-/**
- * Hook: 获取当前网络支持的代币列表
- * 根据当前连接的钱包网络，返回该网络上支持的所有代币
- * @returns 支持的代币列表，包含名称、符号、精度、地址等信息
- */
 export function useSupportedTokens(): TokenMetadata[] {
   const chainId = useChainId();
 
   return useMemo(() => {
-    return getSupportedTokens(chainId);
+    return getSupportedTokens_WithChainId(chainId);
   }, [chainId]);
 }
 
-/**
- * Hook: 检查当前网络是否为测试网
- */
-export function useIsTestnet(): boolean {
-  const chainId = useChainId();
-  return chainId === SupportedChainId.SAPPHIRE_TESTNET;
-}
-
-/**
- * Hook: 获取特定合约的地址
- * 
- * 保证总是返回有效地址
- * 
- * @param contractName - 合约名称
- * @returns 合约地址
- */
 export function useContractAddress(contractName: ContractName): `0x${string}` {
   const config = useContractConfig(contractName);
   return config.address;
 }
 
-
-/**
- * Hook: 获取特定链的配置
- * @param chainId - 链ID
- * @returns 链配置
- */
 export function useChainConfig(): ChainConfig {
   const chainId = useChainId();
   return useMemo(() => {

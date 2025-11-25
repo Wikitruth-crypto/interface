@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from 'react';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
@@ -51,7 +51,7 @@ const CalcMoney: React.FC<Props> = () => {
                         price={oldMoney}
                         // symbol={tokenSymbol}
                         // decimals={tokenDecimals}
-                        token={box.acceptedToken?.id}
+                        token={box.acceptedToken}
                         tokens={supportedTokens}
                         fontSize={14}
                         fontSizeSuffix={12}
@@ -66,7 +66,7 @@ const CalcMoney: React.FC<Props> = () => {
                     price={newMoney}
                     // symbol={tokenSymbol}
                     // decimals={tokenDecimals}
-                    token={box.acceptedToken?.id}
+                    token={box.acceptedToken}
                     tokens={supportedTokens}
                     fontSize={14}
                     fontSizeSuffix={12}

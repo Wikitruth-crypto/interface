@@ -103,11 +103,13 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
 
     const handleTabClick = (tabKey: TabKey) => {
         if (onTabClick && !loading) {
-            console.log(`🏷️ UserDataBar: 点击标签`, { 
-                from: selectedTab, 
-                to: tabKey,
-                count: tabList.find(t => t.key === tabKey)?.count || 0
-            });
+            if (import.meta.env.DEV) {
+                console.log(`🏷️ UserDataBar: Click Tab`, { 
+                    from: selectedTab, 
+                    to: tabKey,
+                    count: tabList.find(t => t.key === tabKey)?.count || 0
+                });
+            }
             onTabClick(tabKey);
         }
     };

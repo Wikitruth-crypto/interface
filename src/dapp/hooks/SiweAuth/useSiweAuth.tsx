@@ -216,7 +216,9 @@ export const useSiweAuth = (): UseSiweAuthResult => {
 
   const logout = useCallback(() => {
     clearSiweSession(chainId, session.address ?? address ?? undefined);
-    console.log('SIWE session cleared');
+    if (import.meta.env.DEV) {
+      console.log('SIWE session cleared');
+    }
   }, [clearSiweSession, chainId, session.address, address]);
 
   const reset = useCallback(() => {

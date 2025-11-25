@@ -2,7 +2,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { usePublicClient, useChainId } from 'wagmi';
 import { getPublicClient } from '@wagmi/core';
-// import { config } from '@/dapp/context/useAccount/wagmi';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { getContractConfig, ContractName } from '@dapp/contractsConfig';
 import { useRef, useCallback } from 'react';
@@ -13,8 +12,6 @@ import { useRef, useCallback } from 'react';
 export function useReadContractERC20() {
     const queryClient = useQueryClient();
     const { publicClient, chainId } = useWalletContext();
-    // const chainId = useChainId();
-    // const publicClient = usePublicClient();
     const publicClientRef = useRef(publicClient);
     
     // 保持 ref 与最新值同步

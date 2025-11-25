@@ -162,12 +162,19 @@ function ProgressiveRevealCard<T = any>({
 
     // 新增：跟踪图片加载状态
     const imageLoadCountRef = useRef(0);
-    const expectedImageCount = 2; // boxImage + nftImage
+    const expectedImageCount = 1; // truthBoxCard只会回调一次
+    const hasNotifiedRef = useRef(false); // 跟踪是否已经通知过
 
     // 新增：图片加载完成处理 - 使用 useEffect 延迟执行，避免在渲染期间更新父组件状态
     const handleImageLoad = useCallback(() => {
+        // 如果已经通知过，不再重复通知
+        if (hasNotifiedRef.current) {
+            return;
+        }
+
         imageLoadCountRef.current += 1;
         if (imageLoadCountRef.current >= expectedImageCount && onImageLoad) {
+            hasNotifiedRef.current = true;
             // 延迟执行，避免在渲染期间更新状态
             setTimeout(() => {
                 onImageLoad(item.index);
@@ -175,12 +182,14 @@ function ProgressiveRevealCard<T = any>({
         }
     }, [item.index, onImageLoad, expectedImageCount]);
 
-    // 重置图片加载计数（当数据变化时）
+    // 重置图片加载计数（仅在数据真正变化时，且状态为 transitioning 或 revealed）
     useEffect(() => {
-        if (item.status === 'transitioning' || item.status === 'revealed') {
+        // 当数据变化或状态变为 transitioning 时，重置计数器和通知标志
+        if (item.status === 'transitioning') {
             imageLoadCountRef.current = 0;
+            hasNotifiedRef.current = false;
         }
-    }, [item.status, item.data]);
+    }, [item.status, item.index]); // 使用更具体的依赖项
 
     // 修改 contentProps，添加图片加载回调
     const enhancedContentProps = useMemo(() => ({

@@ -7,9 +7,7 @@ import {
     ViewFileButton,
     AgreementButton
 } from '@BoxDetail/ButtonContainer';
-// import { useBoxDetailStore } from '../store/boxDetailStore';
-import Line from '@/components/base/line';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string,

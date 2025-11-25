@@ -55,8 +55,9 @@ export const useReadAllowance = () => {
 
             if (tokenMetadata?.types === 'ERC20') {
                 allowanceAmount = await allowance(tokenAddress, owner, spender);
-                
-                console.log(`[ERC20] Allowance: ${allowanceAmount}, Target: ${targetAmount}`);
+                if (import.meta.env.DEV) {
+                    console.log(`[ERC20] Allowance: ${allowanceAmount}, Target: ${targetAmount}`);
+                }
                 
 
             } else if (tokenMetadata?.types === 'Secret') {
@@ -69,7 +70,9 @@ export const useReadAllowance = () => {
 
                 allowanceAmount = await allowanceWithPermit(tokenAddress, validPermit);
 
-                console.log(`[Secret] Allowance with permit: ${allowanceAmount}`);
+                if (import.meta.env.DEV) {
+                    console.log(`[Secret] Allowance with permit: ${allowanceAmount}`);
+                }
 
             } else {
                 console.error(`Unsupported token type: ${tokenMetadata?.types}`);

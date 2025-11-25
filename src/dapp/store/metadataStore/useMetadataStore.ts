@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { MetadataBoxType } from "@/dapp/types/contracts/metadataBox";
+import { MetadataBoxType } from "@/dapp/types/metadata/metadataBox";
 
 // 元数据状态类型 - 使用Record按tokenId进行索引
 interface MetadataStateType {

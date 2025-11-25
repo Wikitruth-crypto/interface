@@ -1,30 +1,7 @@
 import { useState } from "react";
 import { CryptoUtils } from "@/dapp/services/cryption";
 
-/**
- * 密钥对生成 Hook（基于 Service 层实现）
- * 
- * 职责：为 React 组件提供密钥对生成功能的 Hook 封装
- * 
- * @特点
- * - 基于 CryptoUtils 实现
- * - 管理密钥对状态（keyPair, error, isLoading）
- * - 自动生成或手动触发生成
- * 
- * @使用示例
- * ```typescript
- * const { generateKeyPair, keyPair, error, isLoading } = useGetKeyPair();
- * 
- * // 手动生成密钥对
- * const handleGenerate = async () => {
- *   const newKeyPair = await generateKeyPair();
- *   if (newKeyPair) {
- *     console.log('公钥:', newKeyPair.publicKey_bytes);
- *     console.log('私钥:', newKeyPair.privateKey_bytes);
- *   }
- * };
- * ```
- */
+
 export const useGetKeyPair = () => {
     const [keyPair, setKeyPair] = useState<{
         publicKey_bytes: string;

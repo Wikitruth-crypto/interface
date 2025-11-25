@@ -8,7 +8,7 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import Paragraph from '@/components/base/paragraph';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     price: string | number;

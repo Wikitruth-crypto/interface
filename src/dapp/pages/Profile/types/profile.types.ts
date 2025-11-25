@@ -5,11 +5,6 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 // 导出 BoxStatus 类型
 export type { BoxStatus };
 
-// 用户类型（简化版，只包含 id）
-export interface User {
-    id: string;
-}
-
 // Box数据接口（基于 Supabase 数据结构）
 export interface BoxData {
     // 基础字段
@@ -25,18 +20,18 @@ export interface BoxData {
     listedMode?: 'Selling' | 'Auctioning';
     
     // 用户关系字段
-    owner: User;
-    minter: User;
-    seller?: User;
-    buyer?: User;
-    completer?: User;
-    publisher?: User;
-    bidders: User[];
+    owner: string;
+    minter: string;
+    seller?: string;
+    buyer?: string;
+    completer?: string;
+    publisher?: string;
+    bidders: string[];
     
     // 元数据字段（从 Supabase metadata_boxes 表获取）
     title?: string;
     description?: string;
-    image?: string;
+    nftImage?: string;
     boxImage?: string;
     country?: string;
     state?: string;
@@ -93,6 +88,7 @@ export interface FilterState {
 
 // Box列表查询参数接口 - 匹配queryUserRelatedBoxes函数
 export interface BoxQueryParams {
+    userId: string;
     userAddress: string;
     startId: number;
     count: number;

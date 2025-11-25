@@ -1,4 +1,4 @@
-import { EncryptionDataType, KeyPairType_Mint } from '@/dapp/types/mint/encryption';
+import { EncryptionDataType, KeyPairType_Mint } from '@/dapp/types/metadata/encryption';
 import { 
   BoxInfoFormType,
 } from '@/dapp/pages/Create/types/stateType';
@@ -7,16 +7,16 @@ import {
   initialMetadataBox,
   MetadataBoxType,
   MintMethodType,
-} from '@/dapp/types/contracts/metadataBox'; 
+} from '@/dapp/types/metadata/metadataBox'; 
 import {
   initialMetadataNFT,
   MetadataNFTType,
-} from '@/dapp/types/contracts/metadataNFT'; 
+} from '@/dapp/types/metadata/metadataNFT'; 
 
 import {
   initialResultData,
   ResultDataType,
-} from '@/dapp/types/mint/resultData';
+} from '@/dapp/types/metadata/resultData';
 import { CIDIsExitingType } from '@/dapp/types/otherTypes';
 
 

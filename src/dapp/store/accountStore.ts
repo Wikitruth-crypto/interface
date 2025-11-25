@@ -1,25 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { AccountRoleType } from '@/dapp/types/account';
 import { FunctionNameType } from '@/dapp/types/contracts';
-
-/**
- * ==================== 账户全局状态管理 ====================
- * 
- * 功能说明：
- * - 用于记录用户当前访问网站的全局数据
- * - 当关闭网站/浏览器/电脑时，这些数据会自动清空
- * - 支持多账户数据管理，每个账户的数据完全隔离
- * 
- * 安全设计：
- * 1. **访问控制**：通过 currentAccount 标识当前活跃账户，只能访问当前账户的数据
- * 2. **数据隔离**：不同账户、不同链的数据完全隔离，防止数据泄露
- * 3. **访问日志**：记录所有敏感数据访问行为，用于安全审计
- * 4. **自动清理**：会话过期自动清理，账户切换时隔离数据
- * 5. **链隔离**：不同链的签名和令牌独立存储，防止跨链数据泄露
- */
-
-// ==================== 类型定义 ====================
 
 /**
  * 登录/登出时间记录
@@ -30,7 +11,6 @@ export interface LoginRecord {
     chainId: number;
     sessionId: string; // 会话唯一标识
 }
-
 
 
 /**
@@ -83,16 +63,6 @@ export interface TokenAllowance {
 }
 
 /**
- * 代币授权映射
- * 结构：tokenAllowances[tokenAddress][spender] = TokenAllowance
- */
-export interface TokenAllowancesMap {
-    [tokenAddress: string]: {
-        [spender: string]: TokenAllowance;
-    };
-}
-
-/**
  * 单个账户在特定链上的完整状态
  * 注意：此状态是针对特定链的，因为外层结构是 accounts[chainId][address]
  */
@@ -104,21 +74,6 @@ export interface AccountState {
     // === 会话管理 ===
     loginHistory: LoginRecord[]; // 登录历史
     currentSessionId: string | null; // 当前会话 ID
-    
-    // === 余额快照（原生代币 + ERC20 代币）===
-    balance: {
-        native: string; // 原生代币余额
-        tokens: Record<string, string>; // ERC20 代币余额
-        lastUpdated: number;
-    };
-
-    // === 账户的代币信息 === 
-    /**
-     * 代币授权额度
-     * 结构：tokenAllowances[tokenAddress][spender] = TokenAllowance
-     * 用于缓存代币授权额度，避免重复查询合约
-     */
-    tokenAllowances: TokenAllowancesMap;
     
     // === 多签信息 ===
     multiSig: MultiSigInfo | null;
@@ -181,45 +136,6 @@ export interface AccountStoreMethods {
     setMultiSigInfo: (info: MultiSigInfo) => void;
     getMultiSigInfo: () => MultiSigInfo | null;
     
-    // === 余额管理 ===
-    updateBalance: (native: string, tokens?: Record<string, string>, chainId?: number) => void;
-    getBalance: (chainId?: number) => { native: string; tokens: Record<string, string>; lastUpdated: number } | null;
-    
-    // === 代币授权管理 ===
-    /**
-     * 更新代币授权额度
-     * @param tokenAddress 代币合约地址
-     * @param spender 被授权者地址（通常是合约地址）
-     * @param amount 授权额度
-     * @param chainId 链ID（可选，使用当前链）
-     */
-    updateTokenAllowance: (
-        tokenAddress: string,
-        spender: string,
-        amount: string,
-        chainId?: number
-    ) => void;
-    
-    /**
-     * 获取代币授权额度
-     * @param tokenAddress 代币合约地址
-     * @param spender 被授权者地址
-     * @param chainId 链ID（可选，使用当前链）
-     * @returns TokenAllowance 或 null
-     */
-    getTokenAllowance: (
-        tokenAddress: string,
-        spender: string,
-        chainId?: number
-    ) => TokenAllowance | null;
-    
-    /**
-     * 清除指定代币的所有授权缓存
-     * @param tokenAddress 代币合约地址（可选，不提供则清除所有）
-     * @param chainId 链ID（可选，使用当前链）
-     */
-    clearTokenAllowances: (tokenAddress?: string, chainId?: number) => void;
-    
     // === Box 交互记录 ===
     addBoxInteraction: (boxId: string, functionName: FunctionNameType, txHash?: string, chainId?: number) => void;
     getBoxInteractions: (boxId: string) => BoxInteractionRecord[];
@@ -230,9 +146,6 @@ export interface AccountStoreMethods {
     cacheTx: ( txHash: string, data: any, chainId?: number,) => void;
     getTxCache: (txHash: string) => any | null;
     clearTxCache: (chainId?: number) => void;
-    
-    // === 钱包信息 ===
-    // updateWalletInfo: (wallet: Partial<WalletInfo>) => void;
     
     // === 安全模式 ===
     setSecurityMode: (mode: 'strict' | 'normal') => void;
@@ -250,12 +163,6 @@ const createDefaultAccountState = (address: string, chainId: number): AccountSta
     chainId,
     loginHistory: [],
     currentSessionId: null,
-    balance: {
-        native: '0',
-        tokens: {},
-        lastUpdated: Date.now(),
-    },
-    tokenAllowances: {},
     multiSig: null,
     boxInteractions: {},
     txCache: {},
@@ -478,160 +385,6 @@ export const useAccountStore = create<AccountStore>()(
                 
                 const history = accounts[currentChainId]?.[address]?.loginHistory || [];
                 return history.slice(-limit);
-            },
-
-            // === 余额管理 ===
-            updateBalance: (native, tokens = {}, chainId01) => {
-                const address = get()._checkAccess?.('updateBalance');
-                if (!address) return;
-                
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
-                const { accounts } = get();
-                const account = accounts[chainId]?.[address];
-                if (!account) return;
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [chainId]: {
-                            ...accounts[chainId],
-                            [address]: {
-                                ...account,
-                                balance: {
-                                    native,
-                                    tokens,
-                                    lastUpdated: Date.now(),
-                                },
-                            },
-                        },
-                    },
-                });
-            },
-
-            getBalance: (chainId01) => {
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
-                const address = get()._checkAccess?.('getBalance');
-                if (!address) return null;
-                
-                const balance = get().accounts[chainId]?.[address]?.balance || null;
-                return balance;
-            },
-
-            // === 代币授权管理 ===
-            updateTokenAllowance: (tokenAddress, spender, amount, chainId01) => {
-                const address = get()._checkAccess?.('updateTokenAllowance');
-                if (!address) return;
-                
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
-                
-                const { accounts } = get();
-                const account = accounts[chainId]?.[address];
-                if (!account) return;
-                
-                // 规范化地址（小写）
-                const normalizedTokenAddress = tokenAddress.toLowerCase();
-                const normalizedSpender = spender.toLowerCase();
-                
-                // 确保 tokenAllowances 结构存在
-                const currentAllowances = account.tokenAllowances || {};
-                const tokenAllowances = currentAllowances[normalizedTokenAddress] || {};
-                
-                set({
-                    accounts: {
-                        ...accounts,
-                        [chainId]: {
-                            ...accounts[chainId],
-                            [address]: {
-                                ...account,
-                                tokenAllowances: {
-                                    ...currentAllowances,
-                                    [normalizedTokenAddress]: {
-                                        ...tokenAllowances,
-                                        [normalizedSpender]: {
-                                            amount,
-                                            lastUpdated: Date.now(),
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                });
-                
-                
-                console.log(
-                    `[AccountStore] Token allowance updated: ${tokenAddress} -> ${spender} = ${amount}`
-                );
-            },
-
-            getTokenAllowance: (tokenAddress, spender, chainId01) => {
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return null;
-                
-                const address = get()._checkAccess?.('getTokenAllowance');
-                if (!address) return null;
-                
-                // 规范化地址（小写）
-                const normalizedTokenAddress = tokenAddress.toLowerCase();
-                const normalizedSpender = spender.toLowerCase();
-                
-                const allowance =
-                    get().accounts[chainId]?.[address]?.tokenAllowances?.[normalizedTokenAddress]?.[
-                        normalizedSpender
-                    ] || null;
-
-                return allowance;
-            },
-
-            clearTokenAllowances: (tokenAddress, chainId01) => {
-                const address = get()._checkAccess?.('clearTokenAllowances');
-                if (!address) return;
-                
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
-                
-                const { accounts } = get();
-                const account = accounts[chainId]?.[address];
-                if (!account) return;
-                
-                if (tokenAddress) {
-                    // 清除指定代币的所有授权
-                    const normalizedTokenAddress = tokenAddress.toLowerCase();
-                    const currentAllowances = { ...account.tokenAllowances };
-                    delete currentAllowances[normalizedTokenAddress];
-                    
-                    set({
-                        accounts: {
-                            ...accounts,
-                            [chainId]: {
-                                ...accounts[chainId],
-                                [address]: {
-                                    ...account,
-                                    tokenAllowances: currentAllowances,
-                                },
-                            },
-                        },
-                    });
-                    
-                } else {
-                    // 清除所有代币授权
-                    set({
-                        accounts: {
-                            ...accounts,
-                            [chainId]: {
-                                ...accounts[chainId],
-                                [address]: {
-                                    ...account,
-                                    tokenAllowances: {},
-                                },
-                            },
-                        },
-                    });
-                    
-                }
             },
 
             // === 多签信息 ===

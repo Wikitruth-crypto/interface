@@ -494,7 +494,6 @@ export interface Database {
                 };
                 Returns: {
                     id: string;
-                    token_id: string;
                     title: string | null;
                     description: string | null;
                     type_of_crime: string | null;
@@ -505,8 +504,8 @@ export interface Database {
                     price: string;
                     nft_image: string | null;
                     box_image: string | null;
-                    create_timestamp: string;
                     event_date: string | null;
+                    create_timestamp: string;
                     relevance: number;
                 }[];
             };

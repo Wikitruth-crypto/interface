@@ -2,7 +2,7 @@
     EncryptionSlicesMetadataCIDType,
     EncryptionFileCIDType,
     EncryptionPasswordType,
-} from '@/dapp/types/mint/encryption';
+} from '@/dapp/types/metadata/encryption';
 
 export interface TimeType {
     createDate: string;

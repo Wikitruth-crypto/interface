@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography } from 'antd';
 import UriPassword from '@/dapp/components/uriPassword';
 import { timeToDate } from '@dapp/utils/time';
-import { useBoxContext } from '../contexts/BoxContext';
-// import { useBoxDetailStore } from '../store/boxDetailStore';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string,

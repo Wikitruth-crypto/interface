@@ -5,10 +5,9 @@ import {
     PayConfiFeeButton,
     ViewFileButton
 } from '@BoxDetail/ButtonContainer';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-// import AlertBox from '@dapp/components/base/alertBox'; // 已弃用
-import { Alert } from 'antd'; // 直接使用antd的Alert组件
+import { Alert } from 'antd'; 
 
 interface Props {
     tokenId?: string,

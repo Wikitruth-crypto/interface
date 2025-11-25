@@ -4,6 +4,7 @@
  * 用于将 Supabase 数据库类型转换为前端使用的数据结构
  */
 
+import camelcaseKeys from 'camelcase-keys';
 import { boxStatus } from '@/dapp/types/contracts/truthBox';
 import type { MarketplaceBoxData } from '@/dapp/pages/Marketplace/types/marketplace.types';
 import type { Database } from '@supabaseDocs/supabase.config';
@@ -34,29 +35,27 @@ const normalizeStatus = (status: string): MarketplaceBoxData['status'] => {
 
 /**
  * 将 Supabase search_boxes 结果转换为 MarketplaceBoxData
+ * 
+ * 使用 camelcase-keys 自动转换 snake_case 字段为 camelCase
+ * 然后处理特殊字段和类型转换
  */
 export function convertSearchResultToMarketplaceBoxData(
     result: SearchBoxesResult
 ): MarketplaceBoxData {
+    const camelCased = camelcaseKeys(result, { deep: true }) as any;
+    
+    // 处理特殊字段和类型转换
     return {
-        id: result.id,
-        tokenId: result.token_id,
-        tokenIdNumeric: toNumericTokenId(result.token_id),
-        price: result.price,
+        ...camelCased,
+        tokenId: result.id,
+        tokenIdNumeric: toNumericTokenId(result.id),
         status: normalizeStatus(result.status),
-        // deadline: result.,
+        deadline: null,
         boxInfoCID: null,
         acceptToken: undefined,
-        title: result.title ?? undefined,
-        description: result.description ?? undefined,
-        nftImage: result.nft_image,
-        boxImage: result.box_image,
-        country: result.country,
-        state: result.state,
-        eventDate: result.event_date ?? result.create_timestamp, 
-        typeOfCrime: result.type_of_crime ?? undefined,
-        label: result.label,
-        relevance: result.relevance,
         hasError: false,
+        title: camelCased.title ?? undefined,
+        description: camelCased.description ?? undefined,
+        typeOfCrime: camelCased.typeOfCrime ?? undefined,
     };
 }

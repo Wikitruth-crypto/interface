@@ -8,10 +8,7 @@ interface InputLabelCreateProps {
     className?: string;
 }
 
-/**
- * 标签输入组件 (重构版)
- * 使用 React Hook Form 进行验证
- */
+
 const InputLabelCreate: React.FC<InputLabelCreateProps> = ({
     className
 }) => {

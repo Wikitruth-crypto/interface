@@ -51,9 +51,10 @@ export const ipfsCidToUrl = (uri: string): string => {
     } else {
         cid = cleanUri;
     }
-
-    // console.log('cleanUri:', cleanUri);
-    // console.log('cid:', cid);
+    // if (import.meta.env.DEV) {
+    //     console.log('cleanUri:', cleanUri);
+    //     console.log('cid:', cid);
+    // }
 
     // if (!isValidCid(cid)) {
     //     throw new Error('Invalid IPFS CID format');

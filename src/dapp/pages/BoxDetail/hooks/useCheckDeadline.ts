@@ -1,20 +1,14 @@
 import { useEffect } from 'react';
-// import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
-// import { BoxRoleType } from '@dapp/types/account';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-// import { useMetadataStore } from '@/dapp/store/metadataStore';
 import { usePeriodRate } from '@dapp/constants/periodRate';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
-export const useCheckDeadline = (tokenId: string) => {
+export const useCheckDeadline = () => {
     const { updateDeadlineCheckState } = useBoxDetailStore();
-    // const { address, isConnected} = useWalletContext() || {};
-    const { box } = useBoxContext();
-    // const metadata = useMetadataStore.getState();
+    const { box } = useBoxDetailContext();
     const periodRate = usePeriodRate();
 
     const checkDeadline = () => {
-        // const box = useQueryStore.getState().boxes[tokenId];
 
         if (!box || !periodRate) {
             return;

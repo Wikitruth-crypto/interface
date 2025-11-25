@@ -1,16 +1,3 @@
-/**
- * 合约配置模块统一入口
- * 
- * 使用说明：
- * 1. 在组件中使用 Hooks：
- *    import { useContractConfig, useSupportedTokens } from '@/dapp/contracts';
- * 
- * 2. 在非组件代码中使用工具函数：
- *    import { getContractConfig, getSupportedTokens } from '@/dapp/contracts';
- * 
- * 3. 使用类型定义：
- *    import { ContractName, SupportedChainId } from '@/dapp/contracts';
- */
 
 // 导出类型
 export * from './types';
@@ -29,9 +16,8 @@ export {
   configManager,
   getContractConfig,
   getContractAddress,
-  getContractAddresses,
-  getAllContractConfigs,
-  isContractDeployed,
+  getContractAddresses_WithChainId,
+  getAllContractConfigs_WithChainId,
 } from './config';
 
 // 导出 Hooks
@@ -40,27 +26,15 @@ export {
   useContractConfig,
   useAllContractConfigs,
   useSupportedTokens,
-  useIsTestnet,
   useContractAddress,
   useChainConfig,
 } from './hooks';
 
 // 导出 Token 配置
 export {
-  getSupportedTokens,
+  getSupportedTokens_WithChainId,
   OFFICIAL_TOKEN_CONFIG,
 } from './tokens';
 
 // 导出事件配置
 export * from './eventSignatures';
-
-/**
- * ⚠️ 常量已迁移说明：
- * - 区块链常量（MAX_UINT256, ZERO_ADDRESS等）请从 '@dapp/constants' 导入
- * - IPFS 配置请从 '@dapp/config' 导入
- * - 交易相关常量（Gas, 超时等）请从 '@dapp/constants' 导入
- * 
- * 示例：
- * import { MAX_UINT256, ZERO_ADDRESS } from '@dapp/constants';
- * import { IPFS_GATEWAYS, ipfsToHttp } from '@dapp/config';
- */

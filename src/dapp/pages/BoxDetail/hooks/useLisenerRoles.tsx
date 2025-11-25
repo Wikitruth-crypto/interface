@@ -2,16 +2,19 @@ import { useEffect } from 'react';
 import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { BoxRoleType } from '@dapp/types/account';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useAccountStore } from '@/dapp/store/accountStore';
 
 export const useLisenerRoles = () => {
     const { box } = useBoxContext();
+    const { address, isConnected, accountRole} = useWalletContext() || {};
 
     const { 
         updateUserState, 
     } = useBoxDetailStore();
 
-    const { address, isConnected, accountRole} = useWalletContext() || {};
+    // 调整为获取userId
+    const { userId } = useAccountStore();
 
     useEffect(() => {
         let roles: BoxRoleType[] = [];
@@ -19,35 +22,34 @@ export const useLisenerRoles = () => {
         if (!address || !isConnected || !box) {
             return;
         }
-        // console.log('box:', box); 
-        // console.log('address:', address); // 0xb01a88A4A4Ebb7F8F32848fed0D2de3c8413CCd1
 
-        const seller = box.seller?.id;
-        const buyer = box.buyer?.id;
-        const minter = box.minter?.id; // 0xb01a88a4a4ebb7f8f32848fed0d2de3c8413ccd1
-        const completer = box.completer?.id;
+        const sellerId = box.sellerId;
+        const buyerId = box.buyerId;
+        const minterId = box.minterId;
+        const completerId = box.completerId;
 
-        const bidders = box.bidders;
-        if (bidders && bidders.length > 0) {
-            const bidder = bidders.find(bidder => bidder.id === address);
-            if (bidder && bidder.id !== buyer) {
+        const biddersIds = box.biddersIds;
+        if (biddersIds && biddersIds.length > 0) {
+            // bidders 现在是字符串数组
+            const isBidder = biddersIds.some(bidderId => bidderId?.toLowerCase() === userId?.toLowerCase());
+            if (isBidder && buyerId?.toLowerCase() !== userId?.toLowerCase()) {
                 roles.push('Bidder');
             }
         }
 
         const role = (): BoxRoleType[] => {
             const addr = address?.toLowerCase();
-            if (addr === minter?.toLowerCase()) {
+            if (addr && minterId && addr === minterId.toLowerCase()) {
                 roles.push('Minter');
             };
             if (accountRole === 'Admin') {
                 roles.push('Admin');
             };
-            if (addr === seller?.toLowerCase()) roles.push('Seller');
-            if (addr === buyer?.toLowerCase()) {
+            if (addr && sellerId && addr === sellerId.toLowerCase()) roles.push('Seller');
+            if (addr && buyerId && addr === buyerId.toLowerCase()) {
                 roles.push('Buyer');
             };
-            if (addr === completer?.toLowerCase()) roles.push('Completer');
+            if (addr && completerId && addr === completerId.toLowerCase()) roles.push('Completer');
             
             if (roles.length === 0) roles.push('Other');
             return roles;

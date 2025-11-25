@@ -50,7 +50,9 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
     // 触发加载更多的回调函数 - 移除函数依赖避免无限循环
     const handleLoadMore = useCallback(() => {
         if (!disabled && hasMore && !loading && onLoadMoreRef.current) {
-            console.log('InfiniteScroll: Trigger Load More');
+            if (import.meta.env.DEV) {
+                console.log('InfiniteScroll: Trigger Load More');
+            }
             onLoadMoreRef.current();
         }
     }, [disabled, hasMore, loading]);
@@ -66,7 +68,9 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
             return;
         }
 
-        console.log('InfiniteScroll: Init Observer', { disabled, hasMore, loading });
+        if (import.meta.env.DEV) {
+            console.log('InfiniteScroll: Init Observer', { disabled, hasMore, loading });
+        }
 
         observer.current = new IntersectionObserver(
             (entries) => {

@@ -10,7 +10,7 @@ import { getSupportedTokens } from '@/dapp/contractsConfig/tokens';
 import { SupportedChainId } from '@/dapp/contractsConfig/types';
 import StatusLabel from './base/statusLabel';
 import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 // 获取默认支持的代币列表（用于非 DApp 页面的展示）
 const DEFAULT_SUPPORTED_TOKENS = getSupportedTokens(SupportedChainId.SAPPHIRE_TESTNET);
@@ -21,7 +21,6 @@ interface TruthBoxCardProps {
     enableIpfsUrl?: boolean;
     onClick?: () => void;
     className?: string;
-    /** 图片加载完成回调（用于渐进式加载） */
     onImageLoad?: () => void; // 新增
 }
 
@@ -40,27 +39,12 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     const boxImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.boxImage) : data.boxImage;
     const nftImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.nftImage) : data.nftImage;
 
-    const [imagesLoaded, setImagesLoaded] = useState(0);
-    const expectedImages = 2; // boxImage + nftImage
-
-    // 处理图片加载完成 - 使用 useEffect 延迟执行，避免在渲染期间更新父组件状态
-    const handleImageLoad = useCallback(() => {
-        setImagesLoaded(prev => {
-            const newCount = prev + 1;
-            if (newCount >= expectedImages && onImageLoad) {
-                // 延迟执行，避免在渲染期间更新状态
-                setTimeout(() => {
-                    onImageLoad();
-                }, 0);
-            }
-            return newCount;
-        });
-    }, [onImageLoad, expectedImages]);
-
-    // 当 data 变化时重置计数
-    useEffect(() => {
-        setImagesLoaded(0);
-    }, [data?.boxImage, data?.nftImage]);
+    const handleImageLoad = () => {
+        if(onImageLoad) {
+            onImageLoad();
+            console.log('onImageLoad: truthBoxCard');
+        }
+    };
 
     return (
         <div

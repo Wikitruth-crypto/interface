@@ -56,6 +56,9 @@ export const useInfiniteScroll = (
     useEffect(() => {
         // 如果未启用，直接返回
         if (!enabled) {
+            if (import.meta.env.DEV) {
+                console.log('useInfiniteScroll: Not enabled');
+            }
             return;
         }
 
@@ -85,6 +88,10 @@ export const useInfiniteScroll = (
 
         // 添加滚动事件监听（使用 window）
         window.addEventListener('scroll', scrollListener, { passive: true });
+
+        if (import.meta.env.DEV) {
+            console.log('useInfiniteScroll: Add scroll listener');
+        }
 
         // 清理函数
         return () => {

@@ -1,10 +1,9 @@
 "use client"
 import React from 'react';
-import { useMetadataStore } from '@/dapp/store/processMetadata/useMetadataStore';
 import ImageSwiper from '@/dapp/components/imageSwiper';
 import Paragraph from '@/components/base/paragraph';
 import Line from '@/components/base/line';
-import { useBoxContext } from '../contexts/BoxContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId: number|string;
@@ -12,7 +11,7 @@ interface Props {
 
 const ContentLeft: React.FC<Props> = ({ tokenId }) => {
 
-    const { box, metadataBox } = useBoxContext()
+    const { box, metadataBox } = useBoxDetailContext()
 
     if (!box) {
         return (
@@ -37,13 +36,13 @@ const ContentLeft: React.FC<Props> = ({ tokenId }) => {
                 <div className="text-muted-foreground font-mono">
                     <span className="font-medium">Minter:</span>{' '}
                     <span className="font-mono text-xs md:text-sm break-all">
-                        {box.minter?.id}
+                        {box.minterId}
                     </span>
                 </div>
                 <div className="text-muted-foreground font-mono">
                     <span className="font-medium">Owner:</span>{' '}
                     <span className="font-mono text-xs md:text-sm break-all">
-                        {box.owner?.id}
+                        {box.ownerAddress}
                     </span>
                 </div>
                 <div className="text-muted-foreground font-mono">

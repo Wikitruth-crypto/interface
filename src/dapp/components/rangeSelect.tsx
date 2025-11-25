@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Input, Alert } from 'antd';
-import BaseButton2 from './base/baseButton2';
-import InputNumber  from '@dapp/components/base/inputNumber';
-import { AlertCircle } from 'lucide-react';
+import { Input, Alert, InputNumber, Button, Space, Typography } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
 
 interface RangeSelectProps {
     label: string;
@@ -55,6 +55,10 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
     // 使用 ref 跟踪上次的值，避免重复触发
     const prevStartRef = useRef<string>('');
     const prevEndRef = useRef<string>('');
+
+    // 将字符串转换为数字（用于 InputNumber）
+    const startNum = start && start.trim() !== '' ? (type === 'number' ? Number(start) : null) : null;
+    const endNum = end && end.trim() !== '' ? (type === 'number' ? Number(end) : null) : null;
 
     // 验证数字格式（根据decimal参数）
     const validateNumberFormat = (value: string): boolean => {
@@ -146,103 +150,101 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
 
 
     return (
-        <div className={`space-y-3 ${className}`}>
-            <label className="text-sm font-medium font-mono items-center block">
+        <Space direction="vertical" size="middle" style={{ width: '100%' }} className={className}>
+            <Text strong style={{ fontFamily: 'monospace' }}>
                 {label}
-            </label>
+            </Text>
 
-            <div className="flex flex-row items-start sm:items-center gap-2 sm:gap-3">
+            <Space.Compact style={{ width: '100%' }} size="small">
                 {/* Start Input */}
-                <div className="w-full sm:flex-1">
-                    {type === 'number' ? (
-                        <InputNumber
-                            value={start}
-                            onChange={setStart}
-                            decimals={decimal}
-                            min={min}
-                            max={max}
-                            step={step}
-                            placeholder={placeholder.start}
-                            disabled={disabled}
-                            allowNegative={allowNegative}
-                            showControls={showControls}
-                            className={` font-mono ${isError ? 'border-destructive' : '' }`}
-                        />
-                    ) : (
-                        <Input
-                            type="text"
-                            placeholder={placeholder.start}
-                            value={start}
-                            onChange={(e) => setStart(e.target.value)}
-                            disabled={disabled}
-                            className={`w-full font-mono ${isError ? 'border-destructive' : ''}`}
-                        />
-                    )}
-                </div>
+                {type === 'number' ? (
+                    <InputNumber
+                        value={startNum}
+                        onChange={(value) => setStart(value !== null && value !== undefined ? String(value) : '')}
+                        precision={decimal > 0 ? decimal : undefined}
+                        min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
+                        max={max}
+                        step={step}
+                        placeholder={placeholder.start}
+                        disabled={disabled}
+                        controls={showControls}
+                        style={{ flex: 1, fontFamily: 'monospace' }}
+                        status={isError ? 'error' : ''}
+                    />
+                ) : (
+                    <Input
+                        type="text"
+                        placeholder={placeholder.start}
+                        value={start}
+                        onChange={(e) => setStart(e.target.value)}
+                        disabled={disabled}
+                        style={{ flex: 1, fontFamily: 'monospace' }}
+                        status={isError ? 'error' : ''}
+                    />
+                )}
 
                 {/* Separator */}
-                <div className="hidden sm:block text-muted-foreground">
-                    ~
-                </div>
-                <div className="sm:hidden w-full text-center text-muted-foreground text-sm">
-                    to
+                <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '0 8px',
+                    minWidth: '24px',
+                    justifyContent: 'center'
+                }}>
+                    <Text type="secondary">~</Text>
                 </div>
 
                 {/* End Input */}
-                <div className="w-full sm:flex-1">
-                    {type === 'number' ? (
-                        <InputNumber
-                            value={end}
-                            onChange={setEnd}
-                            decimals={decimal}
-                            min={min}
-                            max={max}
-                            step={step}
-                            placeholder={placeholder.end}
-                            disabled={disabled}
-                            allowNegative={allowNegative}
-                            showControls={showControls}
-                            className={isError ? 'border-destructive' : ''}
-                        />
-                    ) : (
-                        <Input
-                            type="text"
-                            placeholder={placeholder.end}
-                            value={end}
-                            onChange={(e) => setEnd(e.target.value)}
-                            disabled={disabled}
-                            className={`w-full font-mono ${isError ? 'border-destructive' : ''}`}
-                        />
-                    )}
-                </div>
+                {type === 'number' ? (
+                    <InputNumber
+                        value={endNum}
+                        onChange={(value) => setEnd(value !== null && value !== undefined ? String(value) : '')}
+                        precision={decimal > 0 ? decimal : undefined}
+                        min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
+                        max={max}
+                        step={step}
+                        placeholder={placeholder.end}
+                        disabled={disabled}
+                        controls={showControls}
+                        style={{ flex: 1, fontFamily: 'monospace' }}
+                        status={isError ? 'error' : ''}
+                    />
+                ) : (
+                    <Input
+                        type="text"
+                        placeholder={placeholder.end}
+                        value={end}
+                        onChange={(e) => setEnd(e.target.value)}
+                        disabled={disabled}
+                        style={{ flex: 1, fontFamily: 'monospace' }}
+                        status={isError ? 'error' : ''}
+                    />
+                )}
 
-                {/* Action Buttons */}
-                {/* <div className="flex gap-2 w-full sm:w-auto"> */}
-
+                {/* Confirm Button */}
                 {showButton && (
-                    <BaseButton2
-                        variant="default"
+                    <Button
+                        type="primary"
                         size="small"
                         onClick={handleConfirm}
                         disabled={disabled || isError || (!start && !end) || isLoading}
-                    // className="flex-1 sm:flex-none"
+                        loading={isLoading}
                     >
-                        {isLoading ? 'wait...' : 'Confirm'}
-                    </BaseButton2>
+                        Confirm
+                    </Button>
                 )}
-                {/* </div> */}
-            </div>
+            </Space.Compact>
 
             {/* Error Message */}
             {isError && errorMessage && (
                 <Alert
                     type="error"
                     message={errorMessage}
-                    icon={<AlertCircle className="h-4 w-4" />}
-                    className="mt-2"
+                    icon={<ExclamationCircleOutlined />}
+                    showIcon
                 />
             )}
-        </div>
+        </Space>
     );
 };
 

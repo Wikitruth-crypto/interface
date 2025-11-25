@@ -1,4 +1,4 @@
-import { MetadataBoxType } from "@/dapp/types/contracts/metadataBox";
+import { MetadataBoxType } from "@/dapp/types/metadata/metadataBox";
 import { BoxBasicDataType, BoxUserDataType } from "@/dapp/types/contracts/truthBox";
 // import { BoxData } from '@dapp/pages/Profile/types/profile.types';
 import image from "@/assets/image/firstImage.jpg"
@@ -43,12 +43,12 @@ export const testBox: TestBoxType = {
     deadline: 1714531200,
     status: 'Storing',
     // -----
-    minter: '0x1234567890123456789012345678901234567890',
+    minter: '1',
     owner: '0x1234567890123456789012345678901234567890',
-    seller: '0x1234567890123456789012345678901234567890',
-    buyer: '0x1234567890123456789012345678901234567890',
+    seller: '2',
+    buyer: '3',
     bidders: [],
-    completer: '0x1234567890123456789012345678901234567890',
+    completer: '4',
     hasBuyer: false,
     hasSeller: false,
     hasCompleter: false,
@@ -91,12 +91,12 @@ export const baseBox: TestBoxType = {
     deadline: 1714531200,
     status: 'Selling',
     // -----
-    minter: '0x1234567890123456789012345678901234567890',
+    minter: '1',
     owner: '0x1234567890123456789012345678901234567890',
-    seller: '0x1234567890123456789012345678901234567890',
-    buyer: '0x1234567890123456789012345678901234567890',
+    seller: '2',
+    buyer: '3',
     bidders: [],
-    completer: '0x1234567890123456789012345678901234567890',
+    completer: '4',
     hasBuyer: false,
     hasSeller: false,
     hasCompleter: false,
