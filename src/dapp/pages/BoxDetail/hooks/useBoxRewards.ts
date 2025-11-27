@@ -8,7 +8,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryBoxDetail_BoxRewardsData } from '@/dapp/services/supabase/boxDetail';
-import { currentChainConfig } from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 import type { BoxRewardData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 /**
@@ -24,7 +24,7 @@ export const useBoxRewards = (
 ) => {
 
     // 获取当前网络
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
 
     // 使用 React Query 查询 Box 奖励数据
     const { data, isLoading, error, isFetching } = useQuery({

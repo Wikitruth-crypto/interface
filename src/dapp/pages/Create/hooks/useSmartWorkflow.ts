@@ -62,7 +62,7 @@ export const useSmartWorkflow = () => {
   const orchestratorRef = useRef<SmartWorkflowOrchestrator | null>(null);
 
   // 获取 Mint 步骤需要的 Hook 依赖
-  const { write: writeCustorm } = useWriteCustorm();
+  const { write } = useWriteCustorm();
   const contractConfig = useContractConfig(ContractName.TRUTH_BOX);
   const tokens = useSupportedTokens();
 
@@ -89,14 +89,14 @@ export const useSmartWorkflow = () => {
       .registerStep(createMetadataNFTStep())
       .registerStep(createMetadataBoxStep())
       .registerStep(createMintStep({
-        writeCustorm,
+        write,
         contractConfig,
         tokens,
       }))
       .registerStep(createUploadResultDataStep());
 
     return orchestrator;
-  }, [writeCustorm, contractConfig, tokens]);
+  }, [write, contractConfig, tokens]);
 
   /**
    * 启动工作流

@@ -7,14 +7,14 @@ import {
     ViewFileButton,
     AgreementButton
 } from '@BoxDetail/ButtonContainer';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string,
 }
 
 const Refunding: React.FC<Props> = ({ }) => {
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     if (!box) {
         return <div>loading...</div>

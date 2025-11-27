@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useIsTestnet } from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG  } from '@/dapp/contractsConfig';
 import { queryUserBoxes, type UserBoxQueryResult } from '@/dapp/services/supabase/profile';
 import { FilterState, BoxData } from '../types/profile.types';
 import { BoxStatus } from '../types/profile.types';
@@ -66,8 +66,7 @@ export const useUserBoxes = (
     filters: FilterState,
     userId: string | null = null
 ) => {
-    const isTestnet = useIsTestnet();
-    const network: 'testnet' | 'mainnet' = isTestnet ? 'testnet' : 'mainnet';
+    const {network,layer} = CHAIN_CONFIG 
 
     // 使用 React Query InfiniteQuery 进行分页查询
     const {
@@ -80,7 +79,7 @@ export const useUserBoxes = (
         hasNextPage,
         isFetchingNextPage,
     } = useInfiniteQuery({
-        queryKey: ['user-boxes', network, address, userId, filters],
+        queryKey: ['user-boxes', network, layer, address, userId, filters],
         queryFn: async ({ pageParam = 0 }) => {
             if (!address) {
                 return { items: [], hasMore: false };

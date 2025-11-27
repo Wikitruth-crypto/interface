@@ -13,7 +13,7 @@ import type {
     BoxRewardData,
     BoxUserOrderAmountData,
 } from '@/dapp/pages/BoxDetail/types/boxDetailData';
-import { currentChainConfig } from '@/dapp/contractsConfig/chains';
+import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 
 
 type BoxRow = Database['public']['Tables']['boxes']['Row'];
@@ -121,7 +121,7 @@ export async function queryBoxAndMetadata(
     boxId: string,
 ): Promise<BoxDetailResult> {
     try {
-        const { network, layer } = currentChainConfig;
+        const { network, layer } = CHAIN_CONFIG;
         // 第一步：查询 Box 基础数据
         const { data: boxData, error: boxError } = await supabase
             .from('boxes')
@@ -192,7 +192,7 @@ export async function queryBoxAndMetadata(
 export async function queryBoxDetail_BoxRewardsData(
     boxId: string,
 ): Promise<BoxDetailResult_BoxRewardsData> {
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
     try {
         // 查询当前 boxId 的所有 box_rewards 数据
         const { data, error } = await supabase
@@ -239,7 +239,7 @@ export async function queryBoxDetail_BiddersIds(
     boxId: string,
     listedMode: string,
 ): Promise<BoxDetailResult_BiddersIds> {
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
     try {
         let biddersIds: string[] | null = null;
 
@@ -306,7 +306,7 @@ export async function queryBoxDetail_OrderAmountsData(
     acceptedToken: string,
 ): Promise<BoxDetailResult_OrderAmountsData> {
     try {
-        const { network, layer } = currentChainConfig;
+        const { network, layer } = CHAIN_CONFIG;
         let orderAmountsData: BoxUserOrderAmountData[] | null = null;
 
         // 只有当 acceptedToken 和 currentUserId 都存在时才查询

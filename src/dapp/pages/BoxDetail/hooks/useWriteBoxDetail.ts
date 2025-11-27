@@ -4,7 +4,7 @@ import {
     useWriteContract
 } from 'wagmi';
 import { ContractConfig } from '@/dapp/contractsConfig/types';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useButtonInteractionStore } from '../store/buttonInteractionStore';
 import { FunctionNameType } from '@/dapp/types/contracts';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
@@ -44,7 +44,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
         hash,
     });
     
-    const { boxId } = useBoxContext();
+    const { boxId } = useBoxDetailContext();
     const { address } = useWalletContext();
     const [writeType, setWriteType] = useState<FunctionNameType | null>(null);
     

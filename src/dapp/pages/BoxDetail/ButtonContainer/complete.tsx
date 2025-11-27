@@ -8,7 +8,7 @@ import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import { usePeriodRate } from '@/dapp/constants/periodRate';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
   onClick?: () => void;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
-  const { boxId } = useBoxContext();
+  const { boxId } = useBoxDetailContext();
   const { roles } = useBoxDetailStore(state => state.userState);
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const inRequestRefundPeriod = deadlineCheckState.inRequestRefundPeriod;

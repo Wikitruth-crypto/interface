@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
 
 interface ImageSwiperProps {
     images: string[];
@@ -11,14 +12,16 @@ interface ImageSwiperProps {
     autoPlayInterval?: number;
     /** 是否启用自动播放，默认true */
     autoPlay?: boolean;
-    className?: string;
     /** 图片的alt属性前缀，默认为'image' */
     altPrefix?: string;
     /** 过渡动画持续时间（秒），默认2s */
     transitionDuration?: number;
     /** 是否启用动态遮罩效果，默认true */
     enableMask?: boolean;
+    /** 是否启用ipfsUrl，默认true */
+    enableIpfsUrl?: boolean;
     onImageLoad?: () => void; 
+    className?: string;
 }
 
 type MaskDirection = 'lt' | 'rt' | 'lb' | 'rb';
@@ -32,8 +35,10 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
     altPrefix = 'image',
     transitionDuration = 2,
     enableMask = true,
+    enableIpfsUrl = true,
     onImageLoad, 
 }) => {
+
     // 当前显示的图片索引
     const [currentIndex, setCurrentIndex] = useState(0);
     // 遮罩方向
@@ -162,10 +167,12 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
                     const isActive = index === currentIndex;
                     const isVisible = isActive || index === (currentIndex - 1 + images.length) % images.length;
 
+                    const imageUrl = enableIpfsUrl ? ipfsCidToUrl(image) : image;
+
                     return (
                         <img
-                            key={`${image}-${index}`}
-                            src={image}
+                            key={`${imageUrl}-${index}`}
+                            src={imageUrl}
                             alt={`${altPrefix}-${index + 1}`}
                             className={cn(
                                 "w-full h-full object-contain absolute left-0 top-0 pointer-events-none",

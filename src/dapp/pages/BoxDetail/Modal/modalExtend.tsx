@@ -14,7 +14,7 @@ import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import { usePermissionContext } from '../useState/permission/PermissionContext';
 
 interface Props {
@@ -22,7 +22,7 @@ interface Props {
 }
 
 const ModalExtend: React.FC<Props> = ({ onClose }) => {
-    const { boxId, box } = useBoxContext();
+    const { boxId, box } = useBoxDetailContext();
     // const { address } = useWalletContext();
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
     const { roles } = useBoxDetailStore(state => state.userState);

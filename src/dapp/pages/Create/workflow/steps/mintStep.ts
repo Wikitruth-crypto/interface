@@ -3,13 +3,13 @@ import { MintOutput } from '../../types/stepType';
 import { parseUnits } from 'viem';
 
 export interface MintStepDependencies {
-  writeCustorm: (params: any) => Promise<string>;
+  write: (params: any) => Promise<string>;
   contractConfig: any;
   tokens: Array<{ decimals: number }>;
 }
 
 export function createMintStep(deps: MintStepDependencies): WorkflowStep<WorkflowPayload, MintOutput> {
-  const { writeCustorm, contractConfig, tokens } = deps;
+  const { write, contractConfig, tokens } = deps;
 
   return {
     name: 'mint',
@@ -72,7 +72,7 @@ export function createMintStep(deps: MintStepDependencies): WorkflowStep<Workflo
         }
 
         context.throwIfCancelled();
-        const transactionHash = await writeCustorm({
+        const transactionHash = await write({
           contract: contractConfig,
           functionName,
           args,

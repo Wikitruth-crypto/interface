@@ -2,7 +2,7 @@
 import { supabase, Database  } from '@supabaseDocs/supabase.config';
 import type { MarketplaceFilters } from '@/dapp/pages/Marketplace/types/marketplace.types';
 import type { SearchBoxesResult, StatisticalState } from './types';
-import { currentChainConfig } from '@/dapp/contractsConfig/chains';
+import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 
 const MAX_COUNT_LIMIT = 200;
 
@@ -65,7 +65,7 @@ function convertFiltersToSearchParams(
     const countryFilter = normalizeString(filters.country);
     const priceRange = filters.priceRange ?? {};
 
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
 
     return {
         network_filter: network,
@@ -165,7 +165,7 @@ export async function queryMarketplaceStats(): Promise<{
     data: StatisticalState | null;
     error: QueryError;
 }> {
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
     try {
         const { data, error } = await supabase
             .from('statistical_state')

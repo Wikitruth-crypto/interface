@@ -6,7 +6,7 @@ import Line from '@/components/base/line';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import { useUpdateNft_array } from '@dapp/hooks/useUpdateNft_array';
 // interface Props {
 //     tokenId: number,
@@ -16,7 +16,7 @@ import { useBoxContext } from '../contexts/BoxDetailContext';
 type ActiveButton = 'AddBlackList' | 'Unblacklist' | null;
 
 const AdminFunction = () => {
-    const { boxId } = useBoxContext();
+    const { boxId } = useBoxDetailContext();
     const allConfigs = useAllContractConfigs();
     const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);

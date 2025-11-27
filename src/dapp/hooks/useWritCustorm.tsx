@@ -17,7 +17,6 @@ interface WriteContractResult {
     isPending: boolean;
     isSuccessed: boolean;
     status: 'idle' | 'error' | 'pending' | 'success';
-    reset: () => void;
 }
 
 export const useWriteCustorm = (): WriteContractResult => {
@@ -25,11 +24,13 @@ export const useWriteCustorm = (): WriteContractResult => {
         writeContractAsync,  
         data: hash,         // 
         error,             // 
-        isPending,         // 交易是否加载中，等待钱包打包
+        isPending,         // 交易是否待处理，等待钱包确认
+        // isLoading,         // 交易是否加载中，等待钱包打包
         // isError,           // 是否有错误 Boolean值
         // isSuccess,         // 交易是否成功发送
+        // isConfirmed,       // 交易是否已确认
         status,            // 交易状态：'idle' | 'error' | 'loading' | 'success'
-        reset             // 重置状态的函数
+        // reset             // 重置状态的函数
     } = useWriteContract();
 
     const { isSuccess: isSuccessed } = useWaitForTransactionReceipt({
@@ -58,6 +59,15 @@ export const useWriteCustorm = (): WriteContractResult => {
         isPending,
         isSuccessed,
         status,
-        reset,
     };
 };
+
+// const { write, hash, error, isPending } = useWriteCustorm();
+
+// const handleAction1 = async () => {
+//     await write({
+//         contract: Contract1,
+//         functionName: 'function1',
+//         args: [arg1, arg2]
+//     });
+// };

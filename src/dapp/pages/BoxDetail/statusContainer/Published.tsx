@@ -4,14 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Typography } from 'antd';
 import UriPassword from '@/dapp/components/uriPassword';
 import { timeToDate } from '@dapp/utils/time';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string,
 }
 
 const Published: React.FC<Props> = ({ }) => {
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     const [date, setDate] = useState<string | null>(null);
 

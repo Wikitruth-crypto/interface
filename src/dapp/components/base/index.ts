@@ -18,17 +18,6 @@ export { default as CommonSelect } from './CommonSelect';
 // export { default as AlertBox } from './alertBox';
 export { default as SearchBox } from './searchBox';
 
-// 骨架屏基础组件导出
-export {
-    Skeleton,
-    SkeletonLine,
-    SkeletonCircle,
-    SkeletonBlock,
-    SkeletonParagraph,
-    SkeletonButton,
-    SkeletonAvatar
-} from './skeletonBase';
-
 // 导出类型
 export type { FundsSectionProps, TokenInfo } from '../fundsSection';
 export type { BoxImageProps } from './boxImage';
@@ -38,14 +27,9 @@ export type { InputBoxProps } from './inputBox';
 export type { Props as PaginationProps } from './pagination';
 export type { SkeletonCardProps } from './skeletonCard';
 export type { SkeletonProfileProps } from './skeletonProfile';
-export type {
-    SkeletonProps,
-    SkeletonLineProps,
-    SkeletonCircleProps,
-    SkeletonBlockProps
-} from './skeletonBase';
+
 export type { ResultItemProps } from './alertResult';
-export type { PriceTextProps, TokenInfo as PriceTokenInfo } from './priceLabel';
+export type { PriceTextProps} from './priceLabel';
 export type { InfiniteScrollProps } from './infiniteScroll';
 // export type { FileUploadButtonProps, UploadFile } from '../fileUploadButton';
 

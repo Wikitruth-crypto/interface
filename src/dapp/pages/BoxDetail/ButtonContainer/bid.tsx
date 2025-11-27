@@ -5,7 +5,7 @@ import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useAllowance_BoxDetail } from '@/dapp/pages/BoxDetail/hooks/useAllowanceBoxDetail';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ApproveButton from './approve';
 import BaseButton from '@/dapp/components/base/baseButton';
@@ -18,7 +18,7 @@ interface Props {
 
 const BidButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
-    const { box , boxId } = useBoxContext()
+    const { box , boxId } = useBoxDetailContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);

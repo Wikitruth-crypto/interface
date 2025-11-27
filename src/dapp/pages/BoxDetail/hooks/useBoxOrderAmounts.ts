@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryBoxDetail_OrderAmountsData } from '@/dapp/services/supabase/boxDetail';
-import { currentChainConfig } from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 import type { BoxUserOrderAmountData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 export const useBoxOrderAmounts = (
@@ -13,7 +13,7 @@ export const useBoxOrderAmounts = (
 ) => {
 
     // 获取当前网络
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
 
     // 只有当所有必需参数都存在时才查询
     const shouldQuery = enabled && !!boxId && !!userId && !!acceptedToken;

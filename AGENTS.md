@@ -3,7 +3,7 @@
 ## 项目概览
 - WikiTruth 是一个围绕链上真相市场的去中心化应用，本仓库提供 React 19 + Vite 6 构建的前端界面。
 - 入口文件位于 `src/main.tsx` 与 `src/App.tsx`，项目名称常量集中在 `src/project.ts`。
-- 主要依赖包含 Ant Design、TailwindCSS、Zustand、TanStack Query、RainbowKit/Wagmi、Viem/Ethers，以及 three.js 可视化栈。
+- 主要依赖包含 Ant Design、TailwindCSS、Zustand、TanStack Query、reown/appkit、Wagmi、Viem/Ethers，以及 three.js 可视化栈。
 
 ## 目录与模块职责
 - `src/`：前端源码根目录。
@@ -15,8 +15,9 @@
   - `dapp/`：链上交互的核心域，包括：
     - `pages/`：Create、Marketplace、BoxDetail、Profile、Token、Staking、Dao 等业务页面。
     - `components/`、`hooks/`、`services/`、`utils/`：链路复用组件、EVM 交互 hooks、后台服务封装与常用工具。
-    - `contractsConfig/`：多网络合约地址/ABI 配置；`artifacts/` 存放自动生成的编译产物，避免手工修改。
-    - `store_sapphire/`：Oasis Sapphire 事件监听与消费逻辑，还包含了处理和存储metadataStore数据。
+    - `contractsConfig/`：多网络合约地址/ABI 配置；
+    - `artifacts/` 存放自动生成的编译产物，避免手工修改。
+    - `services/supabase`：supabase数据库获取页面数据
     - `oasisQuery/`：迁移自 Oasis Explorer 的查询客户端（`app/`、`oasis-nexus/`、`types/`），视为 vendored 代码，修改需同步上游。
   - `lib/`：纯函数工具与跨域共享逻辑。
 - `public/`：静态资源，构建时直接复制。

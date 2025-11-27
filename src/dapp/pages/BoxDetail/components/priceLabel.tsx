@@ -8,7 +8,8 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import Paragraph from '@/components/base/paragraph';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
+import { SUPPORTED_TOKENS, TokenMetadata } from '@/dapp/contractsConfig';
 
 interface Props {
     price: string | number;
@@ -17,9 +18,8 @@ interface Props {
 }
 
 const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
-    // const decimals = officeToken.decimals;
-    const supportedTokens = useSupportedTokens();
-    const { box } = useBoxContext();
+    const { box } = useBoxDetailContext();
+    const tokenSymbol = SUPPORTED_TOKENS.find((token: TokenMetadata) => token.address === box?.acceptedToken)?.symbol;
 
     if (!box) {
         return <div>loading...</div>;
@@ -36,10 +36,9 @@ const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
                     <Paragraph color="gray-3" size="sm" className="mr-2">Price:</Paragraph>
                     <PriceLabel
                         price={price}
-                        // symbol={tokenSymbol}
+                        symbol={tokenSymbol}
                         // decimals={tokenDecimals}
                         token={token}
-                        tokens={supportedTokens}
                         fontSize={22}
                         fontSizeSuffix={14}
                         

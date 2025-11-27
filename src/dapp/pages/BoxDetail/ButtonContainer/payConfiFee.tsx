@@ -11,7 +11,7 @@ import { usePeriodRate } from '@/dapp/constants/periodRate';
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 
 interface Props {
@@ -23,7 +23,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
-  const { box , boxId } = useBoxContext()
+  const { box , boxId } = useBoxDetailContext()
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
   
   // 使用集中的按钮交互状态

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { FloatButton, Space } from 'antd';
+import { FloatButton, Space, theme } from 'antd';
 import { SafetyCertificateOutlined, CloseOutlined, LoginOutlined } from '@ant-design/icons';
 import RequestEip712 from '@/dapp/components/secret/requestEip712';
 import RequestSiwe from '@/dapp/components/secret/requestSiwe';
 import type { Eip712Requirement } from '@/dapp/components/secret/requestEip712';
+
+const { useToken } = theme;
 
 export interface FloatSignatureButtonProps {
     eip712Requirement?: Eip712Requirement;
@@ -47,6 +49,7 @@ const FloatSignatureButton: React.FC<FloatSignatureButtonProps> = ({
     onSiweComplete,
     className,
 }) => {
+    const { token } = useToken();
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -84,17 +87,98 @@ const FloatSignatureButton: React.FC<FloatSignatureButtonProps> = ({
 
     return (
         <>
-            <FloatButton
-                icon={getButtonIcon()}
-                type="primary"
+            {/* 按钮容器，用于包裹 FloatButton 和呼吸圆圈 */}
+            <div
                 style={{
+                    position: 'fixed',
                     right: 24,
                     bottom: '50%',
                     transform: 'translateY(50%)',
+                    zIndex: 1000,
+                    width: '56px',
+                    height: '56px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
-                onClick={handleToggle}
-                className={className}
-            />
+            >
+                {/* 呼吸圆圈 - 外层大圈 */}
+                {!open && (
+                    <div
+                        className="float-signature-ring-outer"
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            width: '80px',
+                            height: '80px',
+                            marginTop: '-40px',
+                            marginLeft: '-40px',
+                            borderRadius: '50%',
+                            border: `2px solid ${token.colorPrimary}`,
+                            opacity: 0.4,
+                            pointerEvents: 'none',
+                        }}
+                    />
+                )}
+                {/* 呼吸圆圈 - 内层小圈 */}
+                {!open && (
+                    <div
+                        className="float-signature-ring-inner"
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            width: '64px',
+                            height: '64px',
+                            marginTop: '-32px',
+                            marginLeft: '-32px',
+                            borderRadius: '50%',
+                            border: `2px solid ${token.colorPrimary}`,
+                            opacity: 0.3,
+                            pointerEvents: 'none',
+                        }}
+                    />
+                )}
+                <FloatButton
+                    icon={getButtonIcon()}
+                    type="primary"
+                    onClick={handleToggle}
+                    className={className}
+                    style={{
+                        position: 'static',
+                    }}
+                />
+            </div>
+            {/* 定义呼吸动画 */}
+            <style>{`
+                @keyframes float-signature-pulse-outer {
+                    0%, 100% {
+                        opacity: 0.4;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 0.1;
+                        transform: scale(1.15);
+                    }
+                }
+                @keyframes float-signature-pulse-inner {
+                    0%, 100% {
+                        opacity: 0.3;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 0.05;
+                        transform: scale(1.2);
+                    }
+                }
+                .float-signature-ring-outer {
+                    animation: float-signature-pulse-outer 2s ease-in-out infinite;
+                }
+                .float-signature-ring-inner {
+                    animation: float-signature-pulse-inner 2s ease-in-out infinite;
+                }
+            `}</style>
             {open && (
                 <div
                     style={{

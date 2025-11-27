@@ -9,7 +9,7 @@ import { timeToDate } from '@/dapp/utils/time';
 import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
   onClick?: () => void;
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
-  const { boxId } = useBoxContext()
+  const { boxId } = useBoxDetailContext()
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const deadline = deadlineCheckState.requestRefundDeadline;
   const { write_BoxDetail, error } = useWrite_BoxDetail();

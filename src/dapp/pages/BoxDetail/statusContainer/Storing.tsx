@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { 
     SellButton, 
     AuctionButton, 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const Storing: React.FC<Props> = ({ }) => {
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     if (!box) {
         return <div>loading...</div>

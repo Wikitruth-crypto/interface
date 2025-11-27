@@ -1,12 +1,9 @@
-import { getSupportedTokens } from '@/dapp/contractsConfig/tokens';
-import { SupportedChainId } from '@/dapp/contractsConfig/types';
+import { SUPPORTED_TOKENS } from '@/dapp/contractsConfig';
+// import { SupportedChainId } from '@/dapp/contractsConfig/types';
 // import {BoxData} from '@/dapp/pages/Profile/types/profile.types';
 // import { BoxProfileDataQuery } from '@/dapp/theGraphQuery/boxProfile';
 import { parseEther } from 'ethers';
 import { Address_Minter, Address_Buyer, Address_Buyer2, Address_Completer } from '@/dapp/constants/addressRoles';
-
-// 获取测试网支持的代币列表（纯函数调用，不是 Hook）
-const SUPPORTED_TOKENS = getSupportedTokens(SupportedChainId.SAPPHIRE_TESTNET);
 
 // 给boxTest 定义类型
 export interface BoxTestType {

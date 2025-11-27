@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryBoxAndMetadata } from '@/dapp/services/supabase/boxDetail';
-import { currentChainConfig} from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG} from '@/dapp/contractsConfig';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
@@ -16,7 +16,7 @@ import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
  */
 export const useBoxAndMetadata = (boxId: string) => {
     // 获取当前网络
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
 
     // 使用 React Query 查询 Box 详情（只查询 boxes 和 metadata_boxes）
     const { data, isLoading, error, isFetching } = useQuery({

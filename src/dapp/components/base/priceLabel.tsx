@@ -3,18 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
 
-export interface TokenInfo {
-    address: string;
-    symbol: string;
-    decimals: number;
-    name?: string;
-}
-
 export interface PriceTextProps {
     price: string | number;
     symbol?: string;
     token?: string;
-    tokens?: TokenInfo[];
     decimals?: number;
     decimalLength?: number;
     fontSize?: number;
@@ -45,9 +37,8 @@ export interface PriceTextProps {
  */
 const PriceLabel: React.FC<PriceTextProps> = ({
     price,
-    symbol,
+    symbol = 'ETH',
     token,
-    tokens,
     decimals = 18,
     decimalLength = 3,
     fontSize,
@@ -70,20 +61,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
     animated = false,
     responsive = true,
 }) => {
-    const [tokenDecimals, setTokenDecimals] = useState(decimals);
-    const [tokenSymbol, setTokenSymbol] = useState(symbol || '');
     const [priceNumber, setPriceNumber] = useState(0);
-
-    // 处理代币信息
-    useEffect(() => {
-        if (tokens && tokens.length > 0) {
-            const acceptToken = tokens.find(item => item.address === token);
-            const targetToken = acceptToken || tokens[0];
-            
-            setTokenSymbol(targetToken.symbol);
-            setTokenDecimals(targetToken.decimals);
-        }
-    }, [token, tokens]);
 
     // 计算价格数值
     useEffect(() => {
@@ -93,8 +71,8 @@ const PriceLabel: React.FC<PriceTextProps> = ({
             return;
         }
         
-        setPriceNumber(numPrice / (10 ** tokenDecimals));
-    }, [price, tokenDecimals]);
+        setPriceNumber(numPrice / (10 ** decimals));
+    }, [price, decimals]);
 
     // 格式化价格显示
     const formatPrice = (value: number): string => {
@@ -257,7 +235,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
             style={style}
         >
             {/* 左侧符号 */}
-            {unitPosition === 'left' && showSymbol && tokenSymbol && (
+            {unitPosition === 'left' && showSymbol && symbol && (
                 <span 
                     className={cn(
                         sizeClasses.symbol,
@@ -267,7 +245,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
                     )}
                     style={symbolStyle}
                 >
-                    {tokenSymbol}
+                    {symbol}
                 </span>
             )}
 
@@ -325,7 +303,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
             )}
 
             {/* 右侧符号 */}
-            {unitPosition === 'right' && showSymbol && tokenSymbol && (
+            {unitPosition === 'right' && showSymbol && symbol && (
                 <span 
                     className={cn(
                         sizeClasses.symbol,
@@ -334,9 +312,9 @@ const PriceLabel: React.FC<PriceTextProps> = ({
                         "flex-shrink-0 truncate"
                     )}
                     style={symbolStyle}
-                    title={tokenSymbol} // 悬停显示完整符号
+                    title={symbol} // 悬停显示完整符号
                 >
-                    {tokenSymbol}
+                    {symbol}
                 </span>
             )}
         </div>

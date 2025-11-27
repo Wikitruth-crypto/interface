@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryBoxDetail_BiddersIds } from '@/dapp/services/supabase/boxDetail';
-import { currentChainConfig} from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG} from '@/dapp/contractsConfig';
 
 /**
  * 查询 Box 的竞标者 ID 列表
@@ -19,7 +19,7 @@ export const useBoxBidders = (
 ) => {
 
     // 获取当前网络
-    const { network, layer } = currentChainConfig;
+    const { network, layer } = CHAIN_CONFIG;
 
     // 只有当 listedMode 为 'Auctioning' 时才查询
     const shouldQuery = listedMode === 'Auctioning' && enabled && !!boxId;

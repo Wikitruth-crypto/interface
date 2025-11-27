@@ -4,17 +4,11 @@ import { useEIP712_ERC20secret, EIP712Permit, PermitType } from '@/dapp/hooks/EI
 import { SignPermitParams } from './types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 
-/**
- * 获取有效 Permit 的选项
- */
+
 export interface GetValidPermitOptions {
-    /** 合约地址（当传入 EIP712Permit 且过期时必需） */
     contractAddress?: string;
-    /** 域名名称（可选） */
     domainName?: string;
-    /** 域名版本（可选） */
     domainVersion?: string;
-    /** 自定义过期时间（可选） */
     customDeadline?: number;
 }
 
@@ -27,38 +21,11 @@ export interface UseCheckEIP712PermitResult {
         params: EIP712Permit | SignPermitParams,
         options?: GetValidPermitOptions
     ) => Promise<EIP712Permit>;
-    /** 检查 permit 是否过期 */
     isExpired: (permit: EIP712Permit) => boolean;
-    /** 是否正在处理中 */
     isLoading: boolean;
-    /** 错误信息 */
     error: Error | null;
 }
 
-/**
- * 检查 EIP712 Permit 是否过期
- * 如果过期或不存在，自动生成新签名
- * 
- * @example
- * ```tsx
- * const { getValidPermit, isLoading } = useIsPermitExpired();
- * 
- * // 方式1: 传入已存在的 permit（未过期则直接返回，过期则自动重新生成）
- * const permit = existingPermit;
- * const validPermit = await getValidPermit(permit, {
- *   contractAddress: tokenAddress  // 过期时需要提供
- * });
- * // 使用 permit 调用合约
- * 
- * // 方式2: 传入签名参数（自动获取或生成）
- * const validPermit = await getValidPermit({
- *   spender: recipientAddress,
- *   amount: 1000n,
- *   label: PermitType.VIEW,
- *   contractAddress: tokenAddress
- * });
- * ```
- */
 export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
     const { address } = useAccount();
     const chainId = useChainId();
@@ -111,7 +78,7 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
 
             // 验证钱包连接
             if (!address) {
-                throw new Error('钱包未连接，请先连接钱包');
+                throw new Error('Please connect your wallet first');
             }
 
             let label: PermitType;
@@ -209,7 +176,7 @@ export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
                 });
 
                 if (!newPermit) {
-                    throw new Error('生成签名失败');
+                    throw new Error('Failed to generate signature');
                 }
 
                 // 保存到 store

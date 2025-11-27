@@ -3,7 +3,7 @@ import React from 'react';
 import { BuyButton, ViewFileButton, PublishButton } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { Alert } from 'antd'; 
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     tokenId?: string, // 保留以备后用
@@ -12,7 +12,7 @@ interface Props {
 const Selling: React.FC<Props> = ({ }) => {
     const store = useBoxDetailStore(state => state)
     const deadlineCheckState = store.deadlineCheckState
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     if (!box) {
         return <div>loading...</div>

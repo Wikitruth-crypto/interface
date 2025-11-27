@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { BoxRoleType } from '@dapp/types/account';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
 
 export const useLisenerRoles = () => {
-    const { box } = useBoxContext();
+    const { box } = useBoxDetailContext();
     const { address, isConnected, accountRole} = useWalletContext() || {};
 
     const { 

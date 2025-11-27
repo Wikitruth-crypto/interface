@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from '@tanstack/react-query';
-import { useIsTestnet } from '@/dapp/contractsConfig';
+import { CHAIN_CONFIG  } from '@/dapp/contractsConfig';
 import { queryUserStats } from '@/dapp/services/supabase/profile';
 import { UserProfileData } from '../types/profile.types';
 
@@ -18,8 +18,7 @@ export const useUserProfile = (
     address: string | undefined,
     userId: string | null = null
 ) => {
-    const isTestnet = useIsTestnet();
-    const network: 'testnet' | 'mainnet' = isTestnet ? 'testnet' : 'mainnet';
+    const {network,layer} = CHAIN_CONFIG 
 
     // 使用 React Query 查询用户统计数据
     const {
@@ -29,7 +28,7 @@ export const useUserProfile = (
         error,
         isSuccess,
     } = useQuery({
-        queryKey: ['user-profile', network, address, userId],
+        queryKey: ['user-profile', network, layer, address, userId],
         queryFn: async () => {
             if (!address) {
                 return null;

@@ -36,7 +36,7 @@ export const useProcessData = (boxDataList: BoxData[]) => {
             metadata: {
                 title: box.title,
                 description: box.description,
-                image: box.image,
+                image: box.nftImage,
                 boxImage: box.boxImage,
                 country: box.country,
                 state: box.state,

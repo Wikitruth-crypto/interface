@@ -111,9 +111,9 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
                 <PriceLabel status={status} price={price} token={token} />
 
             {/* Role Container */}
-            <div className="w-full">
+            {/* <div className="w-full">
                 <RoleContainer />
-            </div>
+            </div> */}
 
             <Line weight={1} />
 

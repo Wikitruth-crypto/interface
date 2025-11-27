@@ -6,14 +6,9 @@ import { cn } from '@/lib/utils';
 import PriceLabel from './base/priceLabel';
 import ImageSwiper from './imageSwiper';
 import { boxStatus } from '@/dapp/types/contracts/truthBox';
-import { getSupportedTokens } from '@/dapp/contractsConfig/tokens';
-import { SupportedChainId } from '@/dapp/contractsConfig/types';
+import { useSupportedTokens } from '@/dapp/contractsConfig';
 import StatusLabel from './base/statusLabel';
-import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
-import { useEffect, useState, useCallback, useRef } from 'react';
 
-// 获取默认支持的代币列表（用于非 DApp 页面的展示）
-const DEFAULT_SUPPORTED_TOKENS = getSupportedTokens(SupportedChainId.SAPPHIRE_TESTNET);
 
 interface TruthBoxCardProps {
     data: any;
@@ -31,13 +26,10 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     className,
     onImageLoad, // 新增
 }) => {
-    const supportedTokens = DEFAULT_SUPPORTED_TOKENS;
-
-    // 判断是否显示价格（Storing 和 Published 状态不显示价格）
+    const supportedTokens = useSupportedTokens();
+    const symbol = supportedTokens.find(token => token.address === data.acceptToken)?.symbol;
+    
     const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6];
-
-    const boxImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.boxImage) : data.boxImage;
-    const nftImageUrl = enableIpfsUrl ? ipfsCidToUrl(data.nftImage) : data.nftImage;
 
     const handleImageLoad = () => {
         if(onImageLoad) {
@@ -72,7 +64,8 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                 // "rounded-t-xl md:rounded-t-2xl"
             )}>
                 <ImageSwiper
-                    images={[boxImageUrl, nftImageUrl]}
+                    images={[data.boxImage, data.nftImage]}
+                    enableIpfsUrl={enableIpfsUrl}
                     altPrefix={`truthbox-${data.tokenId}`}
                     className="w-full"
                     onImageLoad={handleImageLoad} // 传递给 ImageSwiper
@@ -164,7 +157,7 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                             <PriceLabel
                                 price={data.price}
                                 token={data.acceptToken}
-                                tokens={supportedTokens}
+                                symbol={symbol}
                                 variant="small"
                                 responsive={true}
                                 className="shrink min-w-0"

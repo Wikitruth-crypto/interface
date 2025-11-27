@@ -1,9 +1,7 @@
 import type { PostgrestError } from '@supabase/supabase-js';
 import { supabase, Database } from '@supabaseDocs/supabase.config';
 import type { FilterState } from '@/dapp/pages/Profile/types/profile.types';
-
-const DEFAULT_NETWORK: 'testnet' | 'mainnet' = 'testnet';
-const DEFAULT_LAYER: 'sapphire' = 'sapphire';
+import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 
 type QueryError = PostgrestError | Error | null;
 type BoxRow = Database['public']['Tables']['boxes']['Row'];
@@ -49,7 +47,6 @@ const toQueryError = (error: unknown): QueryError => {
  * @param offset - 偏移量
  */
 export async function queryUserBoxes(
-    network: 'testnet' | 'mainnet',
     userAddress: string,
     userId: string | null,
     filters: FilterState,
@@ -64,8 +61,8 @@ export async function queryUserBoxes(
                 metadata_boxes (*),
                 box_bidders (*)
             `)
-            .eq('network', network)
-            .eq('layer', DEFAULT_LAYER);
+            .eq('network', CHAIN_CONFIG.network)
+            .eq('layer', CHAIN_CONFIG.layer);
 
         // 根据 Tab 应用筛选
         switch (filters.selectedTab) {
@@ -102,8 +99,8 @@ export async function queryUserBoxes(
                 const { data: bidBoxes, error: bidError } = await supabase
                     .from('box_bidders')
                     .select('id')
-                    .eq('network', network)
-                    .eq('layer', DEFAULT_LAYER)
+                    .eq('network', CHAIN_CONFIG.network)
+                    .eq('layer', CHAIN_CONFIG.layer)
                     .eq('bidder_id', userId);
                 
                 if (bidError) {
@@ -190,12 +187,10 @@ export async function queryUserBoxes(
 /**
  * 查询用户统计数据
  * 
- * @param network - 网络类型
  * @param userAddress - 用户地址
  * @param userId - 用户 ID (可选)
  */
 export async function queryUserStats(
-    network: 'testnet' | 'mainnet',
     userAddress: string,
     userId: string | null
 ): Promise<{ data: UserStatsResult | null; error: QueryError }> {
@@ -215,8 +210,8 @@ export async function queryUserStats(
         const { count: ownedCount } = await supabase
             .from('boxes')
             .select('*', { count: 'exact', head: true })
-            .eq('network', network)
-            .eq('layer', DEFAULT_LAYER)
+            .eq('network', CHAIN_CONFIG.network)
+            .eq('layer', CHAIN_CONFIG.layer)
             .eq('owner_address', userAddress.toLowerCase());
         stats.ownedBoxes = ownedCount || 0;
 
@@ -225,8 +220,8 @@ export async function queryUserStats(
             const { count: mintedCount } = await supabase
                 .from('boxes')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('minter_id', userId);
             stats.mintedBoxes = mintedCount || 0;
 
@@ -234,8 +229,8 @@ export async function queryUserStats(
             const { count: soldCount } = await supabase
                 .from('boxes')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('seller_id', userId);
             stats.soldBoxes = soldCount || 0;
 
@@ -243,8 +238,8 @@ export async function queryUserStats(
             const { count: boughtCount } = await supabase
                 .from('boxes')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('buyer_id', userId);
             stats.boughtBoxes = boughtCount || 0;
 
@@ -252,8 +247,8 @@ export async function queryUserStats(
             const { count: bidCount } = await supabase
                 .from('box_bidders')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('bidder_id', userId);
             stats.bidBoxes = bidCount || 0;
 
@@ -261,8 +256,8 @@ export async function queryUserStats(
             const { count: completedCount } = await supabase
                 .from('boxes')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('completer_id', userId);
             stats.completedBoxes = completedCount || 0;
 
@@ -270,8 +265,8 @@ export async function queryUserStats(
             const { count: publishedCount } = await supabase
                 .from('boxes')
                 .select('*', { count: 'exact', head: true })
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('publisher_id', userId);
             stats.publishedBoxes = publishedCount || 0;
 
@@ -280,8 +275,8 @@ export async function queryUserStats(
             const { data: allBoxIds } = await supabase
                 .from('boxes')
                 .select('id')
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .or(
                     `owner_address.eq.${userAddress.toLowerCase()},` +
                     `minter_id.eq.${userId},` +
@@ -295,8 +290,8 @@ export async function queryUserStats(
             const { data: bidBoxIds } = await supabase
                 .from('box_bidders')
                 .select('id')
-                .eq('network', network)
-                .eq('layer', DEFAULT_LAYER)
+                .eq('network', CHAIN_CONFIG.network)
+                .eq('layer', CHAIN_CONFIG.layer)
                 .eq('bidder_id', userId);
 
             // 合并并去重

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Button, Input, Space, Typography, Divider, Alert, Row, Col } from 'antd';
 import { useSupportedTokens, useAllContractConfigs } from '@/dapp/contractsConfig';
-import { OFFICIAL_TOKEN_CONFIG } from '@/dapp/contractsConfig/tokens';
+import { OFFICIAL_TOKEN_CONFIG } from '@/dapp/contractsConfig';
 import { Address_0 } from '@/dapp/constants';
 import { useAccount } from 'wagmi';
 import { useWriteContract } from 'wagmi';

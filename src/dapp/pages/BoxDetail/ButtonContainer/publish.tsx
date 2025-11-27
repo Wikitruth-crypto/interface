@@ -5,7 +5,7 @@ import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import { FunctionNameType } from '@dapp/types/contracts';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
@@ -17,7 +17,7 @@ interface Props {
 
 const PublishButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
-  const { box , boxId } = useBoxContext()
+  const { box , boxId } = useBoxDetailContext()
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   

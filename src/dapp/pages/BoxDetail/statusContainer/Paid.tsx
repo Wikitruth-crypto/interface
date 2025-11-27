@@ -6,7 +6,7 @@ import {
     CompleteButton,
     ViewFileButton,
 } from '@BoxDetail/ButtonContainer';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import Line from '@/components/base/line';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const Paid: React.FC<Props> = ({ }) => {
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
     if (!box) {
         return <div>loading...</div>

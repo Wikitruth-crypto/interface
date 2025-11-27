@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { Button, Card } from 'antd';
 import { useReadContract } from '@dapp/hooks/readContracts/useReadContract';
+import { useWriteCustorm } from '@/dapp/hooks/useWritCustorm';
 import {
     ContractName,
     useAllContractConfigs,
@@ -18,6 +19,7 @@ const HooksTest = () => {
 
     const { address } = useAccount();
     const [result, setResult] = useState<any>(null);
+    const { write } = useWriteCustorm();
 
     const { readContract } = useReadContract();
     const { readAllowance } = useReadAllowance();
@@ -25,6 +27,7 @@ const HooksTest = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
 
+    // 测试：读取代币授权
     const testReadAllowance = async () => {
         if (!address) return;
         const result = await readAllowance(
@@ -35,8 +38,9 @@ const HooksTest = () => {
         )
         setResult(result);
     }
+
+    // 测试：读取合约数据
     // useEffect(() => {
-    //     // 使用readContract
     //     const fetchData = async () => {
     //         if (!address) return;
     //         // const basicData = await readContract({
@@ -50,6 +54,17 @@ const HooksTest = () => {
     //     fetchData();
     // }, [address]);
 
+    // 测试：写入合约数据
+    const [resultWriteSapphire, setResultWriteSapphire] = useState<any>(null);
+    const testWriteSapphire = async () => {
+        if (!address) return;
+        const result = await write({
+            contract: allConfigs.OfficialTokenSecret,
+            functionName: 'approve',
+            args: [allConfigs.FundManager.address, 6000000],
+        });
+        setResultWriteSapphire(result);
+    }
 
     return (
         <div className="w-2xl flex flex-col items-center justify-center">
@@ -77,6 +92,15 @@ const HooksTest = () => {
             </Card>
             <Card title="RequestSiwe">
                 <RequestSiwe />
+            </Card>
+            <Card title="TestWriteSapphire">
+                <Button onClick={testWriteSapphire}>Test writeSapphire</Button>
+                {resultWriteSapphire && (
+                    <div className="mt-4 p-4 bg-gray-500 rounded">
+                        <h3>写入结果：</h3>
+                        <p>交易哈希: {resultWriteSapphire}</p>
+                    </div>
+                )}
             </Card>
         </div>
     );

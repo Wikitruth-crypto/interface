@@ -10,7 +10,7 @@ import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionSto
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
     onClick?: () => void;
@@ -20,7 +20,7 @@ interface Props {
 const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
     // const { address } = useWalletContext();
-    const { box , boxId } = useBoxContext()
+    const { box , boxId } = useBoxDetailContext()
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);

@@ -5,9 +5,8 @@ import BaseButton from '@/dapp/components/base/baseButton';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
-import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
   onClick?: () => void;
@@ -15,7 +14,7 @@ interface Props {
 }
 
 const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
-  const { boxId } = useBoxContext();
+  const { boxId } = useBoxDetailContext();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const allConfigs = useAllContractConfigs();
   

@@ -14,7 +14,7 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
 import PriceLabel from '@/dapp/components/base/priceLabel';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import Paragraph from '@/components/base/paragraph';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
@@ -30,7 +30,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
     const supportedTokens = useSupportedTokens();
     const { roles } = useBoxDetailStore(state => state.userState);
     const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
-    const { boxId, box } = useBoxContext();
+    const { boxId, box } = useBoxDetailContext();
     const [cancelAble, setCancelAble] = useState<boolean>(false)
     const [okAble, setOkAble] = useState<boolean>(false)
     const [buttonText, setButtonText] = useState<string>('Submit')

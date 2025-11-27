@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useState, useEffect, useContext } from 'react';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import PriceLabel from '@/dapp/components/base/priceLabel';
-import { useSupportedTokens } from '@/dapp/contractsConfig';
+// import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { useExchange } from '@/dapp/hooks/readContracts/useExchange';
+import { SUPPORTED_TOKENS, TokenMetadata } from '@/dapp/contractsConfig';
 
 interface Props {
     tokenId?: string,
@@ -14,8 +15,7 @@ interface Props {
 
 const CalcMoney: React.FC<Props> = () => {
     // const tokenId = useBoxDetailStore(state => state.tokenId);
-    const { box , boxId } = useBoxContext();
-    const supportedTokens = useSupportedTokens();
+    const { box , boxId } = useBoxDetailContext();
     const { calcPayMoney } = useExchange();
     // const roles = useBoxDetailStore(state => state.userState.roles);
 
@@ -40,6 +40,8 @@ const CalcMoney: React.FC<Props> = () => {
         }
     }, [box.price]);
 
+    const tokenSymbol = SUPPORTED_TOKENS.find((token: TokenMetadata) => token.address === box.acceptedToken)?.symbol;
+
     return (
         <>
             {
@@ -49,10 +51,9 @@ const CalcMoney: React.FC<Props> = () => {
                     <PriceLabel
                         prefix='In the Auction, you paid:'
                         price={oldMoney}
-                        // symbol={tokenSymbol}
+                        symbol={tokenSymbol}
                         // decimals={tokenDecimals}
                         token={box.acceptedToken}
-                        tokens={supportedTokens}
                         fontSize={14}
                         fontSizeSuffix={12}
                     />
@@ -64,10 +65,9 @@ const CalcMoney: React.FC<Props> = () => {
                 <PriceLabel
                     prefix='You need to pay:'
                     price={newMoney}
-                    // symbol={tokenSymbol}
+                    symbol={tokenSymbol}
                     // decimals={tokenDecimals}
                     token={box.acceptedToken}
-                    tokens={supportedTokens}
                     fontSize={14}
                     fontSizeSuffix={12}
                 />

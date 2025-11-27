@@ -5,6 +5,7 @@ import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi'
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { AccountRoleType } from '@/dapp/types/account';
 import { Address_0, Address_Admin } from '@/dapp/constants/addressRoles';
+import { isSapphireNetwork } from '@/dapp/context/sapphireWrap';
 
 interface WalletContextType {
     address: string | undefined;
@@ -16,7 +17,6 @@ interface WalletContextType {
     accountRole: AccountRoleType;
 }
 
-// 创建 WalletContext，初始值为 null
 const WalletContext = createContext<WalletContextType>({
     address: undefined,
     isConnected: false,
@@ -27,7 +27,6 @@ const WalletContext = createContext<WalletContextType>({
     accountRole: null,
 });
 
-// 创建一个自定义 hook 以便在其他组件中使用 WalletContext
 export const useWalletContext = () => {
     const context = useContext(WalletContext);
     if (!context) {
@@ -47,7 +46,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     useEffect(() => {
         const updateSigner = async () => {
             if (walletClient) {
-                const provider = new BrowserProvider(walletClient as any);
+                let providerToUse: any = walletClient;
+
+                if (isSapphireNetwork(chainId) && typeof window !== 'undefined' && window.ethereum) {
+                    providerToUse = window.ethereum;
+                }
+
+                const provider = new BrowserProvider(providerToUse);
                 const newSigner = await provider.getSigner();
                 setSigner(newSigner);
             } else {
@@ -56,7 +61,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         };
 
         updateSigner();
-    }, [walletClient]);
+    }, [walletClient, chainId]);
 
     useEffect(() => {
         if (address && isConnected && address !== Address_0) {

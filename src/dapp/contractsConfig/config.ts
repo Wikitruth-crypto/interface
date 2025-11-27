@@ -12,7 +12,8 @@ import {
 } from './types';
 import { ABIS } from './abis';
 import { NETWORK_CONTRACTS } from './contracts';
-import { currentChainConfig, isSupportedChain } from './chains';
+import { getChainConfig, isSupportedChain } from './chains';
+import { CHAIN_CONFIG } from './current';
 
 /**
  * 配置管理类
@@ -20,7 +21,7 @@ import { currentChainConfig, isSupportedChain } from './chains';
 class ConfigManager {
   private currentChainId: SupportedChainId;
 
-  constructor(initialChainId: SupportedChainId = currentChainConfig.id) {
+  constructor(initialChainId: SupportedChainId = CHAIN_CONFIG.id) {
     this.currentChainId = initialChainId;
   }
 
@@ -32,9 +33,9 @@ class ConfigManager {
     
     if (!isSupportedChain(targetChainId)) {
       console.warn(
-        `Unsupported chain ID: ${targetChainId}. Using default chain: ${currentChainConfig.id}`
+        `Unsupported chain ID: ${targetChainId}. Using default chain: ${CHAIN_CONFIG.id}`
       );
-      return NETWORK_CONTRACTS[currentChainConfig.id];
+      return NETWORK_CONTRACTS[CHAIN_CONFIG.id];
     }
 
     return NETWORK_CONTRACTS[targetChainId];

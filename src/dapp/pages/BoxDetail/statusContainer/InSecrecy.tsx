@@ -5,7 +5,7 @@ import {
     PayConfiFeeButton,
     ViewFileButton
 } from '@BoxDetail/ButtonContainer';
-import { useBoxContext } from '../contexts/BoxDetailContext';
+import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { Alert } from 'antd'; 
 
@@ -16,7 +16,7 @@ interface Props {
 const InSecrecy: React.FC<Props> = ({  }) => {
     const store = useBoxDetailStore(state => state)
     const { roles } = store.userState
-    const { box } = useBoxContext()
+    const { box } = useBoxDetailContext()
 
 
     if (!box) {

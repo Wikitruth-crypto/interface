@@ -9,7 +9,20 @@ export * from './chains';
 export { ABIS, getABI } from './abis';
 
 // 导出合约地址
-export { NETWORK_CONTRACTS, TESTNET_ADDRESSES, MAINNET_ADDRESSES } from './contracts';
+export { 
+  NETWORK_CONTRACTS, 
+  TESTNET_ADDRESSES, 
+  MAINNET_ADDRESSES 
+} from './contracts';
+
+// 导出当前链配置
+export {
+  SUPPORTED_TOKENS,
+  CHAIN_ID,
+  CHAIN_CONFIG,
+  OFFICIAL_TOKEN_CONFIG,
+  useSetCurrentChainConfig,
+} from './current';
 
 // 导出配置管理器和工具函数
 export {
@@ -33,7 +46,7 @@ export {
 // 导出 Token 配置
 export {
   getSupportedTokens_WithChainId,
-  OFFICIAL_TOKEN_CONFIG,
+  getOfficialTokenConfig_WithChainId,
 } from './tokens';
 
 // 导出事件配置

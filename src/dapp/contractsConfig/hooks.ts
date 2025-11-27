@@ -22,39 +22,35 @@ import {
 } from './config';
 import { getChainConfig} from './chains';
 import { getSupportedTokens_WithChainId } from './tokens';
-import { useChainId } from 'wagmi';
+import { CHAIN_ID } from './current';
 
 
 export function useAllContractAddresses(): ContractAddresses {
-  const chainId = useChainId();
 
   return useMemo(() => {
-    return getContractAddresses_WithChainId(chainId);
-  }, [chainId]);
+    return getContractAddresses_WithChainId(CHAIN_ID);
+  }, [CHAIN_ID]);
 }
 
 export function useContractConfig(contractName: ContractName): ContractConfig {
-  const chainId = useChainId();
 
   return useMemo(() => {
-    return getContractConfig(contractName, chainId);
-  }, [contractName, chainId]);
+    return getContractConfig(contractName, CHAIN_ID);
+  }, [contractName, CHAIN_ID]);
 }
 
 export function useAllContractConfigs(): ContractConfigs {
-  const chainId = useChainId();
 
   return useMemo(() => {
-    return getAllContractConfigs_WithChainId(chainId);
-  }, [chainId]);
+    return getAllContractConfigs_WithChainId(CHAIN_ID);
+  }, [CHAIN_ID]);
 }
 
 export function useSupportedTokens(): TokenMetadata[] {
-  const chainId = useChainId();
 
   return useMemo(() => {
-    return getSupportedTokens_WithChainId(chainId);
-  }, [chainId]);
+    return getSupportedTokens_WithChainId(CHAIN_ID);
+  }, [CHAIN_ID]);
 }
 
 export function useContractAddress(contractName: ContractName): `0x${string}` {
@@ -63,12 +59,11 @@ export function useContractAddress(contractName: ContractName): `0x${string}` {
 }
 
 export function useChainConfig(): ChainConfig {
-  const chainId = useChainId();
   return useMemo(() => {
-    const chainConfig = getChainConfig(chainId);
+    const chainConfig = getChainConfig(CHAIN_ID);
     if (!chainConfig) {
-      throw new Error(`Chain config not found for chainId: ${chainId}`);
+      throw new Error(`Chain config not found for chainId: ${CHAIN_ID}`);
     }
     return chainConfig;
-  }, [chainId]);
+  }, [CHAIN_ID]);
 }

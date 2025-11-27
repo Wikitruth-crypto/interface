@@ -1,6 +1,6 @@
 "use client"
 import { FundType } from "../types/cardProfile.types";
-import { useWriteCustorm } from "@/dapp/hooks/useWritCustorm";
+import { useWriteCustorm } from "@/dapp/hooks/useWritSapphire";
 import { useAllContractConfigs } from "@/dapp/contractsConfig";
 import { useWithdrawStore } from "../store/withdrawStore";
 import { useSupportedTokens } from "@/dapp/contractsConfig";
