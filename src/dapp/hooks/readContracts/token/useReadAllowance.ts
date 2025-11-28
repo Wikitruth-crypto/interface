@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { PermitType } from '@/dapp/hooks/EIP712';
 // import { useSecretStore } from '@/dapp/store/secretStore';
 // import { TokenMetadata } from '@/dapp/contractsConfig';
-import { useCheckEIP712Permit } from '@/dapp/hooks/EIP712/useCheckEIP712Permit';
+import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
 // import { useChainId } from 'wagmi';
 import { useGetTokenMetadata } from './useGetTokenMetadata';
 import { 
@@ -26,7 +26,7 @@ export const useReadAllowance = () => {
     const { allowanceWithPermit } = useERC20Secret();
 
     // const { getAllowanceBase } = useAllowanceBase();
-    const { getValidPermit } = useCheckEIP712Permit();
+    const { getValidPermit } = useEIP712Permit();
     const { getTokenMetadata } = useGetTokenMetadata();
     /**
      * @example

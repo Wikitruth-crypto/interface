@@ -23,8 +23,6 @@
         SignatureRSV signature;
     }
 
-    // function
-    
  */
 
 

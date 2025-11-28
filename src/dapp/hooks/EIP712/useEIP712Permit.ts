@@ -4,6 +4,11 @@ import { useEIP712_ERC20secret, EIP712Permit, PermitType } from '@/dapp/hooks/EI
 import { SignPermitParams } from './types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 
+/**
+ * 这个是适配当前前端的
+ * 检查并获取有效的 permit（如果过期则自动生成新签名）
+ * 
+ */
 
 export interface GetValidPermitOptions {
     contractAddress?: string;
@@ -12,9 +17,7 @@ export interface GetValidPermitOptions {
     customDeadline?: number;
 }
 
-/**
- * Hook 返回值
- */
+
 export interface UseCheckEIP712PermitResult {
     /** 检查并获取有效的 permit（如果过期则自动生成新签名） */
     getValidPermit: (
@@ -26,7 +29,7 @@ export interface UseCheckEIP712PermitResult {
     error: Error | null;
 }
 
-export const useCheckEIP712Permit = (): UseCheckEIP712PermitResult => {
+export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
     const { address } = useAccount();
     const chainId = useChainId();
     const { signPermit, isLoading: isSigningLoading } = useEIP712_ERC20secret();

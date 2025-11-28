@@ -4,13 +4,13 @@ export { default as BoxImage } from './boxImage';
 export { default as BoxInfo } from './boxInfo';
 export { default as BaseButton } from './baseButton';
 export { default as InputArea } from './inputArea';
-export { default as InputBox, InputText } from './inputBox';
-export { default as PaginationBase } from './pagination';
+// export { default as InputBox, InputText } from './inputBox';
+// export { default as PaginationBase } from './pagination';
 export { default as SkeletonCard } from './skeletonCard';
 export { default as SkeletonProfile } from './skeletonProfile';
-export { default as ResultItem } from './alertResult';
+// export { default as ResultItem } from './alertResult';
 export { default as PriceText } from './priceLabel';
-export { default as InfiniteScroll } from './infiniteScroll';
+// export { default as InfiniteScroll } from './infiniteScroll';
 // export { default as FileUploadButton } from '../fileUploadButton';
 
 // 新增的重构组件
@@ -23,14 +23,14 @@ export type { FundsSectionProps, TokenInfo } from '../fundsSection';
 export type { BoxImageProps } from './boxImage';
 export type { BoxInfoProps, BoxMetadata } from './boxInfo';
 export type { InputAreaProps } from './inputArea';
-export type { InputBoxProps } from './inputBox';
-export type { Props as PaginationProps } from './pagination';
+// export type { InputBoxProps } from './inputBox';
+// export type { Props as PaginationProps } from './pagination';
 export type { SkeletonCardProps } from './skeletonCard';
 export type { SkeletonProfileProps } from './skeletonProfile';
 
-export type { ResultItemProps } from './alertResult';
+// export type { ResultItemProps } from './alertResult';
 export type { PriceTextProps} from './priceLabel';
-export type { InfiniteScrollProps } from './infiniteScroll';
+// export type { InfiniteScrollProps } from './infiniteScroll';
 // export type { FileUploadButtonProps, UploadFile } from '../fileUploadButton';
 
 // 新增重构组件的类型

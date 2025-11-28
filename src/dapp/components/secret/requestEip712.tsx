@@ -4,6 +4,7 @@ import { useAccount, useChainId } from 'wagmi';
 import { useEIP712_ERC20secret } from '@/dapp/hooks/EIP712';
 import { PermitType, type SignPermitParams } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
+import { formatAddress } from '@/dapp/utils/formatAddress';
 
 const { Text, Paragraph } = Typography;
 
@@ -15,8 +16,6 @@ export interface Eip712Requirement extends SignPermitParams {
 
 export interface RequestEip712Props {
     requirement?: Eip712Requirement;
-    chainId?: number;
-    address?: `0x${string}`;
     className?: string;
     cardTitle?: string;
     cardHint?: string;
@@ -36,24 +35,8 @@ const getPermitLabel = (label: PermitType): string => {
     }
 };
 
-/**
- * 格式化地址显示，省略中间部分
- * @param address 地址字符串
- * @param startLength 开头显示的长度（默认6）
- * @param endLength 结尾显示的长度（默认4）
- * @returns 格式化后的地址，如 "0x1234...5678"
- */
-const formatAddress = (address: string, startLength: number = 6, endLength: number = 4): string => {
-    if (!address || address.length <= startLength + endLength) {
-        return address;
-    }
-    return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
-};
-
 export const RequestEip712: React.FC<RequestEip712Props> = ({
     requirement,
-    chainId,
-    address,
     className,
     cardTitle = 'Signature Authorization',
     cardHint = 'To complete the subsequent operations, you need to complete the following EIP-712 authorization signature.',
@@ -62,8 +45,8 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
     const { address: walletAddress } = useAccount();
     const activeChainId = useChainId();
 
-    const targetAddress = address ?? (walletAddress as `0x${string}` | undefined);
-    const targetChainId = chainId ?? activeChainId ?? undefined;
+    const targetAddress = walletAddress as `0x${string}` | undefined;
+    const targetChainId = activeChainId ?? undefined;
 
     const { signPermit, isLoading, error } = useEIP712_ERC20secret();
     const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);

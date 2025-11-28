@@ -2,18 +2,14 @@
 
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useLisenerRoles } from '../hooks/useLisenerRoles';
-// import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import Paragraph from '@/components/base/paragraph';
+import { Alert } from 'antd';
 
 interface Props {
     tokenId?: number,
 }
 
 const RoleContainer: React.FC<Props> = () => {
-    // const { accountRole } = useWalletContext() || {}
-    // const box = useQueryStore(state => state.boxes[tokenId]);
     const { roles } = useBoxDetailStore(state => state.userState);
-    // const tokenId = useBoxDetailStore(state => state.tokenId);
     useLisenerRoles();
 
     return (
@@ -21,13 +17,21 @@ const RoleContainer: React.FC<Props> = () => {
         <div className="flex flex-col items-start justify-center">
             {roles.length > 0 ? (
                 <>
-                    <Paragraph color="primary" size="md" weight="semibold">You are: {roles.join(', ')}</Paragraph>
-                    <Paragraph color="muted-foreground" size="sm">You can do the following actions:</Paragraph>
+                    <Alert
+                        showIcon={true}
+                        message={`You are: ${roles.join(', ')}`}
+                        description="You can do the following actions:"
+                        type="info"
+                    />
                 </>
             ) : (
                 <>
-                    <Paragraph color="primary" size="md" weight="semibold">You are: Guest, please login!</Paragraph>
-                    <Paragraph color="muted-foreground" size="sm">Please login!</Paragraph>
+                    <Alert
+                        showIcon={true}
+                        message="You are: Guest, please login!"
+                        description="Please login to the website to use the Wallet Connection"
+                        type="warning"
+                    />
                 </>
 
             )}

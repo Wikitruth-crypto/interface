@@ -7,7 +7,7 @@ import { Tag } from 'antd';
 import { BoxStatus } from "@/dapp/types/contracts/truthBox";
 import { cn } from "@/lib/utils";
 
-export type StatusType = BoxStatus | 'Waiting';
+export type StatusType = BoxStatus;
 
 export interface StatusLabelProps {
     status: StatusType;
@@ -38,8 +38,6 @@ export default function StatusLabel({
             case 'Selling':
             case 'Auctioning':
                 return 'orange';
-            case 'Waiting':
-                return 'cyan';
             case 'Paid':
                 return 'green';
             case 'Refunding':

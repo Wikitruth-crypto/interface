@@ -1,7 +1,7 @@
 import Logo from "@/components/base/logo";
 import LinkList from "@/components/customer/link";
 import { Container } from "@/components/Container";
-// import { ConnectWallet } from "@/dapp/components/base/connectWallet";
+import { ConnectButtonComponent } from "@/dapp/context/connectWallet/connectButton";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -13,7 +13,7 @@ const dappMenu = [
     { name: "Token", href: "/app/token" },
     { name: "Profile", href: "/app/profile" },
     { name: "Tests", href: "/app/tests" },
-    { name: "Account Query Test", href: "/app/accountQueryTest" },
+    // { name: "Account Query Test", href: "/app/accountQueryTest" },
 ];
 
 
@@ -54,8 +54,9 @@ export default function DappHeader() {
                         onLinkClick={setActiveKey}
                         activeKey={activeKey}
                     />
-                    {/* <ConnectWallet /> */}
-                    <appkit-button />
+                    <ConnectButtonComponent 
+                    size="sm"
+                    />
                 </nav>
             </Container>
         </header>

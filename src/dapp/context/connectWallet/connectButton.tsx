@@ -1,0 +1,143 @@
+'use client';
+
+import './connectWallet.css';
+
+import clsx from 'clsx';
+import type { ReactNode } from 'react';
+import { ModalPortal } from './ModalPortal';
+import { AccountModal, ConnectModal, NetworkModal } from './modals';
+import { useConnectController, formatAddress, formatString } from './controller';
+
+interface ConnectButtonProps {
+  size?: 'sm' | 'md' | 'lg';
+  shape?: 'pill' | 'rounded';
+  className?: string;
+  prefixIcon?: ReactNode;
+}
+
+export const ConnectButtonComponent = ({
+  size = 'md',
+  shape = 'pill',
+  className,
+  prefixIcon
+}: ConnectButtonProps) => {
+  const {
+    address,
+    balanceData,
+    chainId,
+    currentChain,
+    connectors,
+    filteredConnectors,
+    filteredChains,
+    isConnected,
+    isConnecting,
+    isSwitching,
+    connectError,
+    switchError,
+    modalView,
+    walletSearch,
+    networkSearch,
+    banner,
+    pendingConnectorId,
+    openModal,
+    closeModal,
+    setWalletSearch,
+    setNetworkSearch,
+    handleConnect,
+    handleDisconnect,
+    handleSwitchChain
+  } = useConnectController();
+
+  const networkAppearance = (() => {
+    if (!currentChain) return { label: 'Unknown Network', theme: '' };
+    if (currentChain.testnet) {
+      return { label: 'Oasis Sapphire Testnet', theme: 'wt-connect-button--theme-testnet' };
+    }
+    return { label: 'Oasis Sapphire Mainnet', theme: 'wt-connect-button--theme-mainnet' };
+  })();
+
+  const buttonClass = clsx(
+    'wt-connect-button',
+    `wt-connect-button--${size}`,
+    shape === 'rounded' && 'wt-connect-button--rounded',
+    isConnected && ['wt-connect-button--connected', networkAppearance.theme],
+    className
+  );
+
+  const chainIcon = prefixIcon ?? (
+    <div className="wt-connect-button__icon">{(currentChain?.name ?? 'W').charAt(0)}</div>
+  );
+
+  return (
+    <>
+      <button
+        className={buttonClass}
+        onClick={() => (isConnected ? openModal('account') : openModal('connect'))}
+        disabled={isConnecting}
+      >
+        {isConnected ? (
+          <>
+            {chainIcon}
+            <div className="wt-connect-button__text">
+              <span>{formatAddress(address)}</span>
+              <span>{formatString(networkAppearance.label)}</span>
+            </div>
+          </>
+        ) : isConnecting ? (
+          'Connecting...'
+        ) : (
+          <>
+            {chainIcon}
+            <span>Connect</span>
+          </>
+        )}
+      </button>
+
+      {modalView === 'connect' && (
+        <ModalPortal>
+          <ConnectModal
+            filteredConnectors={filteredConnectors}
+            isConnecting={isConnecting}
+            pendingConnectorId={pendingConnectorId}
+            search={walletSearch}
+            onSearchChange={setWalletSearch}
+            onSelectConnector={handleConnect}
+            banner={banner}
+            connectError={connectError}
+            onClose={closeModal}
+          />
+        </ModalPortal>
+      )}
+
+      {modalView === 'account' && (
+        <ModalPortal>
+          <AccountModal
+            address={address}
+            chain={currentChain}
+            balanceFormatted={balanceData?.formatted}
+            balanceSymbol={balanceData?.symbol}
+            onSwitchNetwork={() => openModal('network')}
+            onDisconnect={handleDisconnect}
+            onClose={closeModal}
+            banner={banner}
+          />
+        </ModalPortal>
+      )}
+
+      {modalView === 'network' && (
+        <ModalPortal>
+          <NetworkModal
+            chains={filteredChains}
+            currentChainId={chainId}
+            search={networkSearch}
+            onSearchChange={setNetworkSearch}
+            onSelectChain={handleSwitchChain}
+            isSwitching={isSwitching}
+            banner={banner ?? switchError?.message}
+            onClose={closeModal}
+          />
+        </ModalPortal>
+      )}
+    </>
+  );
+};

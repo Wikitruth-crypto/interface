@@ -6,14 +6,7 @@ import { CHAIN_CONFIG} from '@/dapp/contractsConfig';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
-/**
- * 获取当前 Box 详情（基础数据）
- * 
- * 默认必须查询 boxes 表和 metadata_boxes 表
- * 
- * @param boxId - Box ID (支持 string、number 或 BigInt)
- * @returns Box 详情数据、元数据和加载状态
- */
+
 export const useBoxAndMetadata = (boxId: string) => {
     // 获取当前网络
     const { network, layer } = CHAIN_CONFIG;

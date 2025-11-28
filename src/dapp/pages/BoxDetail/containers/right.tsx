@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Typography } from 'antd';
+import { Typography, Divider } from 'antd';
 import Storing from '@BoxDetail/statusContainer/Storing';
 import Selling from '@BoxDetail/statusContainer/Selling';
 import Auction from '@BoxDetail/statusContainer/Auction';
@@ -15,10 +15,8 @@ import PriceLabel from '@BoxDetail/components/priceLabel';
 import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 import { useCheckDeadline, } from '../hooks/useCheckDeadline';
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import Line from '@/components/base/line';
 import ShareSocial from '@/dapp/components/shareSoical';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
-// import Paragraph from '@/components/base/paragraph';
 
 interface Props {
     tokenId: number|string;
@@ -75,11 +73,8 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
 
     return (
         <div className="w-full space-y-6 md:space-y-8">
-            {/* Status Step */}
-            {/* <div className="w-full"> */}
-            <Typography.Title level={4} className="text-white font-semibold">{status}</Typography.Title>
 
-            {/* </div> */}
+            <Typography.Title level={4} className="text-white font-semibold">{status}</Typography.Title>
             <StatusStep
                 status={status}
                 listedMode={box?.listedMode ?? ''}
@@ -87,9 +82,8 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
                 enableHorizontalScroll={true}
             />
 
-            <Line weight={1} />
+            <Divider />
 
-            {/* Blacklist Warning */}
             {box?.isInBlacklist && (
                 <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
                     <span className="font-medium">Warning:</span> The NFT is in blacklist, can't do anything!
@@ -97,7 +91,6 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             )}
 
 
-            {/* Countdown Timer */}
             {status !== 'Published' && (
                 <>
                     <div className="w-full">
@@ -107,22 +100,20 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
                 </>
             )}
 
-            {/* Price Container */}
                 <PriceLabel status={status} price={price} token={token} />
 
-            {/* Role Container */}
-            {/* <div className="w-full">
+            <div className="w-full">
                 <RoleContainer />
-            </div> */}
+            </div>
 
-            <Line weight={1} />
+            <Divider />
 
             {/* Status Action Buttons */}
             <div className="w-full">
                 {renderStatusButton()}
             </div>
 
-            <Line weight={1} />
+            <Divider />
 
             {/* Additional Features Section */}
             <div className="w-full space-y-4">

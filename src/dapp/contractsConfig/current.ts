@@ -27,6 +27,7 @@ export function useSetCurrentChainConfig() {
     const chainId = useChainId();
     useEffect(() => {
         if (chainId) {
+            console.log('chainId:', chainId);
             const chainConfig = getChainConfig(chainId);
             if (chainConfig) {
                 // if(import.meta.env.DEV) {

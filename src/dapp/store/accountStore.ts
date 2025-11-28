@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { FunctionNameType } from '@/dapp/types/contracts';
+import { FunctionNameType} from '@/dapp/types/contracts';
+import { CHAIN_ID } from '@/dapp/contractsConfig/current';
 
 /**
  * 登录/登出时间记录
@@ -8,7 +9,7 @@ import { FunctionNameType } from '@/dapp/types/contracts';
 export interface LoginRecord {
     loginTime: number;
     logoutTime: number | null;
-    chainId: number;
+    CHAIN_ID: number;
     sessionId: string; // 会话唯一标识
 }
 
@@ -20,7 +21,7 @@ export interface TransactionCache {
     [txHash: string]: {
         data: any;
         timestamp: number;
-        chainId: number;
+        CHAIN_ID: number;
     };
 }
 
@@ -42,7 +43,7 @@ export interface BoxInteractionRecord {
     boxId: string;
     functionName: FunctionNameType;
     timestamp: number;
-    chainId: number;
+    CHAIN_ID: number;
     txHash?: string; // 可选的交易哈希
 }
 
@@ -64,13 +65,12 @@ export interface TokenAllowance {
 
 /**
  * 单个账户在特定链上的完整状态
- * 注意：此状态是针对特定链的，因为外层结构是 accounts[chainId][address]
+ * 注意：此状态是针对特定链的，因为外层结构是 accounts[CHAIN_ID][address]
  */
 export interface AccountState {
     // === 基础信息 ===
     address: string; 
-    chainId: number; // 这个应该移除。
-    
+    userId: string;
     // === 会话管理 ===
     loginHistory: LoginRecord[]; // 登录历史
     currentSessionId: string | null; // 当前会话 ID
@@ -96,13 +96,10 @@ export interface AccountStoreState {
     // 当前活跃账户（安全关键！）
     currentAccount: string | null;
     
-    // 当前链 ID（避免重复传参）
-    currentChainId: number | null;
-    
-    // 所有账户数据：accounts[chainId][address] = AccountState
+    // 所有账户数据：accounts[CHAIN_ID][address] = AccountState
     // 这样的结构让链隔离更清晰，查询效率更高
     accounts: {
-        [chainId: number]: {
+        [CHAIN_ID: number]: {
             [address: string]: AccountState;
         };
     };
@@ -118,17 +115,14 @@ export interface AccountStoreMethods {
     // === 内部方法（不要直接调用）===
     _checkAccess?: (operation: string) => string | null;
     
-    // === 链管理 ===
-    setCurrentChainId: (chainId: number) => void;
-    getCurrentChainId: () => number | null;
-    
     // === 账户管理 ===
     setCurrentAccount: (address: string | null) => void;
-    initAccount: (address: string, chainId?: number) => void;
+    initAccount: (address: string) => void;
     removeAccount: (address: string) => void;
+    setUserId: (userId: string) => void;
     
     // === 会话管理 ===
-    startSession: (chainId: number) => void;
+    startSession: (CHAIN_ID?: number) => void;
     endSession: () => void;
     getLoginHistory: (limit?: number) => LoginRecord[];
     
@@ -137,15 +131,15 @@ export interface AccountStoreMethods {
     getMultiSigInfo: () => MultiSigInfo | null;
     
     // === Box 交互记录 ===
-    addBoxInteraction: (boxId: string, functionName: FunctionNameType, txHash?: string, chainId?: number) => void;
+    addBoxInteraction: (boxId: string, functionName: FunctionNameType, txHash?: string) => void;
     getBoxInteractions: (boxId: string) => BoxInteractionRecord[];
     hasBoxInteraction: (boxId: string, functionName: FunctionNameType) => boolean;
     clearBoxInteractions: (boxId?: string) => void;
     
     // === 交易缓存 ===
-    cacheTx: ( txHash: string, data: any, chainId?: number,) => void;
+    cacheTx: ( txHash: string, data: any) => void;
     getTxCache: (txHash: string) => any | null;
-    clearTxCache: (chainId?: number) => void;
+    clearTxCache: (CHAIN_ID?: number) => void;
     
     // === 安全模式 ===
     setSecurityMode: (mode: 'strict' | 'normal') => void;
@@ -158,9 +152,9 @@ export interface AccountStoreMethods {
 // ==================== 默认值 ====================
 
 
-const createDefaultAccountState = (address: string, chainId: number): AccountState => ({
+const createDefaultAccountState = (address: string, CHAIN_ID: number): AccountState => ({
     address,
-    chainId,
+    userId: '',
     loginHistory: [],
     currentSessionId: null,
     multiSig: null,
@@ -195,7 +189,7 @@ export const useAccountStore = create<AccountStore>()(
         (set, get) => ({
             // === 初始状态 ===
             currentAccount: null,
-            currentChainId: null,
+            CHAIN_ID: null,
             accounts: {},
             securityMode: 'strict',
 
@@ -214,30 +208,21 @@ export const useAccountStore = create<AccountStore>()(
                 return currentAccount;
             },
 
-            // === 链管理 ===
-            setCurrentChainId: (chainId) => {
-                set({ currentChainId: chainId });
-            },
-
-            getCurrentChainId: () => {
-                return get().currentChainId;
-            },
-
             // === 账户管理 ===
             setCurrentAccount: (address) => {
                 set({ currentAccount: address });
                 
                 // 更新最后活跃时间
                 if (address) {
-                    const { accounts, currentChainId } = get();
-                    if (currentChainId && accounts[currentChainId]?.[address]) {
+                    const { accounts } = get();
+                    if (CHAIN_ID && accounts[CHAIN_ID]?.[address]) {
                         set({
                             accounts: {
                                 ...accounts,
-                                [currentChainId]: {
-                                    ...accounts[currentChainId],
+                                [CHAIN_ID]: {
+                                    ...accounts[CHAIN_ID],
                                     [address]: {
-                                        ...accounts[currentChainId][address],
+                                        ...accounts[CHAIN_ID][address],
                                         lastActiveAt: Date.now(),
                                     },
                                 },
@@ -247,69 +232,92 @@ export const useAccountStore = create<AccountStore>()(
                 }
             },
 
-            initAccount: (address, chainId01) => {
+            initAccount: (address) => {
                 const { accounts } = get();
                 
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
+                if (!CHAIN_ID) return;
                 // 确保该链的账户对象存在
-                if (!accounts[chainId]) {
-                    accounts[chainId] = {};
+                if (!accounts[CHAIN_ID]) {
+                    accounts[CHAIN_ID] = {};
                 }
                 
-                if (!accounts[chainId][address]) {
+                if (!accounts[CHAIN_ID][address]) {
                     // 新账户，创建默认状态
-                    const newAccount = createDefaultAccountState(address, chainId);
+                    const newAccount = createDefaultAccountState(address, CHAIN_ID);
                     
                     set({
                         accounts: {
                             ...accounts,
-                            [chainId]: {
-                                ...accounts[chainId],
+                            [CHAIN_ID]: {
+                                ...accounts[CHAIN_ID],
                                 [address]: newAccount,
                             },
                         },
                         currentAccount: address,
-                        currentChainId: chainId,
                     });
                 } else {
                     // 账户已存在，只更新活跃时间
                     set({
                         accounts: {
                             ...accounts,
-                            [chainId]: {
-                                ...accounts[chainId],
+                            [CHAIN_ID]: {
+                                ...accounts[CHAIN_ID],
                                 [address]: {
-                                    ...accounts[chainId][address],
+                                    ...accounts[CHAIN_ID][address],
                                     lastActiveAt: Date.now(),
                                 },
                             },
                         },
                         currentAccount: address,
-                        currentChainId: chainId,
                     });
                 }
             },
 
             removeAccount: (address) => {
-                const { accounts, currentAccount, currentChainId } = get();
+                const { accounts, currentAccount } = get();
                 
-                if (!currentChainId) return;
+                if (!CHAIN_ID) return;
                 
-                const newChainAccounts = { ...accounts[currentChainId] };
+                const newChainAccounts = { ...accounts[CHAIN_ID] };
                 delete newChainAccounts[address];
                 
                 set({
                     accounts: {
                         ...accounts,
-                        [currentChainId]: newChainAccounts,
+                        [CHAIN_ID]: newChainAccounts,
                     },
                     currentAccount: currentAccount === address ? null : currentAccount,
                 });
             },
 
+            setUserId: (userId) => {
+                const address = get()._checkAccess?.('setUserId');
+                if (!address) return;
+                
+                const { accounts } = get();
+                if (!CHAIN_ID) return;
+                
+                const account = accounts[CHAIN_ID]?.[address];
+                if (!account) return;
+
+                set({
+                    accounts: {
+                        ...accounts,
+                        [CHAIN_ID]: {
+                            ...accounts[CHAIN_ID],
+                            [address]: {
+                                ...account,
+                                userId: userId,
+                            },
+                        },
+                    },
+                });
+            },
+
             // === 会话管理 ===
-            startSession: (chainId) => {
+            startSession: (chainId01) => {
+                const chainId = chainId01 ?? CHAIN_ID;
+                if (!chainId) return;
                 const address = get()._checkAccess?.('startSession');
                 if (!address) return;
                 
@@ -322,15 +330,15 @@ export const useAccountStore = create<AccountStore>()(
                 const newRecord: LoginRecord = {
                     loginTime: Date.now(),
                     logoutTime: null,
-                    chainId,
+                    CHAIN_ID: chainId,
                     sessionId,
                 };
                 
                 set({
                     accounts: {
                         ...accounts,
-                        [chainId]: {
-                            ...accounts[chainId],
+                        [CHAIN_ID]: {
+                            ...accounts[CHAIN_ID],
                             [address]: {
                                 ...account,
                                 currentSessionId: sessionId,
@@ -346,10 +354,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('endSession');
                 if (!address) return;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
+                const { accounts } = get();
+                if (!CHAIN_ID) return;
                 
-                const account = accounts[currentChainId]?.[address];
+                const account = accounts[CHAIN_ID]?.[address];
                 if (!account) return;
                 
                 if (account.currentSessionId) {
@@ -362,8 +370,8 @@ export const useAccountStore = create<AccountStore>()(
                     set({
                         accounts: {
                             ...accounts,
-                            [currentChainId]: {
-                                ...accounts[currentChainId],
+                            [CHAIN_ID]: {
+                                ...accounts[CHAIN_ID],
                                 [address]: {
                                     ...account,
                                     currentSessionId: null,
@@ -380,10 +388,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('getLoginHistory');
                 if (!address) return [];
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return [];
+                const { accounts} = get();
+                if (!CHAIN_ID) return [];
                 
-                const history = accounts[currentChainId]?.[address]?.loginHistory || [];
+                const history = accounts[CHAIN_ID]?.[address]?.loginHistory || [];
                 return history.slice(-limit);
             },
 
@@ -392,17 +400,17 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('setMultiSigInfo');
                 if (!address) return;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
+                const { accounts } = get();
+                if (!CHAIN_ID) return;
                 
-                const account = accounts[currentChainId]?.[address];
+                const account = accounts[CHAIN_ID]?.[address];
                 if (!account) return;
                 
                 set({
                     accounts: {
                         ...accounts,
-                        [currentChainId]: {
-                            ...accounts[currentChainId],
+                        [CHAIN_ID]: {
+                            ...accounts[CHAIN_ID],
                             [address]: {
                                 ...account,
                                 multiSig: info,
@@ -416,21 +424,21 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('getMultiSigInfo');
                 if (!address) return null;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return null;
+                const { accounts } = get();
+                if (!CHAIN_ID) return null;
                 
-                return accounts[currentChainId]?.[address]?.multiSig || null;
+                return accounts[CHAIN_ID]?.[address]?.multiSig || null;
             },
 
             // === Box 交互记录 ===
-            addBoxInteraction: (boxId, functionName, txHash, chainId) => {
+            addBoxInteraction: (boxId, functionName, txHash) => {
                 const address = get()._checkAccess?.('addBoxInteraction');
                 if (!address) return;
                 
-                // 如果没有传 chainId，使用当前 chainId
-                const targetChainId = chainId ?? get().currentChainId;
+                // 如果没有传 chainId，使用当前 CHAIN_ID
+                const targetChainId = CHAIN_ID;
                 if (!targetChainId) {
-                    console.warn('[AccountStore] No chainId provided and no current chainId set');
+                    console.warn('[AccountStore] No CHAIN_ID provided and no current CHAIN_ID set');
                     return;
                 }
                 
@@ -442,7 +450,7 @@ export const useAccountStore = create<AccountStore>()(
                     boxId,
                     functionName,
                     timestamp: Date.now(),
-                    chainId: targetChainId,
+                    CHAIN_ID: targetChainId,
                     txHash,
                 };
                 
@@ -472,10 +480,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('getBoxInteractions');
                 if (!address) return [];
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return [];
+                const { accounts} = get();
+                if (!CHAIN_ID) return [];
                 
-                const interactions = accounts[currentChainId]?.[address]?.boxInteractions[boxId] || [];
+                const interactions = accounts[CHAIN_ID]?.[address]?.boxInteractions[boxId] || [];
                 
                 
                 return interactions;
@@ -485,10 +493,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('hasBoxInteraction');
                 if (!address) return false;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return false;
+                const { accounts} = get();
+                if (!CHAIN_ID) return false;
                 
-                const interactions = accounts[currentChainId]?.[address]?.boxInteractions[boxId] || [];
+                const interactions = accounts[CHAIN_ID]?.[address]?.boxInteractions[boxId] || [];
                 const hasInteraction = interactions.some((record: BoxInteractionRecord) => record.functionName === functionName);
                 
                 
@@ -499,10 +507,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('clearBoxInteractions');
                 if (!address) return;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return;
+                const { accounts} = get();
+                if (!CHAIN_ID) return;
                 
-                const account = accounts[currentChainId]?.[address];
+                const account = accounts[CHAIN_ID]?.[address];
                 if (!account) return;
                 
                 if (boxId) {
@@ -513,8 +521,8 @@ export const useAccountStore = create<AccountStore>()(
                     set({
                         accounts: {
                             ...accounts,
-                            [currentChainId]: {
-                                ...accounts[currentChainId],
+                            [CHAIN_ID]: {
+                                ...accounts[CHAIN_ID],
                                 [address]: {
                                     ...account,
                                     boxInteractions: newInteractions,
@@ -527,8 +535,8 @@ export const useAccountStore = create<AccountStore>()(
                     set({
                         accounts: {
                             ...accounts,
-                            [currentChainId]: {
-                                ...accounts[currentChainId],
+                            [CHAIN_ID]: {
+                                ...accounts[CHAIN_ID],
                                 [address]: {
                                     ...account,
                                     boxInteractions: {},
@@ -540,23 +548,21 @@ export const useAccountStore = create<AccountStore>()(
                 }
             },
 
-
             // === 交易缓存 ===
-            cacheTx: (txHash, data, chainId01) => {
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
+            cacheTx: (txHash, data) => {
+                if (!CHAIN_ID) return;
                 const address = get()._checkAccess?.('cacheTx');
                 if (!address) return;
                 
                 const { accounts } = get();
-                const account = accounts[chainId]?.[address];
+                const account = accounts[CHAIN_ID]?.[address];
                 if (!account) return;
                 
                 set({
                     accounts: {
                         ...accounts,
-                        [chainId]: {
-                            ...accounts[chainId],
+                        [CHAIN_ID]: {
+                            ...accounts[CHAIN_ID],
                             [address]: {
                                 ...account,
                                 txCache: {
@@ -564,7 +570,7 @@ export const useAccountStore = create<AccountStore>()(
                                     [txHash]: {
                                         data,
                                         timestamp: Date.now(),
-                                        chainId,
+                                        CHAIN_ID,
                                     },
                                 },
                             },
@@ -577,10 +583,10 @@ export const useAccountStore = create<AccountStore>()(
                 const address = get()._checkAccess?.('getTxCache');
                 if (!address) return null;
                 
-                const { accounts, currentChainId } = get();
-                if (!currentChainId) return null;
+                const { accounts } = get();
+                if (!CHAIN_ID) return null;
                 
-                const cached = accounts[currentChainId]?.[address]?.txCache[txHash];
+                const cached = accounts[CHAIN_ID]?.[address]?.txCache[txHash];
                 
                 // 检查缓存是否过期（5分钟）
                 if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
@@ -591,21 +597,21 @@ export const useAccountStore = create<AccountStore>()(
             },
 
             clearTxCache: (chainId01) => {
-                const chainId = chainId01 ?? get().currentChainId;
-                if (!chainId) return;
+                const CHAIN_ID = chainId01;
+                if (!CHAIN_ID) return;
                 const address = get()._checkAccess?.('clearTxCache');
                 if (!address) return;
                 
-                const targetChainId = chainId ?? get().currentChainId;
+                const targetChainId = CHAIN_ID ;
                 if (!targetChainId) return;
                 
                 const { accounts } = get();
                 const account = accounts[targetChainId]?.[address];
                 if (!account) return;
                 
-                if (chainId !== undefined) {
+                if (CHAIN_ID !== undefined) {
                     const filteredCache = Object.entries(account.txCache)
-                        .filter(([_, value]: [string, any]) => value.chainId !== chainId)
+                        .filter(([_, value]: [string, any]) => value.CHAIN_ID !== CHAIN_ID)
                         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
                     
                     set({
@@ -635,34 +641,6 @@ export const useAccountStore = create<AccountStore>()(
                     });
                 }
             },
-
-            // === 钱包信息 ===
-            // updateWalletInfo: (wallet) => {
-            //     const address = get()._checkAccess?.('updateWalletInfo');
-            //     if (!address) return;
-                
-            //     const { accounts, currentChainId } = get();
-            //     if (!currentChainId) return;
-                
-            //     const account = accounts[currentChainId]?.[address];
-            //     if (!account) return;
-                
-            //     set({
-            //         accounts: {
-            //             ...accounts,
-            //             [currentChainId]: {
-            //                 ...accounts[currentChainId],
-            //                 [address]: {
-            //                     ...account,
-            //                     wallet: {
-            //                         ...account.wallet!,
-            //                         ...wallet,
-            //                     },
-            //                 },
-            //             },
-            //         },
-            //     });
-            // },
 
             // === 安全模式 ===
             setSecurityMode: (mode) => {

@@ -4,14 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { queryBoxDetail_BiddersIds } from '@/dapp/services/supabase/boxDetail';
 import { CHAIN_CONFIG} from '@/dapp/contractsConfig';
 
-/**
- * 查询 Box 的竞标者 ID 列表
- * 
- * @param boxId - Box ID (支持 string、number 或 BigInt)
- * @param listedMode - 列表模式，只有 'Auctioning' 时才查询
- * @param enabled - 是否启用查询（默认 true）
- * @returns 竞标者 ID 列表和加载状态
- */
 export const useBoxBidders = (
     boxId: string,
     listedMode: string,

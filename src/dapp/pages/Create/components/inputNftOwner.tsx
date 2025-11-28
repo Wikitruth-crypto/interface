@@ -2,7 +2,7 @@ import React from 'react';
 import { useAddressInput } from '../hooks/Input/useAddressInput';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { cn } from '@/lib/utils';
-import InputText from '@/dapp/components/base/inputBox';
+import { Input } from 'antd';
 
 interface InputNftOwnerProps {
     className?: string;
@@ -21,9 +21,9 @@ export const InputNftOwner: React.FC<InputNftOwnerProps> = ({ className }) => {
             </p>
             <div className="flex items-center w-full">
                 <div className="w-full">
-                    <InputText
+                    <Input
                         value={inputValue}
-                        onChange={handleTypeChange}
+                        onChange={(e) => handleTypeChange(e.target.value)}
                         onBlur={handleBlur} 
                         maxLength={42}
                         placeholder={`Current address: ${address || '0x...'}`}

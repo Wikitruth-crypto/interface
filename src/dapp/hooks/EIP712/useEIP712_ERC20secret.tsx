@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useSignTypedData, useChainId, useAccount} from 'wagmi';
+import { useSignTypedData} from 'wagmi';
 import { type Hex } from 'viem';
 import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { 

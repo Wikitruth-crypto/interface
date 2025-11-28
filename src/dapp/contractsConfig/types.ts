@@ -5,7 +5,7 @@ import { Abi } from 'viem';
  */
 export enum SupportedChainId {
   SAPPHIRE_TESTNET = 23295,
-  SAPPHIRE_MAINNET = 23293,
+  SAPPHIRE_MAINNET = 23294,
 }
 
 /**

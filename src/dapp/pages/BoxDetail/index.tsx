@@ -5,6 +5,7 @@ import ContentRight from './containers/right';
 import { Container } from '@/components/Container';
 import { BoxDetailProvider } from './contexts/BoxDetailContext';
 import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
+import UserIdAlert from '@/dapp/components/userIdAlert';
 
 const BoxDetail: React.FC = () => {
     const { tokenId } = useParams<{ tokenId: string }>();
@@ -15,10 +16,12 @@ const BoxDetail: React.FC = () => {
             <Container className="py-8 md:py-12 lg:py-16">
                 {/* Hero Section */}
                 <div className="text-center mb-8 md:mb-12">
-                    <h2 className="text-lg font-mono md:text-xl lg:text-2xl font-semibold text-foreground mb-4">
+                    <h2 className="text-md font-mono md:text-lg lg:text-xl font-semibold text-foreground mb-4">
                         Only criminals fear the truth being revealed!
                     </h2>
                 </div>
+
+                <UserIdAlert />
 
                 {/* Main Content */}
                 <div className="bg-muted/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 lg:p-12">

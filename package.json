@@ -23,8 +23,6 @@
     "@radix-ui/react-icons": "^1.3.2",
     "@react-three/drei": "^10.5.1",
     "@react-three/fiber": "^9.2.0",
-    "@reown/appkit": "^1.8.13",
-    "@reown/appkit-adapter-wagmi": "^1.8.13",
     "@supabase/supabase-js": "^2.84.0",
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-query-devtools": "^5.81.2",

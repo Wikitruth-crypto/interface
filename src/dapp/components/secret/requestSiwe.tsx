@@ -5,12 +5,12 @@ import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 const { Paragraph } = Typography;
 
 export interface RequestSiweProps {
-    className?: string;
     title?: string;
     hint?: string;
     buttonText?: string;
     expiredText?: string;
     onComplete?: () => void;
+    className?: string;
 }
 
 export const RequestSiwe: React.FC<RequestSiweProps> = ({

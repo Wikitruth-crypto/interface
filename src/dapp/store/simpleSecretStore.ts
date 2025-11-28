@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { EIP712Permit, PermitType } from '@/dapp/hooks/EIP712';
 import type { SessionInfo } from '@/dapp/hooks/SiweAuth/types';
 import { useAccountStore } from './accountStore';
+import { CHAIN_ID } from '@/dapp/contractsConfig';
 
 type PermitBySpender = Record<string, EIP712Permit>;
 
@@ -67,8 +68,8 @@ const createEmptySession = (): SessionInfo => ({
 });
 
 const resolveContext = (chainId?: number, address?: string) => {
-  const { currentAccount, currentChainId } = useAccountStore.getState();
-  const resolvedChainId = chainId ?? currentChainId ?? undefined;
+  const { currentAccount} = useAccountStore.getState();
+  const resolvedChainId = chainId ?? CHAIN_ID ?? undefined;
   const resolvedAddress = address ?? currentAccount ?? undefined;
 
   if (resolvedChainId === undefined || !resolvedAddress) {
@@ -245,12 +246,12 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
       chainEntry[context.address] = normalizedSession;
       sessionsClone[context.chainId] = chainEntry;
 
-      const { currentAccount, currentChainId } = useAccountStore.getState();
+      const { currentAccount} = useAccountStore.getState();
       const shouldUpdateCurrent =
         currentAccount &&
-        currentChainId !== null &&
-        currentChainId !== undefined &&
-        currentChainId === context.chainId &&
+        CHAIN_ID !== null &&
+        CHAIN_ID !== undefined &&
+        CHAIN_ID === context.chainId &&
         currentAccount.toLowerCase() === context.address;
 
       return {
@@ -293,12 +294,12 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
         sessionsClone[context.chainId] = updatedChain;
       }
 
-      const { currentAccount, currentChainId } = useAccountStore.getState();
+      const { currentAccount } = useAccountStore.getState();
       const isCurrent =
         currentAccount &&
-        currentChainId !== null &&
-        currentChainId !== undefined &&
-        currentChainId === context.chainId &&
+        CHAIN_ID !== null &&
+        CHAIN_ID !== undefined &&
+        CHAIN_ID === context.chainId &&
         currentAccount.toLowerCase() === context.address;
 
       return {
@@ -419,12 +420,12 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
         }
       }
 
-      const { currentAccount, currentChainId } = useAccountStore.getState();
+      const { currentAccount} = useAccountStore.getState();
       const shouldResetSession =
         currentAccount &&
-        currentChainId !== null &&
-        currentChainId !== undefined &&
-        currentChainId === context.chainId &&
+        CHAIN_ID !== null &&
+        CHAIN_ID !== undefined &&
+        CHAIN_ID === context.chainId &&
         currentAccount.toLowerCase() === context.address;
 
       return {

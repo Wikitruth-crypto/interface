@@ -10,28 +10,6 @@ import { useEffect } from 'react';
  * - 自动初始化新账户
  * - 自动管理会话生命周期
  * - 确保账户数据的安全访问
- * 
- * 使用场景：
- * 1. 在应用的顶层组件（如 App.tsx）中调用，自动管理全局账户状态
- * 2. 在需要访问当前账户信息的组件中使用
- * 
- * @example
- * ```tsx
- * // 在 App.tsx 中
- * function App() {
- *   useSecureAccount(); // 自动管理账户状态
- *   
- *   return <YourApp />;
- * }
- * 
- * // 在子组件中使用 Store
- * function MyComponent() {
- *   const chainId = useChainId();
- *   const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
- *   const permit = getEip712Permit(PermitType.VIEW, someSpenderAddress, chainId);
- *   // ...
- * }
- * ```
  */
 export const useSecureAccount = () => {
     const { address, isConnected, connector } = useAccount();
@@ -40,18 +18,10 @@ export const useSecureAccount = () => {
     const {
         currentAccount,
         setCurrentAccount,
-        setCurrentChainId,
         initAccount,
         endSession,
         startSession,
     } = useAccountStore();
-
-    // 监听链 ID 变化，自动同步到 Store
-    useEffect(() => {
-        if (chainId) {
-            setCurrentChainId(chainId);
-        }
-    }, [chainId, setCurrentChainId]);
 
     // 监听账户变化
     useEffect(() => {
@@ -66,7 +36,7 @@ export const useSecureAccount = () => {
                 }
                 
                 // 初始化新账户
-                initAccount(address, chainId);
+                initAccount(address);
                 
                 // 开始新会话
                 startSession(chainId);

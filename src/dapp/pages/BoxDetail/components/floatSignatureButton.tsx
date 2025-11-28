@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import FloatSignatureButton from '@/dapp/components/floatSignatureButton';
 import type { Eip712Requirement } from '@/dapp/components/secret/requestEip712';
 import { PermitType } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
+import { useEIP712Permit } from '@/dapp/hooks/EIP712';
+import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
+import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
+import { useChainId } from 'wagmi';
 
 /**
  * 悬浮签名按钮组件
@@ -13,14 +17,147 @@ import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
  * - 点击按钮显示/隐藏签名组件（EIP712 和/或 SIWE）
  * - 签名组件固定在右侧显示
  * - 支持同时显示多个签名请求
+ * 
+ * 流程：检查当前是否存在有效签名，如果存在，则不显示按钮，如果不存在，则显示按钮
+ * 
  */
 const FloatSignatureButtonBoxDetail: React.FC = () => {
-
-    const [eip712Completed, setEip712Completed] = useState(false);
-    const [siweCompleted, setSiweCompleted] = useState(false);
+    const { isExpired } = useEIP712Permit();
+    const { session, validateSession } = useSiweAuth();
+    const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
+    
+    const [isValidEIP712, setIsValidEIP712] = useState(false);
+    const [isValidSIWE, setIsValidSIWE] = useState(false);
+    const [isChecking, setIsChecking] = useState(false);
 
     const allConfigs = useAllContractConfigs();
     const { address } = useWalletContext();
+    const chainId = useChainId();
+
+    /**
+     * 检查 EIP712 Permit 是否有效
+     */
+    const checkEIP712Permit = useCallback((): boolean => {
+        if (!address || !chainId) {
+            return false;
+        }
+
+        try {
+            const permit = getEip712Permit(
+                PermitType.VIEW,
+                allConfigs.FundManager.address,
+                chainId,
+                address
+            );
+
+            if (!permit) {
+                return false;
+            }
+
+            // 检查是否过期
+            return !isExpired(permit);
+        } catch (error) {
+            console.error('[FloatSignatureButton] 检查 EIP712 permit 失败:', error);
+            return false;
+        }
+    }, [address, chainId, allConfigs.FundManager.address, getEip712Permit, isExpired]);
+
+    /**
+     * 检查 SIWE Session 是否有效
+     */
+    const checkSiweSession = useCallback(async (): Promise<boolean> => {
+        if (!address) {
+            return false;
+        }
+
+        try {
+            // 先检查本地状态
+            if (!session.isLoggedIn || !session.token) {
+                return false;
+            }
+
+            // 检查过期时间
+            if (session.expiresAt && session.expiresAt < new Date()) {
+                return false;
+            }
+
+            // 验证会话（调用合约验证）
+            const isValid = await validateSession();
+            return isValid;
+        } catch (error) {
+            console.error('[FloatSignatureButton] 检查 SIWE session 失败:', error);
+            return false;
+        }
+    }, [address, session, validateSession]);
+
+    /**
+     * 执行签名有效性检查
+     */
+    const performCheck = useCallback(async () => {
+        if (!address || isChecking) {
+            return;
+        }
+
+        setIsChecking(true);
+
+        try {
+            // 检查 EIP712 Permit
+            const eip712Valid = checkEIP712Permit();
+            setIsValidEIP712(eip712Valid);
+
+            // 检查 SIWE Session
+            const siweValid = await checkSiweSession();
+            setIsValidSIWE(siweValid);
+
+            if (import.meta.env.DEV) {
+                console.log('[FloatSignatureButton] 签名检查结果:', {
+                    eip712: eip712Valid,
+                    siwe: siweValid,
+                    shouldShow: !eip712Valid || !siweValid
+                });
+            }
+        } catch (error) {
+            console.error('[FloatSignatureButton] 签名检查失败:', error);
+            // 出错时显示按钮，让用户手动处理
+            setIsValidEIP712(false);
+            setIsValidSIWE(false);
+        } finally {
+            setIsChecking(false);
+        }
+    }, [address, isChecking, checkEIP712Permit, checkSiweSession]);
+
+    /**
+     * 每5秒检查一次签名有效性
+     */
+    useEffect(() => {
+        if (!address) {
+            setIsValidEIP712(false);
+            setIsValidSIWE(false);
+            return;
+        }
+
+        // 立即执行一次检查
+        void performCheck();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [address, chainId]); 
+
+    /**
+     * 当签名完成时，立即检查一次
+     */
+    const handleEip712Complete = useCallback(() => {
+        // 延迟一点时间，确保签名已保存到 store
+        setTimeout(() => {
+            performCheck();
+        }, 500);
+    }, [performCheck]);
+
+    const handleSiweComplete = useCallback(() => {
+        // 延迟一点时间，确保会话已保存
+        setTimeout(() => {
+            performCheck();
+        }, 500);
+    }, [performCheck]);
 
     if (!address) return null;
 
@@ -31,32 +168,20 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
         contractAddress: allConfigs.OfficialTokenSecret.address,
     };
 
-    const handleEip712Complete = () => {
-        setEip712Completed(true);
-    };
-
-    const handleSiweComplete = () => {
-        setSiweCompleted(true);
-    };
-
+    // 如果两个签名都有效，不显示按钮
+    // 如果任一签名无效或不存在，显示按钮
+    const shouldShowButton = !isValidEIP712 || !isValidSIWE;
 
     return (
-        <>{
-            (!eip712Completed || !siweCompleted) && (
-            <FloatSignatureButton
-                eip712Requirement={eip712Requirement}
-                needSiwe={true}
-                address={address as `0x${string}` || ''}
-                // eip712Title={eip712Title}
-                // eip712Hint={eip712Hint}
-                // siweTitle={siweTitle}
-                // siweHint={siweHint}
-                // siweButtonText={siweButtonText}
-                // siweExpiredText={siweExpiredText}
-                onEip712Complete={handleEip712Complete}
-                onSiweComplete={handleSiweComplete}
-            />
-        )}
+        <>
+            {shouldShowButton && (
+                <FloatSignatureButton
+                    eip712Requirement={eip712Requirement}
+                    needSiwe={true}
+                    onEip712Complete={handleEip712Complete}
+                    onSiweComplete={handleSiweComplete}
+                />
+            )}
         </>
     );
 };

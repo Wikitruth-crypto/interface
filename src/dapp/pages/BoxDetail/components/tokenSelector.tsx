@@ -2,7 +2,6 @@
 import CommonSelect, { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { useEffect, useState } from 'react';
-// import { useBoxDetailStore } from '@BoxDetail/store/nftDetailStore';
 
 interface TokenSelectorProps {
     onChange: (token: CommonSelectOption | null) => void;
@@ -10,7 +9,6 @@ interface TokenSelectorProps {
 
 const TokenSelector: React.FC<TokenSelectorProps> = ({ onChange }) => {
     const supportedTokens = useSupportedTokens();
-    // const updateToken = useBoxDetailStore(state => state.);
     const [value, setValue] = useState<CommonSelectOption|null>(null)
     const options: CommonSelectOption[] = supportedTokens.map(token => ({
         // icon: '/token/usdt.png',

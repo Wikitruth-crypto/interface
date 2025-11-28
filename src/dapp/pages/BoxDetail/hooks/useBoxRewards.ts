@@ -11,13 +11,6 @@ import { queryBoxDetail_BoxRewardsData } from '@/dapp/services/supabase/boxDetai
 import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 import type { BoxRewardData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
-/**
- * 查询 Box 的奖励数据
- * 
- * @param boxId - Box ID (支持 string、number 或 BigInt)
- * @param enabled - 是否启用查询（默认 true）
- * @returns Box 奖励数据列表和加载状态
- */
 export const useBoxRewards = (
     boxId: string,
     enabled: boolean = true

@@ -2,7 +2,7 @@
  * React Hooks - 用于在组件中获取合约配置
  */
 
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 // import { usePublicClient, } from 'wagmi';
 // import { useWalletContext } from '../context/useAccount/WalletContext';
 import {

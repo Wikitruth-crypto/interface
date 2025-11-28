@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import type { BoxDetailData } from '../types/boxDetailData';
 import { useBoxAndMetadata } from '@/dapp/pages/BoxDetail/hooks/useBoxAndMetadata';
 import { useBoxRewards } from '../hooks/useBoxRewards';
@@ -9,6 +9,7 @@ import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import type { BoxRewardData, BoxUserOrderAmountData } from '../types/boxDetailData';
+import { CHAIN_ID } from '@/dapp/contractsConfig';
 
 interface BoxDetailContextType {
   // 基础数据（默认查询 - 必须）
@@ -54,25 +55,24 @@ export const BoxDetailProvider: React.FC<{
   
   // ==================== 获取用户信息（用于条件查询） ====================
   // 获取 userId，用于 orderAmounts 查询
-  // 注意：userId 可能会变化，所以需要监听变化
+  // 注意：Zustand 的 selector 会自动监听变化，无需额外的 useEffect
   const { address } = useWalletContext() || {};
-  const userId = useAccountStore((state) => {
-    // 从 accountStore 获取 userId
-    // 这里需要根据实际的 accountStore 实现来获取 userId
-    // 如果 accountStore 中没有 userId，可能需要通过合约调用获取
-    // 暂时返回 null，需要根据实际实现调整
-    if (!address || !state.currentChainId) {
-      return null;
-    }
-    // TODO: 从 accountStore 或通过合约调用获取 userId
-    return null;
-  });
   
+  // 使用 selector 监听 userId 变化
+  // 当 userId 变化时，这个值会自动更新，从而触发 React Query 重新查询
+  const userId = useAccountStore((state) => {
+    if (!address || !CHAIN_ID) {
+      return null; // 返回 null 而不是空字符串，便于判断
+    }
+    const userIdValue = state.accounts[CHAIN_ID]?.[address.toLowerCase()]?.userId;
+    // 如果 userId 存在且不为空字符串，则返回；否则返回 null
+    return userIdValue && userIdValue.trim() !== '' ? userIdValue : null;
+  });
+
   // ==================== 条件查询 ====================
   
   // 1. 奖励数据查询（根据需求决定是否查询，这里默认查询）
-  // 如果需要根据条件查询，可以添加 enabled 参数控制
-  const shouldQueryRewards = !!boxId; // 可以根据需求调整条件
+  const shouldQueryRewards = !!boxId;
   const { 
     boxRewardsData, 
     isLoading: isLoadingRewards 
@@ -91,7 +91,9 @@ export const BoxDetailProvider: React.FC<{
   );
   
   // 3. 用户订单金额数据查询（需要 userId 和 acceptedToken，监听 userId 变化）
-  // 注意：当 userId 变化时，React Query 会自动重新查询（因为 userId 在 queryKey 中）
+  // 关键点：
+  // - userId 在 queryKey 中，所以当 userId 变化时，React Query 会自动重新查询
+  // - enabled 参数控制是否查询，只有当所有条件满足时才查询
   const acceptedToken = box?.acceptedToken || '';
   const shouldQueryOrderAmounts = !!boxId && !!userId && !!acceptedToken;
   const { 
@@ -99,13 +101,12 @@ export const BoxDetailProvider: React.FC<{
     isLoading: isLoadingOrderAmounts 
   } = useBoxOrderAmounts(
     boxId,
-    userId || '', // 当 userId 为 null 时传入空字符串，hook 内部会通过 enabled 控制不查询
+    userId || '', // 当 userId 为 null 时传入空字符串
     acceptedToken,
     shouldQueryOrderAmounts // 只有当所有条件满足时才查询
   );
   
   // ==================== Context Value ====================
-  // 使用 useMemo 优化性能，只有当依赖项变化时才重新创建
   const contextValue = useMemo(() => ({
     // 基础数据
     box,

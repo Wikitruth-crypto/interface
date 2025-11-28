@@ -50,6 +50,8 @@ export interface SiweNetworkConfig {
  * 登录结果
  */
 export interface LoginResult {
+    /** 会话信息 */
+    sessionInfo: SessionInfo;
     /** 认证 token（加密的） */
     token: string;
     /** SIWE 消息 */
@@ -75,17 +77,11 @@ export interface SessionInfo {
 }
 
 /**
- * Hook 返回值
+ * 基础 Hook 返回值（仅包含登录相关功能）
  */
-export interface UseSiweAuthResult {
+export interface UseSiweAuthBaseResult {
     /** 登录（生成消息、签名、获取token） */
     login: (params?: Partial<SiweMessageParams>) => Promise<LoginResult | null>;
-    /** 登出（清除本地 token） */
-    logout: () => void;
-    /** 验证会话是否有效 */
-    validateSession: () => Promise<boolean>;
-    /** 会话信息 */
-    session: SessionInfo;
     /** 是否正在处理 */
     isLoading: boolean;
     /** 错误信息 */
@@ -93,4 +89,5 @@ export interface UseSiweAuthResult {
     /** 重置状态 */
     reset: () => void;
 }
+
 

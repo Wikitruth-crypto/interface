@@ -79,7 +79,7 @@ const StatusStep: React.FC<StatusStepProps> = ({
     };
 
     const statusOptions: StatusType[] = [
-        'Storing', 'Selling', 'Auctioning', 'Waiting',
+        'Storing', 'Selling', 'Auctioning',
         'Paid', 'Refunding', 'InSecrecy', 'Published'
     ];
 

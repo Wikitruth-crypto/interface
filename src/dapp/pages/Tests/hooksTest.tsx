@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { Button, Card } from 'antd';
+import { 
+    Button, 
+    Card,
+} from 'antd';
 import { useReadContract } from '@dapp/hooks/readContracts/useReadContract';
 import { useWriteCustorm } from '@/dapp/hooks/useWritCustorm';
 import {
@@ -14,6 +17,7 @@ import { useReadAllowance } from '@/dapp/hooks/readContracts/token/useReadAllowa
 import { RequestEip712 } from '@/dapp/components/secret/requestEip712';
 import { RequestSiwe } from '@/dapp/components/secret/requestSiwe';
 import { PermitType } from '@/dapp/hooks/EIP712/types_ERC20secret';
+import UserIdAlert from '@/dapp/components/userIdAlert';
 
 const HooksTest = () => {
 
@@ -68,6 +72,7 @@ const HooksTest = () => {
 
     return (
         <div className="w-2xl flex flex-col items-center justify-center">
+            <UserIdAlert />
             <Card title="HooksTest">
                 <div className="flex flex-col items-center justify-center">
                     <Button onClick={testReadAllowance}>Test readAllowance</Button>

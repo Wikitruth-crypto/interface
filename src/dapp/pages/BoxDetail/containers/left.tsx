@@ -2,7 +2,7 @@
 import React from 'react';
 import ImageSwiper from '@/dapp/components/imageSwiper';
 import Paragraph from '@/components/base/paragraph';
-import Line from '@/components/base/line';
+import { Divider } from 'antd';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
@@ -50,7 +50,7 @@ const ContentLeft: React.FC<Props> = ({ tokenId }) => {
                     <span>{metadataBox?.createDate}</span>
                 </div>
             </div>
-            <Line weight={1} />
+            <Divider />
 
             {/* Image Swiper */}
             <div className="w-full bg-black rounded-xl md:rounded-2xl overflow-hidden">
@@ -89,7 +89,7 @@ const ContentLeft: React.FC<Props> = ({ tokenId }) => {
                     {metadataBox?.eventDate}
                 </div>
             </div>
-            <Line weight={1} />
+            <Divider />
             {/* Description */}
             <div className="space-y-3">
                 <div className="text-sm md:text-base font-mono text-muted-foreground leading-relaxed break-words">

@@ -1,8 +1,7 @@
 import React from 'react';
-import InputText from '@/dapp/components/base/inputBox';
 import { useFormInputWithLimit } from '../hooks/Input/useFormInput';
 import { cn } from '@/lib/utils';
-
+import { Input } from 'antd';
 interface InputTypeOfCrimeProps {
     className?: string;
 }
@@ -23,8 +22,8 @@ export const InputTypeOfCrime: React.FC<InputTypeOfCrimeProps> = ({ className })
         <div className={cn("flex flex-col w-full space-y-2", className)}>
             <div className="font-mono text-sm">Crime Event Type:</div>
             <div className="flex flex-col md:flex-row w-full gap-2">
-                <InputText
-                    onChange={handleSanitizedChange}
+                <Input
+                    onChange={(e) => handleSanitizedChange(e.target.value)}
                     onBlur={handleBlur}
                     value={String(inputValue)}
                     placeholder="Please input the type of crime"

@@ -5,7 +5,6 @@ import { Button } from 'antd';
 import Line from '@/components/base/line';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import { useUpdateNft_array } from '@dapp/hooks/useUpdateNft_array';
 // interface Props {
@@ -25,7 +24,6 @@ const AdminFunction = () => {
     useEffect(() => {
         if (isSuccessed) {
             setActiveButton(null);
-            // updateNft_array([nftDetail.tokenId])
         } else if (error || isPending) {
             setActiveButton(null);
         }

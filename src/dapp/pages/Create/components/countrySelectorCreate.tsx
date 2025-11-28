@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react';
 import { useCreateForm } from '../context/CreateFormContext';
-import CountrySelector, { CountryStateSelection } from '@/dapp/components/countrySelector/countrySelector';
+import CountrySelector, { CountryStateSelection } from '@/dapp/components/countrySelector/countrySelector2';
 import { cn } from '@/lib/utils';
 
 interface CountrySelectorCreateProps {

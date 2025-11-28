@@ -1,5 +1,7 @@
 # EIP712 签名 Hook
 
+注意：此签名仅用于wikitrut项目中的 ERC20_secret 相关的代币合约
+
 ## 快速开始
 
 ```typescript
