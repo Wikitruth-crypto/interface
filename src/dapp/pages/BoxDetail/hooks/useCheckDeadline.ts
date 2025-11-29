@@ -1,53 +1,36 @@
-import { useEffect } from 'react';
-import { useBoxDetailStore } from '../store/boxDetailStore';
-import { usePeriodRate } from '@dapp/constants/periodRate';
-import { useBoxDetailContext } from '../contexts/BoxDetailContext';
+import type { BoxDetailData } from '../types/boxDetailData';
 
-export const useCheckDeadline = () => {
-    const { updateDeadlineCheckState } = useBoxDetailStore();
-    const { box } = useBoxDetailContext();
-    const periodRate = usePeriodRate();
+export const useCheckDeadline = (box: BoxDetailData) => {
 
-    const checkDeadline = () => {
-
-        if (!box || !periodRate) {
-            return;
-        }
-
-        const {
-            deadline,
-            requestRefundDeadline,
-            reviewDeadline,
-        } = box;
-
-        let isOverDeadline = false;
-        let inRequestRefundPeriod = true;
-        let inReviewRefundPeriod = true;
-
-        const now = Math.floor(Date.now()/1000);
-
-        if (deadline) {
-            isOverDeadline = Number(deadline) < now;
-        }
-        if (requestRefundDeadline) {
-            inRequestRefundPeriod = Number(requestRefundDeadline) > now;
-        }
-        if (reviewDeadline) {
-            inReviewRefundPeriod = Number(reviewDeadline) > now;
-        }
-
-        updateDeadlineCheckState({
-            inRequestRefundPeriod: inRequestRefundPeriod,
-            requestRefundDeadline: Number(requestRefundDeadline),
-            inReviewRefundPeriod: inReviewRefundPeriod,
-            reviewRefundDeadline: Number(reviewDeadline),
-            isOverDeadline: isOverDeadline,
-        });
+    if (!box) {
+        return;
     }
 
-    useEffect(() => {
-        checkDeadline();
-    }, [box, periodRate]);
+    const {
+        deadline,
+        requestRefundDeadline,
+        reviewDeadline,
+    } = box;
 
-    return {};
-};
+    let isInDeadline = false;
+    let isInRequestRefundPeriod = true;
+    let isInReviewRefundPeriod = true;
+
+    const now = Math.floor(Date.now() / 1000);
+
+    if (deadline) {
+        isInDeadline = Number(deadline) > now;
+    }
+    if (requestRefundDeadline) {
+        isInRequestRefundPeriod = Number(requestRefundDeadline) > now;
+    }
+    if (reviewDeadline) {
+        isInReviewRefundPeriod = Number(reviewDeadline) > now;
+    }
+
+    return {
+        isInRequestRefundPeriod: isInRequestRefundPeriod,
+        isInReviewRefundPeriod: isInReviewRefundPeriod,
+        isInDeadline: isInDeadline,
+    };
+}

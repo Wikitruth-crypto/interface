@@ -48,3 +48,18 @@ export interface BoxUserOrderAmountData {
     token: string;
     amount: string;
 }
+
+
+export interface DeadlineCheckStateType {
+    isInRequestRefundDeadline: boolean,
+    isInReviewRefundDeadline: boolean,
+    isInDeadline: boolean,
+    completeOrderDeadline: number,
+}
+
+// const initialDeadlineCheckState: DeadlineCheckStateType = {
+//     isInRequestRefundDeadline: true,
+//     isInReviewRefundDeadline: true,
+//     isInDeadline: false,
+//     completeOrderDeadline: 0,
+// }

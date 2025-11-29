@@ -1,6 +1,9 @@
 
 import React, { createContext, useContext, useMemo, useEffect } from 'react';
-import type { BoxDetailData } from '../types/boxDetailData';
+import type { 
+  BoxDetailData, 
+  DeadlineCheckStateType 
+} from '../types/boxDetailData';
 import { useBoxAndMetadata } from '@/dapp/pages/BoxDetail/hooks/useBoxAndMetadata';
 import { useBoxRewards } from '../hooks/useBoxRewards';
 import { useBoxBidders } from '../hooks/useBoxBidders';
@@ -17,6 +20,9 @@ interface BoxDetailContextType {
   boxId: string;
   metadataBox: MetadataBoxType | undefined;
   isLoading: boolean;
+
+  // 截止时间检查状态
+  // deadlineCheckState: DeadlineCheckStateType;
   
   // 奖励数据（按需查询 - 根据条件启用）
   boxRewardsData: BoxRewardData[] | undefined;
@@ -52,7 +58,8 @@ export const BoxDetailProvider: React.FC<{
     metadataBox, 
     isLoading: isLoadingBase 
   } = useBoxAndMetadata(boxId);
-  
+
+
   // ==================== 获取用户信息（用于条件查询） ====================
   // 获取 userId，用于 orderAmounts 查询
   // 注意：Zustand 的 selector 会自动监听变化，无需额外的 useEffect
@@ -123,7 +130,7 @@ export const BoxDetailProvider: React.FC<{
     boxId,
     metadataBox,
     isLoading: isLoadingBase || !box,
-    
+
     // 奖励数据
     boxRewardsData,
     isLoadingRewards,

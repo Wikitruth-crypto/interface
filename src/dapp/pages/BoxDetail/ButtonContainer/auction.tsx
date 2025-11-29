@@ -6,6 +6,8 @@ import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionSto
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { usePeriodRate } from '@dapp/constants/periodRate';
 import Paragraph from '@/components/base/paragraph';
+import { boxActionConfigs } from '../actions/configs';
+import { useBoxActionController } from '../hooks/useBoxActionController';
 
 interface Props {
   onClick?: () => void;
@@ -15,6 +17,7 @@ interface Props {
 const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { currentActionFunction } = useButtonInteractionStore();
+  const controller = useBoxActionController(boxActionConfigs.auction);
   
   const { auctioningTime } = usePeriodRate();
 
@@ -39,7 +42,7 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
         <Paragraph color="muted-foreground" size="sm">
           Start the auction, the initial auction period is {auctioningTime / 24 / 3600} days.
         </Paragraph>
-        {modalOpen && <ModalSellAuction onClose={closeModal} listedMode='Auction' />}
+        {modalOpen && <ModalSellAuction onClose={closeModal} listedMode='Auction' controller={controller} />}
       </div>
     </div>
   );

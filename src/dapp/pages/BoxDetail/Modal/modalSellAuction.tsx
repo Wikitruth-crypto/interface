@@ -1,114 +1,77 @@
-"use client"
-import {
-    Modal,
-    InputNumber,
-} from 'antd';
+﻿"use client"
+import { Modal, InputNumber, message } from 'antd';
 import { parseUnits } from 'viem';
-import {
-    useState,
-    useEffect,
-} from 'react';
-// import InputText from '@dapp/components/InputBox';
-import { useAllContractConfigs, useSupportedTokens } from '@/dapp/contractsConfig';
+import { useState, useEffect, useMemo } from 'react';
+import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
-import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import Paragraph from '@/components/base/paragraph';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import type { BoxActionController } from '../actions/types';
+
 interface Props {
     listedMode: 'Sell' | 'Auction';
+    controller: BoxActionController;
     onClose: () => void;
 }
 
-const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
-    const { address } = useWalletContext();
+const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) => {
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
-    const allConfigs = useAllContractConfigs();
     const supportedTokens = useSupportedTokens();
     const { roles } = useBoxDetailStore(state => state.userState);
-    const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
     const { boxId, box } = useBoxDetailContext();
-    const [cancelAble, setCancelAble] = useState<boolean>(false)
-    const [okAble, setOkAble] = useState<boolean>(false)
-    const [buttonText, setButtonText] = useState<string>('Submit')
 
-    const [price, setPrice] = useState<string>('0')
     const officeToken = supportedTokens[0];
-    const [accpetTokenAddress, setAccpetTokenAddress] = useState<string>(supportedTokens[0].address)
-    
-    const [decimals, setDecimals] = useState<number>(supportedTokens[0].decimals)
+    const defaultToken = (box?.acceptedToken as `0x${string}` | undefined) || officeToken?.address || '0x0000000000000000000000000000000000000000';
+    const defaultDecimals = useMemo(() => {
+        const found = supportedTokens.find(token => token.address === box?.acceptedToken);
+        return found?.decimals ?? officeToken?.decimals ?? 18;
+    }, [supportedTokens, box?.acceptedToken, officeToken?.decimals]);
+
+    const [price, setPrice] = useState<string>('');
+    const [accpetTokenAddress, setAccpetTokenAddress] = useState<string>(defaultToken);
+    const [decimals, setDecimals] = useState<number>(defaultDecimals);
 
     useEffect(() => {
         updateModalStatus('SellAuction', 'open');
     }, []);
 
-    useEffect(() => {
-        if (isSuccessed) {
-            setCancelAble(true)
-            setOkAble(false)
-            setButtonText('Success')
-        } else if (isPending) {
-            setCancelAble(true)
-            setOkAble(true)
-            setButtonText('wait...')
-        } else if (error) {
-            setCancelAble(false)
-            setOkAble(false)
-            setButtonText('Submit')
-        }
-    }, [error, isPending, isSuccessed])
-
     const handleSell = async () => {
-        if (buttonText === 'Success') {
-            onClose()
-            return;
-        }
+        if (!box) return;
 
-        console.log("price:", price)
-        console.log("accpetTokenAddress:", accpetTokenAddress)
-        console.log("decimals:", decimals)
-        console.log("listedMode:", listedMode)
+        let tokenAddress = accpetTokenAddress as `0x${string}`;
+        let priceBigInt: bigint;
 
-        if (accpetTokenAddress) {
-            let priceBigInt: bigint = BigInt(0);
-            if (Number(price) > 0) {
-                priceBigInt = parseUnits(price, decimals);
+        if (roles.includes('Minter')) {
+            if (!accpetTokenAddress) {
+                message.error('Token is required');
+                return;
             }
-            if (listedMode === 'Sell') {
-                await write_BoxDetail({
-                    contract: allConfigs.Exchange,
-                    functionName: 'sell',
-                    args: [boxId, accpetTokenAddress, priceBigInt],
-                });
-            } else if (listedMode === 'Auction') {
-                await write_BoxDetail({
-                    contract: allConfigs.Exchange,
-                    functionName: 'auction',
-                    args: [boxId, accpetTokenAddress, priceBigInt],
-                });
-            }
-
+            priceBigInt = price && Number(price) > 0 ? parseUnits(price, decimals) : BigInt(0);
         } else {
-            alert("Empty data!")
+            tokenAddress = box.acceptedToken as `0x${string}`;
+            priceBigInt = BigInt(box.price || 0);
         }
 
-    }
+        await controller.execute({
+            customArgs: {
+                acceptedToken: tokenAddress,
+                price: priceBigInt,
+            },
+        });
+        onClose();
+    };
 
     const handleToken = (token: CommonSelectOption | null) => {
-        // console.log("acceptTokenAddress:", token?.value)
-        // console.log("acceptTokenDecimals:", token?.decimals)
-
-        setAccpetTokenAddress(token?.value as string)
-        setDecimals(token?.decimals as number)
-    }
+        setAccpetTokenAddress(token?.value as string);
+        setDecimals(token?.decimals as number);
+    };
 
     const handlePriceChange = (value: string) => {
-        // console.log("price:", value)
-        setPrice(value)
-    }
+        setPrice(value);
+    };
 
     const handleClose = () => {
         updateModalStatus('SellAuction', 'close');
@@ -119,19 +82,20 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
         return <div>loading...</div>;
     }
 
-    return (
+    const isMinter = roles.includes('Minter');
 
+    return (
         <Modal
-            title={listedMode === 'Sell' ? "Sell Truth Box" : "Auction Truth Box"}
+            title={listedMode === 'Sell' ? 'Sell Truth Box' : 'Auction Truth Box'}
             centered
             open={true}
             closable={false}
             maskClosable={false}
             onOk={handleSell}
             onCancel={handleClose}
-            okButtonProps={{ disabled: okAble }}
-            cancelButtonProps={{ disabled: cancelAble }}
-            okText={buttonText}
+            okButtonProps={{ disabled: controller.isLoading }}
+            cancelButtonProps={{ disabled: controller.isLoading }}
+            okText={controller.isLoading ? 'Processing...' : 'Submit'}
             cancelText="Close"
             width={600}
         >
@@ -146,12 +110,12 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
                         <Paragraph color='muted-foreground'>Current Price:</Paragraph>
                         <PriceLabel
                             price={box.price}
-                            symbol={officeToken.symbol}
-                            decimals={officeToken.decimals}
+                            symbol={officeToken?.symbol}
+                            decimals={officeToken?.decimals}
                         />
                     </div>
                     <div className='w-full h-[1px]  border-t border-gray-500 my-2'></div>
-                    {roles.includes('Minter') ? (
+                    {isMinter ? (
                         <div className='flex flex-col gap-2'>
                             <div className='flex flex-col gap-2 items-start'>
                                 <Paragraph color='muted-foreground'>Accpet Token:</Paragraph>
@@ -165,10 +129,9 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode }) => {
                                     <InputNumber
                                         onChange={(value) => handlePriceChange(value || '')}
                                         value={price}
-                                        placeholder={`Enter price`}
+                                        placeholder="Enter price"
                                     />
                                 </div>
-                                {/* {error && <p className={styles.error}>{error}</p>} */}
                             </div>
                             <Paragraph color='muted-foreground'>If you don't enter the price, the default price will be used.</Paragraph>
                         </div>

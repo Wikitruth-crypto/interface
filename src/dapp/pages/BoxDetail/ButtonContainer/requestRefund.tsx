@@ -1,15 +1,12 @@
-"use client"
+﻿"use client"
 import React from 'react';
 import { Typography } from 'antd';
-import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import { timeToDate } from '@/dapp/utils/time';
-import Paragraph from '@/components/base/paragraph';
-import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
-import { useBoxDetailContext } from '../contexts/BoxDetailContext';
+import BoxActionButton from '@/dapp/pages/BoxDetail/components/boxActionButton';
+import { useBoxActionController } from '@/dapp/pages/BoxDetail/hooks/useBoxActionController';
+import { boxActionConfigs } from '@/dapp/pages/BoxDetail/actions/configs';
 
 interface Props {
   onClick?: () => void;
@@ -17,47 +14,19 @@ interface Props {
 }
 
 const RequestRefundButton: React.FC<Props> = ({ onClick, className }) => {
-  const { boxId } = useBoxDetailContext()
+  const controller = useBoxActionController(boxActionConfigs.requestRefund);
   const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
   const deadline = deadlineCheckState.requestRefundDeadline;
-  const { write_BoxDetail, error } = useWrite_BoxDetail();
-  const allConfigs = useAllContractConfigs();
-  
-  // 使用集中的按钮交互状态
-  const { currentActionFunction, isPending } = useButtonInteractionStore();
-
-  const handleRequestRefund = async () => {
-    onClick?.();
-    await write_BoxDetail({
-      contract: allConfigs.Exchange,
-      functionName: 'RequestRefund',
-      args: [boxId],
-    });
-  };
-
-  // 计算按钮状态
-  const isLoading = currentActionFunction === 'requestRefund' && isPending;
-  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'requestRefund');
 
   return (
-    <div className={cn('w-full', className)}>
-      <div className={'flex flex-col md:flex-row w-full items-center gap-2'}>
-        <Button
-          color='primary'
-          variant='outlined'
-          onClick={handleRequestRefund}
-          loading={isLoading}
-          disabled={isDisabled}
-        >
-          Refund
-        </Button>
-        {error?.message && <p className={'text-red-400 text-sm mt-2 font-mono'}>{error?.message}</p>}
-        <div className={'flex flex-col items-center'}>
-          <Typography.Paragraph className="text-muted-foreground text-sm">Request Refund Deadline: {timeToDate(deadline)}</Typography.Paragraph>
-        </div>
+    <BoxActionButton controller={controller} className={className} onClick={onClick}>
+      <div className={cn('flex flex-col items-start')}>
+        <Typography.Paragraph className="text-muted-foreground text-sm">
+          Request Refund Deadline: {timeToDate(deadline)}
+        </Typography.Paragraph>
       </div>
-    </div>
+    </BoxActionButton>
   );
 };
 
-export default React.memo(RequestRefundButton); 
+export default React.memo(RequestRefundButton);
