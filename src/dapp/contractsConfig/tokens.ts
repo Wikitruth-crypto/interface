@@ -5,14 +5,14 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
   const addresses = NETWORK_CONTRACTS[chainId];
   
   return [
-    // {
-    //   index: 0,
-    //   name: 'WikiTruth Coin',
-    //   symbol: 'WTC',
-    //   decimals: 3,
-    //   address: addresses.OfficialToken,
-    //   types: 'ERC20',
-    // },
+    {
+      index: 0,
+      name: 'WikiTruth Coin',
+      symbol: 'WTC',
+      decimals: 3,
+      address: addresses.OfficialToken,
+      types: 'ERC20',
+    },
     {
       index: 0,
       name: 'WROSE Secret',

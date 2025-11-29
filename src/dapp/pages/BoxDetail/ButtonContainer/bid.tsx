@@ -1,5 +1,5 @@
-'use client'
-import React, { useEffect, useState } from 'react';
+﻿'use client'
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import CalcMoney from '@/dapp/pages/BoxDetail/components/calcMoney';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
@@ -18,39 +18,47 @@ interface Props {
 
 const BidButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
-    const { box , boxId } = useBoxDetailContext()
+    const { box , boxId } = useBoxDetailContext();
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);
+    const [isCheckingAllowance, setIsCheckingAllowance] = useState(false);
     
     // 使用集中的按钮交互状态
     const { currentActionFunction, isPending } = useButtonInteractionStore();
     
+    const needAllowanceCheck = !roles.includes('Buyer');
+
     const handleBid = async () => {
+        if (!box) return;
+
+        if (needAllowanceCheck && box?.acceptedToken && box?.price) {
+            setIsCheckingAllowance(true);
+            const allowanceResult = await checkAllowance_BoxDetail(
+                box?.acceptedToken as `0x${string}`,
+                box?.price
+            );
+            setIsCheckingAllowance(false);
+
+            if (!allowanceResult?.isEnough) {
+                return;
+            }
+        }
+
         onClick?.();
         await write_BoxDetail({
             contract: allConfigs.Exchange,
             functionName: 'Bid',
             args: [boxId],
         });
-    }
-
-    // 检查是否需要授权
-    useEffect(() => {
-        if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
-            checkAllowance_BoxDetail(
-                box?.acceptedToken as `0x${string}` || '',
-                box?.price || 0
-            )
-        }
-    }, [box, roles, checkAllowance_BoxDetail]);
+    };
 
     // 计算按钮状态
-    const isLoading = currentActionFunction === 'bid' && isPending;
-    const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'bid');
+    const isLoading = isCheckingAllowance || (currentActionFunction === 'bid' && isPending);
+    const isDisabled = isCheckingAllowance || (currentActionFunction !== null && currentActionFunction !== 'bid');
 
     // 如果额度不足，则需要授权
-    if (!isEnough) {
+    if (needAllowanceCheck && !isEnough) {
         return <ApproveButton className={className} />;
     }
 

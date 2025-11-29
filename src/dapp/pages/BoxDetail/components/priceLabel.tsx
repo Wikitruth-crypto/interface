@@ -1,14 +1,11 @@
 "use client"
 import React from 'react';
-import { Typography } from 'antd';
+// import { Typography } from 'antd';
 
 import { BoxStatus } from '@/dapp/types/contracts/truthBox';
-// import { officeToken } from '@/dapp/constants/token';
-// import { ethers, parseUnits } from 'ethers';
-import { useSupportedTokens } from '@/dapp/contractsConfig';
+
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import Paragraph from '@/components/base/paragraph';
-import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { SUPPORTED_TOKENS, TokenMetadata } from '@/dapp/contractsConfig';
 
 interface Props {
@@ -18,17 +15,9 @@ interface Props {
 }
 
 const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
-    const { box } = useBoxDetailContext();
-    const tokenSymbol = SUPPORTED_TOKENS.find((token: TokenMetadata) => token.address === box?.acceptedToken)?.symbol;
+    const tokenMetadata = SUPPORTED_TOKENS.find((tokens: TokenMetadata) => tokens.address === token as `0x${string}`);
 
-    if (!box) {
-        return <div>loading...</div>;
-    }
-
-    const Status = status || box.status as BoxStatus;
-
-    const isDisplay = Status !== 'Published' && Status !== 'Blacklisted';
-
+    const isDisplay = status !== 'Published' && status !== 'Blacklisted';
     return (
         <>
             {isDisplay && (
@@ -36,7 +25,7 @@ const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
                     <Paragraph color="gray-3" size="sm" className="mr-2">Price:</Paragraph>
                     <PriceLabel
                         price={price}
-                        symbol={tokenSymbol}
+                        symbol={tokenMetadata?.symbol}
                         // decimals={tokenDecimals}
                         token={token}
                         fontSize={22}

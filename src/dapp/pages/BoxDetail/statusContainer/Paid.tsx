@@ -7,7 +7,7 @@ import {
     ViewFileButton,
 } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
-import Line from '@/components/base/line';
+import { Divider } from 'antd';
 
 interface Props {
     tokenId?: string,
@@ -26,17 +26,10 @@ const Paid: React.FC<Props> = ({ }) => {
     return (
         <div className="flex flex-col items-start justify-center gap-4">
             
-            <Line weight={1} />
+            <Divider />
             <RequestRefundButton />
             <CompleteButton />
             <ViewFileButton />
-
-            {/* <div className='w-full'>
-                <UriPassword
-                    fileCid={publicData?.fileCID || ''}
-                    password={publicData?.password || ''}
-                />
-            </div> */}
         </div>
     );
 }

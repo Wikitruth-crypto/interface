@@ -16,6 +16,10 @@
 /docs
 /oasisQuery
 
+# docs
+*vibCoding.md
+*log.md
+
 # testing
 /coverage
 /src-dapp
@@ -52,3 +56,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#

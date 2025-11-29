@@ -14,10 +14,8 @@ interface Props {
 }
 
 const CalcMoney: React.FC<Props> = () => {
-    // const tokenId = useBoxDetailStore(state => state.tokenId);
     const { box , boxId } = useBoxDetailContext();
     const { calcPayMoney } = useExchange();
-    // const roles = useBoxDetailStore(state => state.userState.roles);
 
     if (!box) {
         return <div>loading...</div>;

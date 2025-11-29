@@ -1,5 +1,5 @@
-"use client"
-import React, { useState, useEffect } from 'react';
+﻿"use client"
+import React, { useState } from 'react';
 import { Typography } from 'antd';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,6 @@ import Paragraph from '@/components/base/paragraph';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
-
 interface Props {
   onClick?: () => void;
   className?: string;
@@ -23,8 +22,9 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const { roles } = useBoxDetailStore(state => state.userState);
   const allConfigs = useAllContractConfigs();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
-  const { box , boxId } = useBoxDetailContext()
+  const { box , boxId } = useBoxDetailContext();
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
+  const [isCheckingAllowance, setIsCheckingAllowance] = useState(false);
   
   // 使用集中的按钮交互状态
   const { currentActionFunction, isPending } = useButtonInteractionStore();
@@ -34,31 +34,38 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
     incrementRate,
   } = usePeriodRate();
 
-  // 检查是否需要授权
-  useEffect(() => {
-    if (!roles.includes('Admin') && !roles.includes('Minter')) {
-      checkAllowance_BoxDetail(
-        allConfigs.OfficialToken.address as `0x${string}`,
-        box?.price || 0
-      )
-    }
-  }, [box?.price, roles, checkAllowance_BoxDetail]);
+  const needAllowanceCheck = !roles.includes('Admin') && !roles.includes('Minter');
 
   const handlePayConfiFee = async () => {
+    if (!box) return;
+
+    if (needAllowanceCheck && box?.acceptedToken && box?.price) {
+      setIsCheckingAllowance(true);
+      const allowanceResult = await checkAllowance_BoxDetail(
+        allConfigs.OfficialToken.address as `0x${string}`,
+        box?.price
+      );
+      setIsCheckingAllowance(false);
+
+      if (!allowanceResult?.isEnough) {
+        return;
+      }
+    }
+
     onClick?.();
     await write_BoxDetail({
       contract: allConfigs.Exchange,
       functionName: 'payConfiFee',
       args: [boxId],
     });
-  }
+  };
 
   // 计算按钮状态
-  const isLoading = currentActionFunction === 'payConfiFee' && isPending;
-  const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'payConfiFee');
+  const isLoading = isCheckingAllowance || (currentActionFunction === 'payConfiFee' && isPending);
+  const isDisabled = isCheckingAllowance || (currentActionFunction !== null && currentActionFunction !== 'payConfiFee');
 
   // 如果需要授权，显示授权按钮
-  if (!isEnough) {
+  if (needAllowanceCheck && !isEnough) {
     return <ApproveButton className={className} onClick={onClick} />;
   }
 

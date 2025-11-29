@@ -109,13 +109,6 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
             const siweValid = await checkSiweSession();
             setIsValidSIWE(siweValid);
 
-            if (import.meta.env.DEV) {
-                console.log('[FloatSignatureButton] 签名检查结果:', {
-                    eip712: eip712Valid,
-                    siwe: siweValid,
-                    shouldShow: !eip712Valid || !siweValid
-                });
-            }
         } catch (error) {
             console.error('[FloatSignatureButton] 签名检查失败:', error);
             // 出错时显示按钮，让用户手动处理

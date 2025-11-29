@@ -1,5 +1,5 @@
-"use client"
-import React, { useEffect, useState } from 'react';
+﻿"use client"
+import React, { useState } from 'react';
 import BaseButton from '@/dapp/components/base/baseButton';
 import { cn } from '@/lib/utils';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
@@ -9,7 +9,6 @@ import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ApproveButton from './approve';
 import Paragraph from '@/components/base/paragraph';
-import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
@@ -19,41 +18,47 @@ interface Props {
 
 const BuyButton: React.FC<Props> = ({ onClick, className }) => {
     const allConfigs = useAllContractConfigs();
-    // const { address } = useWalletContext();
-    const { box , boxId } = useBoxDetailContext()
+    const { box , boxId } = useBoxDetailContext();
     const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
     const { write_BoxDetail, error } = useWrite_BoxDetail();
     const { roles } = useBoxDetailStore(state => state.userState);
+    const [isCheckingAllowance, setIsCheckingAllowance] = useState(false);
     
     // 使用集中的按钮交互状态
     const { currentActionFunction, isPending } = useButtonInteractionStore();
 
+    const needAllowanceCheck = !roles.includes('Buyer');
 
     const handleBuy = async () => {
+        if (!box) return;
+
+        if (needAllowanceCheck && box?.acceptedToken && box?.price) {
+            setIsCheckingAllowance(true);
+            const allowanceResult = await checkAllowance_BoxDetail(
+                box?.acceptedToken as `0x${string}`,
+                box?.price
+            );
+            setIsCheckingAllowance(false);
+
+            if (!allowanceResult?.isEnough) {
+                return;
+            }
+        }
+
         onClick?.();
         await write_BoxDetail({
             contract: allConfigs.Exchange,
             functionName: 'buy',
             args: [boxId],
         });
-    }
-
-    // 检查是否需要授权
-    useEffect(() => {
-        if (!roles.includes('Admin') && !roles.includes('Minter') && !roles.includes('Buyer')) {
-            checkAllowance_BoxDetail(
-                box?.acceptedToken as `0x${string}` || '',
-                box?.price || 0
-            )
-        }
-    }, [box?.price, roles, checkAllowance_BoxDetail]);
+    };
 
     // 计算按钮状态
-    const isLoading = currentActionFunction === 'buy' && isPending;
-    const isDisabled = (currentActionFunction !== null && currentActionFunction !== 'buy');
+    const isLoading = isCheckingAllowance || (currentActionFunction === 'buy' && isPending);
+    const isDisabled = isCheckingAllowance || (currentActionFunction !== null && currentActionFunction !== 'buy');
 
     // 如果需要授权，显示授权按钮
-    if (!isEnough) {
+    if (needAllowanceCheck && !isEnough) {
         return <ApproveButton className={className} />;
     }
 

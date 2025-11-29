@@ -64,7 +64,17 @@ export const BoxDetailProvider: React.FC<{
     if (!address || !CHAIN_ID) {
       return null; // 返回 null 而不是空字符串，便于判断
     }
-    const userIdValue = state.accounts[CHAIN_ID]?.[address.toLowerCase()]?.userId;
+
+    const chainAccounts = state.accounts[CHAIN_ID];
+    if (!chainAccounts) {
+      return null;
+    }
+
+    const userIdValue =
+      chainAccounts[address]?.userId ??
+      chainAccounts[address.toLowerCase()]?.userId ??
+      null;
+
     // 如果 userId 存在且不为空字符串，则返回；否则返回 null
     return userIdValue && userIdValue.trim() !== '' ? userIdValue : null;
   });

@@ -5,6 +5,29 @@ import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 
+type AccountStoreSnapshot = ReturnType<typeof useAccountStore.getState>;
+
+const resolveUserIdFromAccounts = (
+    state: AccountStoreSnapshot,
+    chainId?: number | null,
+    address?: string | null,
+): string => {
+    if (!chainId || !address) {
+        return '';
+    }
+
+    const chainAccounts = state.accounts[chainId];
+    if (!chainAccounts) {
+        return '';
+    }
+
+    return (
+        chainAccounts[address]?.userId ??
+        chainAccounts[address.toLowerCase()]?.userId ??
+        ''
+    );
+};
+
 /**
  * 监听和读取当前账户的 UserId
  * 
@@ -39,12 +62,8 @@ export function useGetMyUserId(): string {
     const currentUserIdFromStore = useAccountStore((state) => {
         const targetChainId = chainId || CHAIN_ID;
         const targetAddress = address || state.currentAccount;
-        
-        if (!targetChainId || !targetAddress) {
-            return '';
-        }
-        
-        return state.accounts[targetChainId]?.[targetAddress.toLowerCase()]?.userId || '';
+
+        return resolveUserIdFromAccounts(state, targetChainId, targetAddress);
     });
 
     // ==================== 检查 SIWE token 是否有效 ====================
@@ -71,27 +90,39 @@ export function useGetMyUserId(): string {
     const fetchUserIdFromContract = useCallback(async (): Promise<void> => {
         // 防止重复请求
         if (fetchingRef.current) {
-            console.log('[useMyUserId] Already fetching, skipping...');
+            if (import.meta.env.DEV) {
+                console.log('[useMyUserId] Already fetching, skipping...');
+            }
             return;
         }
 
         // 检查必要条件
         if (!currentSession.token || !isSiweTokenValid()) {
+            if (import.meta.env.DEV) {
             console.log('[useMyUserId] SIWE token is not valid, skipping fetch');
+            }
             return;
         }
 
         const targetAddress = address;
         if (!targetAddress) {
-            console.log('[useMyUserId] No address available, skipping fetch');
+            if (import.meta.env.DEV) {
+                console.log('[useMyUserId] No address available, skipping fetch');
+            }
             return;
         }
 
         // 再次检查是否已经有 userId（使用最新的值）
         const targetChainId = chainId || CHAIN_ID || 0;
-        const latestUserId = useAccountStore.getState().accounts[targetChainId]?.[targetAddress.toLowerCase()]?.userId;
+        const latestUserId = resolveUserIdFromAccounts(
+            useAccountStore.getState(),
+            targetChainId,
+            targetAddress
+        );
         if (latestUserId) {
-            console.log('[useMyUserId] UserId already exists:', latestUserId);
+            if (import.meta.env.DEV) {
+                console.log('latestUserId-useGetMyUserId:', latestUserId);
+            }
             setUserId(latestUserId);
             fetchingRef.current = false; // 重置状态
             return;
@@ -101,7 +132,6 @@ export function useGetMyUserId(): string {
         fetchingRef.current = true;
 
         try {
-            console.log('[useMyUserId] Fetching userId from contract...');
             
             // 调用合约获取 userId
             const fetchedUserId = await myUserId(currentSession.token);
@@ -112,8 +142,9 @@ export function useGetMyUserId(): string {
                 // 保存到 accountStore
                 setUserIdToStore(userIdString);
                 setUserId(userIdString);
-                
-                console.log('[useMyUserId] UserId fetched and saved:', userIdString);
+                if (import.meta.env.DEV) {
+                    console.log('userIdString-useGetMyUserId:', userIdString);
+                }
             } else {
                 console.warn('[useMyUserId] Invalid userId received:', fetchedUserId);
             }

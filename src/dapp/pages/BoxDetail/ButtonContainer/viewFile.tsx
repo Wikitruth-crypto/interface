@@ -1,10 +1,9 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
-import Paragraph from '@/components/base/paragraph';
 
 interface Props {
   onClick?: () => void;
@@ -37,7 +36,7 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
         >
           ViewFile
         </Button>
-        <Paragraph color="muted-foreground" size="sm">You can view the confidential file here.</Paragraph>
+        <Typography.Paragraph color="muted-foreground">You can view the confidential file here.</Typography.Paragraph>
       </div>
     </div>
   );

@@ -1,164 +1,277 @@
 "use client"
 
-import React, { FC, useEffect, useState } from 'react';
-import { Button, Typography } from 'antd';
-import { cn } from "@/lib/utils";
-import { Copy, Check, Eye, EyeOff } from "lucide-react";
+import React, { useState, useMemo } from 'react';
+import { Card, Typography, Button, Space, Divider, Input } from 'antd';
+import { CopyOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { message } from 'antd';
 import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
 
+const { Text } = Typography;
+
 export interface UriPasswordProps {
-    fileCid: string;
-    password: string;
+    fileCidList?: string[];
+    slicesMetadataCID?: string;
+    password?: string;
     className?: string;
-    variant?: 'default' | 'compact';
-    hidePassword?: boolean;
+    showPassword?: boolean;
+    hidePasswordByDefault?: boolean;
 }
 
-interface CopyItem {
-    label: string;
-    value: string;
-    icon?: React.ReactNode;
-    masked?: boolean;
-}
-
-
-const UriPassword: FC<UriPasswordProps> = ({
-    fileCid,
-    password,
+/**
+ * URI 和密码显示组件
+ * 
+ * 功能：
+ * - 显示文件 CID 列表和对应的 URL
+ * - 显示切片元数据 CID
+ * - 显示密码（支持显示/隐藏切换）
+ * - 所有字段都支持一键复制
+ * - 使用 Ant Design 组件构建
+ */
+const UriPassword: React.FC<UriPasswordProps> = ({
+    fileCidList = [],
+    slicesMetadataCID = '',
+    password = '',
     className,
-    variant = 'default',
-    hidePassword = true
+    showPassword = true,
+    hidePasswordByDefault = true,
 }) => {
-    const [fileUri, setFileUri] = useState<string>('');
-    const [showPasswordText, setShowPasswordText] = useState(!hidePassword);
-    const [isLoading, setIsLoading] = useState(false);
+    const [showPasswordText, setShowPasswordText] = useState(!hidePasswordByDefault);
 
-    useEffect(() => {
-        if (!fileCid) {
-            setFileUri('');
+    // 生成文件 URI 列表
+    const fileUriList = useMemo(() => {
+        return fileCidList.map(cid => {
+            try {
+                return ipfsCidToUrl(cid);
+            } catch (error) {
+                console.error('Failed to convert CID to URL:', error);
+                return '';
+            }
+        });
+    }, [fileCidList]);
+
+    // 生成切片元数据 URI
+    const slicesMetadataUri = useMemo(() => {
+        if (!slicesMetadataCID) return '';
+        try {
+            return ipfsCidToUrl(slicesMetadataCID);
+        } catch (error) {
+            console.error('Failed to convert slices metadata CID to URL:', error);
+            return '';
+        }
+    }, [slicesMetadataCID]);
+
+    /**
+     * 复制文本到剪贴板
+     */
+    const handleCopy = async (text: string, label: string) => {
+        if (!text) {
+            message.warning(`${label} is empty`);
             return;
         }
-
         try {
-            const uri = ipfsCidToUrl(fileCid);
-            setFileUri(uri);
+            await navigator.clipboard.writeText(text);
+            message.success(`${label} copied!`);
         } catch (error) {
-            console.error('Failed to convert CID to URL:', error);
-            setFileUri('');
+            console.error('Failed to copy:', error);
+            message.error('Failed to copy');
         }
-    }, [fileCid]);
-
-    const copyItems: CopyItem[] = [
-        {
-            label: 'CID',
-            value: fileCid,
-            icon: <Copy className="h-4 w-4" />
-        },
-        {
-            label: 'URL',
-            value: fileUri,
-            icon: <Copy className="h-4 w-4" />
-        },
-        {
-            label: 'Password',
-            value: password,
-            icon: <Copy className="h-4 w-4" />,
-            masked: hidePassword && !showPasswordText
-        }
-    ];
-
-    const formatDisplayValue = (item: CopyItem) => {
-        if (item.masked && item.label === 'Password') {
-            return '•'.repeat(Math.min(item.value.length, 8));
-        }
-        
-        if (variant === 'compact' && item.value.length > 30) {
-            return `${item.value.slice(0, 15)}...${item.value.slice(-10)}`;
-        }
-        
-        return item.value;
     };
 
-    if (variant === 'compact') {
-        return (
-            <div className={cn("space-y-2", className)}>
-                {copyItems.map((item) => (
-                    <div key={item.label} className="flex items-center gap-2">
-                        <span className="text-sm font-medium w-20 text-muted-foreground">
-                            {item.label}:
-                        </span>
-                        <Typography.Text
-                            copyable={{
-                                text: item.value,
-                                icon: [<Copy key="copy" className="h-3 w-3" />, <Check key="check" className="h-3 w-3 text-green-500" />],
-                                tooltips: ['Copy', 'Copied!'],
-                            }}
-                            disabled={!item.value || (isLoading && item.label === 'URL')}
-                            className="flex-1 px-2 py-1 bg-muted rounded text-sm font-mono truncate"
-                        >
-                            {isLoading && item.label === 'URL' ? 'Loading...' : formatDisplayValue(item)}
-                        </Typography.Text>
-                    </div>
-                ))}
-            </div>
-        );
-    }
+    /**
+     * 格式化密码显示（隐藏状态）
+     */
+    const formatPasswordDisplay = (pwd: string): string => {
+        if (!showPasswordText && pwd) {
+            return '•'.repeat(Math.min(pwd.length, 12));
+        }
+        return pwd;
+    };
 
     return (
-        <div className={cn("space-y-3", className)}>
-            {copyItems.map((item) => (
-                <div
-                    key={item.label}
-                    className={cn(
-                        "flex items-center justify-between gap-3",
-                        "p-3 rounded-lg border bg-card",
-                        "transition-all duration-200",
-                        "hover:bg-accent/50"
-                    )}
-                >
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium text-muted-foreground">
-                                {item.label}
-                            </span>
-                            {item.label === 'Password' && hidePassword && (
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    onClick={() => setShowPasswordText(!showPasswordText)}
-                                    className="h-6 w-6 p-0"
-                                >
-                                    {showPasswordText ?
-                                        <EyeOff className="h-3 w-3" /> :
-                                        <Eye className="h-3 w-3" />
-                                    }
-                                </Button>
-                            )}
-                        </div>
-                        <Typography.Text
-                            copyable={{
-                                text: item.value,
-                                icon: [<Copy key="copy" className="h-4 w-4" />, <Check key="check" className="h-4 w-4 text-green-500" />],
-                                tooltips: ['Copy', 'Copied!'],
-                            }}
-                            disabled={!item.value || (isLoading && item.label === 'URL')}
-                            className={cn(
-                                "block w-full px-2 py-1 text-sm font-mono",
-                                "bg-muted rounded truncate",
-                                "select-all"
-                            )}
-                        >
-                            {isLoading && item.label === 'URL' ? (
-                                <span className="text-muted-foreground">Loading...</span>
-                            ) : (
-                                formatDisplayValue(item)
-                            )}
-                        </Typography.Text>
-                    </div>
-                </div>
-            ))}
+        <div className={className}>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {/* 文件 CID 列表 */}
+                {fileCidList.length > 0 && (
+                    <>
+                        {fileCidList.map((cid, index) => (
+                            <Card key={index} size="small" style={{ width: '100%' }}>
+                                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                                        <Text strong style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                                            File {fileCidList.length > 1 ? `${index + 1} ` : ''}CID:
+                                        </Text>
+                                        <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<CopyOutlined />}
+                                            onClick={() => handleCopy(cid, `File ${index + 1} CID`)}
+                                            disabled={!cid}
+                                        >
+                                            Copy
+                                        </Button>
+                                    </div>
+                                    <Input.TextArea
+                                        value={cid}
+                                        readOnly
+                                        autoSize={{ minRows: 1, maxRows: 3 }}
+                                        style={{
+                                            fontFamily: 'monospace',
+                                            fontSize: 12,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                        }}
+                                    />
+
+                                    {fileUriList[index] && (
+                                        <>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 }}>
+                                                <Text strong style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                                                    File {fileCidList.length > 1 ? `${index + 1} ` : ''}URL:
+                                                </Text>
+                                                <Button
+                                                    type="text"
+                                                    size="small"
+                                                    icon={<CopyOutlined />}
+                                                    onClick={() => handleCopy(fileUriList[index], `File ${index + 1} URL`)}
+                                                >
+                                                    Copy
+                                                </Button>
+                                            </div>
+                                            <Input.TextArea
+                                                value={fileUriList[index]}
+                                                readOnly
+                                                autoSize={{ minRows: 1, maxRows: 3 }}
+                                                style={{
+                                                    fontFamily: 'monospace',
+                                                    fontSize: 12,
+                                                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                                    wordBreak: 'break-all',
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </Space>
+                            </Card>
+                        ))}
+                    </>
+                )}
+
+                {/* 切片元数据 CID */}
+                {slicesMetadataCID && (
+                    <>
+                        {fileCidList.length > 0 && <Divider style={{ margin: '12px 0' }} />}
+                        <Card size="small" style={{ width: '100%' }}>
+                            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                                    <Text strong style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                                        Slices Metadata CID:
+                                    </Text>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<CopyOutlined />}
+                                        onClick={() => handleCopy(slicesMetadataCID, 'Slices Metadata CID')}
+                                    >
+                                        Copy
+                                    </Button>
+                                </div>
+                                <Input.TextArea
+                                    value={slicesMetadataCID}
+                                    readOnly
+                                    autoSize={{ minRows: 1, maxRows: 3 }}
+                                    style={{
+                                        fontFamily: 'monospace',
+                                        fontSize: 12,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                    }}
+                                />
+
+                                {slicesMetadataUri && (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 }}>
+                                            <Text strong style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                                                Slices Metadata URL:
+                                            </Text>
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<CopyOutlined />}
+                                                onClick={() => handleCopy(slicesMetadataUri, 'Slices Metadata URL')}
+                                            >
+                                                Copy
+                                            </Button>
+                                        </div>
+                                        <Input.TextArea
+                                            value={slicesMetadataUri}
+                                            readOnly
+                                            autoSize={{ minRows: 1, maxRows: 3 }}
+                                            style={{
+                                                fontFamily: 'monospace',
+                                                fontSize: 12,
+                                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                                wordBreak: 'break-all',
+                                            }}
+                                        />
+                                    </>
+                                )}
+                            </Space>
+                        </Card>
+                    </>
+                )}
+
+                {/* 密码 */}
+                {showPassword && (
+                    <>
+                        {(fileCidList.length > 0 || slicesMetadataCID) && <Divider style={{ margin: '12px 0' }} />}
+                        <Card size="small" style={{ width: '100%' }}>
+                            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                                    <Text strong style={{ fontFamily: 'monospace', fontSize: 13 }}>
+                                        Password:
+                                    </Text>
+                                    <Space>
+                                        {hidePasswordByDefault && (
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={showPasswordText ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                                onClick={() => setShowPasswordText(!showPasswordText)}
+                                            >
+                                                {showPasswordText ? 'Hide' : 'Show'}
+                                            </Button>
+                                        )}
+                                        <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<CopyOutlined />}
+                                            onClick={() => handleCopy(password, 'Password')}
+                                            disabled={!password}
+                                        >
+                                            Copy
+                                        </Button>
+                                    </Space>
+                                </div>
+                                <Input.TextArea
+                                    value={formatPasswordDisplay(password)}
+                                    readOnly
+                                    autoSize={{ minRows: 1, maxRows: 2 }}
+                                    style={{
+                                        fontFamily: 'monospace',
+                                        fontSize: 12,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                    }}
+                                />
+                                {!password && (
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        Password is empty (not required)
+                                    </Text>
+                                )}
+                            </Space>
+                        </Card>
+                    </>
+                )}
+            </Space>
         </div>
     );
 };
 
-export default UriPassword; 
+export default UriPassword;
