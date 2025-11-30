@@ -44,21 +44,21 @@ export const useBoxInteraction = (boxId: string) => {
 
     /**
      * 记录交互
-     * @param functionName 函数名称
+     * @param functionWrote 函数名称
      * @param txHash 可选的交易哈希
      */
-    const recordInteraction = (functionName: FunctionNameType, txHash?: string) => {
+    const recordInteraction = (functionWrote: FunctionNameType, txHash?: string) => {
         // 不需要传 chainId，addBoxInteraction 会自动使用当前 chainId
-        addBoxInteraction(boxId, functionName, txHash);
+        addBoxInteraction(boxId, functionWrote, txHash);
     };
 
     /**
      * 检查是否已执行过某个交互
-     * @param functionName 函数名称
+     * @param functionWrote 函数名称
      * @returns 是否已执行
      */
-    const hasInteracted = (functionName: FunctionNameType): boolean => {
-        return hasBoxInteraction(boxId, functionName);
+    const hasInteracted = (functionWrote: FunctionNameType): boolean => {
+        return hasBoxInteraction(boxId, functionWrote);
     };
 
     /**

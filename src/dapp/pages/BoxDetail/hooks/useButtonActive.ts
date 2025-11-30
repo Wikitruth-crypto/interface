@@ -26,10 +26,8 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
   const { address } = useWalletContext() || {};
   const normalizedAddress = address?.toLowerCase();
 
-  const boxInteraction = useAccountStore((state) => {
-    if (!CHAIN_ID || !normalizedAddress) {
-      return [];
-    }
+  const boxInteractions = useAccountStore((state) => {
+    if (!CHAIN_ID || !normalizedAddress) return [];
     return state.accounts[CHAIN_ID]?.[normalizedAddress]?.boxInteractions[boxId] || [];
   });
 
@@ -40,7 +38,7 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
 
     const now = Math.floor(Date.now() / 1000);
 
-    const successedList = boxInteraction.map(interaction => interaction.functionName) || [];
+    const wroteList = boxInteractions.map(interaction => interaction.functionWrote) || [];
 
     const roles = userState.roles;
     const isInDeadline = Number(box.deadline) > now;
@@ -58,6 +56,8 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
     const isMinter = roles.includes('Minter');
     const isAdmin = roles.includes('Admin');
     const isBuyer = roles.includes('Buyer');
+    const isBidder = roles.includes('Bidder');
+    const isOther = roles.includes('Other');
     const isGuest = roles.length === 0;
 
 
@@ -102,7 +102,7 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
     }
 
     const payConfiFee_deadlineCheck = (): boolean => {
-      // 当前时间，必须距离deadline 30天以内
+      // 当前时间，必须距离deadline小于30天
       return now > Number(box?.deadline) - 30 * 24 * 60 * 60;
     };
 
@@ -125,67 +125,68 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
         return !isInBlackListed &&
           isMinter &&
           isInDeadline &&
-          !successedList.includes('extendDeadline') && 
+          !wroteList.includes('extendDeadline') && 
           modalStatus.ExtendDeadline === 'close';
 
       case 'sellActive':
         return !isInBlackListed &&
           status === 'Storing' &&
           sellOrAuction_roleCheck() &&
-          !successedList.includes('sell') && 
+          !wroteList.includes('sell') && 
           modalStatus.SellAuction === 'close';
 
       case 'auctionActive':
         return !isInBlackListed &&
           status === 'Storing' &&
           sellOrAuction_roleCheck() &&
-          !successedList.includes('auction') &&
+          !wroteList.includes('auction') &&
           modalStatus.SellAuction === 'close';
 
       case 'buyActive':
         return !isInBlackListed &&
-          purchaseTimestamp !== 0 &&
+          purchaseTimestamp === 0 &&
           status === 'Selling' &&
-          (isAdmin || isMinter || isBuyer) &&
+          isOther &&
           // isInDeadline &&
-          !successedList.includes('buy');
+          !wroteList.includes('buy');
 
       case 'bidActive':
-        return !isInBlackListed ||
+        return !isInBlackListed &&
           status === 'Auctioning' &&
-          (isAdmin || isMinter || isBuyer) &&
+          !isBuyer &&
+          (isOther || isBidder )&&
           isInDeadline &&
-          !successedList.includes('bid');
+          !wroteList.includes('bid');
 
       case 'requestRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           isInRequestRefundDeadline &&
           reviewDeadline === 0 &&
-          status !== 'Refunding' &&
+          status === 'Paid' &&
           isBuyer &&
-          !successedList.includes('requestRefund');
+          !wroteList.includes('requestRefund');
 
       case 'cancelRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           isBuyer &&
-          !successedList.includes('cancelRefund');
+          !wroteList.includes('cancelRefund');
 
       case 'agreeRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           agreeRefund_roleCheck() &&
-          !successedList.includes('agreeRefund');
+          !wroteList.includes('agreeRefund');
 
       case 'refuseRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           refuseRefund_roleCheck() &&
-          !successedList.includes('refuseRefund');
+          !wroteList.includes('refuseRefund');
 
       case 'completeActive':
         return !isInBlackListed &&
@@ -194,20 +195,20 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
           !refundPermit &&
           status === 'Paid' &&
           completeOrder_roleCheck() &&
-          !successedList.includes('completeOrder');
+          !wroteList.includes('completeOrder');
 
       case 'payConfiFeeActive':
         return !isInBlackListed &&
           status === 'InSecrecy' &&
           payConfiFee_deadlineCheck() && 
           !isGuest &&
-          !successedList.includes('payConfiFee');
+          !wroteList.includes('payConfiFee');
 
       case 'publishActive':
         return !isInBlackListed &&
           publishActive_roleCheck() &&
-          !successedList.includes('publishByMinter') &&
-          !successedList.includes('publishByBuyer');
+          !wroteList.includes('publishByMinter') &&
+          !wroteList.includes('publishByBuyer');
 
       case 'viewFileActive':
         return !isInBlackListed &&
@@ -221,7 +222,7 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
     box, 
     normalizedAddress,
     userState.roles, 
-    boxInteraction,
+    boxInteractions,
     modalStatus,
     boxId
   ]);

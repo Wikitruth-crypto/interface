@@ -27,8 +27,7 @@ export const useSecureAccount = () => {
     useEffect(() => {
         if (isConnected && address) {
             // 如果账户发生变化
-            if (currentAccount !== address) {
-                console.log(`[Security] Account switching: ${currentAccount} -> ${address}`);
+            if (currentAccount !== address.toLowerCase()) {
                 
                 // 结束旧账户的会话
                 if (currentAccount) {
@@ -36,17 +35,14 @@ export const useSecureAccount = () => {
                 }
                 
                 // 初始化新账户
-                initAccount(address);
+                initAccount(address.toLowerCase());
                 
                 // 开始新会话
                 startSession(chainId);
-                
-                console.log(`[Security] Account initialized: ${address} on chain ${chainId}`);
             }
         } else {
             // 未连接时清除当前账户
             if (currentAccount) {
-                console.log(`[Security] Disconnecting account: ${currentAccount}`);
                 endSession();
                 setCurrentAccount(null);
             }

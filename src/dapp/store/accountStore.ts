@@ -41,7 +41,7 @@ export interface MultiSigInfo {
  */
 export interface BoxInteractionRecord {
     boxId: string;
-    functionName: FunctionNameType;
+    functionWrote: FunctionNameType;
     timestamp: number;
     CHAIN_ID: number;
     txHash?: string; // 可选的交易哈希
@@ -131,9 +131,9 @@ export interface AccountStoreMethods {
     getMultiSigInfo: () => MultiSigInfo | null;
     
     // === Box 交互记录 ===
-    addBoxInteraction: (boxId: string, functionName: FunctionNameType, txHash?: string) => void;
+    addBoxInteraction: (boxId: string, functionWrote: FunctionNameType, txHash?: string) => void;
     getBoxInteractions: (boxId: string) => BoxInteractionRecord[];
-    hasBoxInteraction: (boxId: string, functionName: FunctionNameType) => boolean;
+    hasBoxInteraction: (boxId: string, functionWrote: FunctionNameType) => boolean;
     clearBoxInteractions: (boxId?: string) => void;
     
     // === 交易缓存 ===
@@ -431,7 +431,7 @@ export const useAccountStore = create<AccountStore>()(
             },
 
             // === Box 交互记录 ===
-            addBoxInteraction: (boxId, functionName, txHash) => {
+            addBoxInteraction: (boxId, functionWrote, txHash) => {
                 const address = get()._checkAccess?.('addBoxInteraction');
                 if (!address) return;
                 
@@ -448,7 +448,7 @@ export const useAccountStore = create<AccountStore>()(
                 
                 const newRecord: BoxInteractionRecord = {
                     boxId,
-                    functionName,
+                    functionWrote,
                     timestamp: Date.now(),
                     CHAIN_ID: targetChainId,
                     txHash,
@@ -473,7 +473,7 @@ export const useAccountStore = create<AccountStore>()(
                 });
                 
                 
-                console.log(`[AccountStore] Box interaction recorded: ${functionName} on Box ${boxId}`);
+                console.log(`[AccountStore] Box interaction recorded: ${functionWrote} on Box ${boxId}`);
             },
 
             getBoxInteractions: (boxId) => {
@@ -489,7 +489,7 @@ export const useAccountStore = create<AccountStore>()(
                 return interactions;
             },
 
-            hasBoxInteraction: (boxId, functionName) => {
+            hasBoxInteraction: (boxId, functionWrote) => {
                 const address = get()._checkAccess?.('hasBoxInteraction');
                 if (!address) return false;
                 
@@ -497,7 +497,7 @@ export const useAccountStore = create<AccountStore>()(
                 if (!CHAIN_ID) return false;
                 
                 const interactions = accounts[CHAIN_ID]?.[address]?.boxInteractions[boxId] || [];
-                const hasInteraction = interactions.some((record: BoxInteractionRecord) => record.functionName === functionName);
+                const hasInteraction = interactions.some((record: BoxInteractionRecord) => record.functionWrote === functionWrote);
                 
                 
                 return hasInteraction;
