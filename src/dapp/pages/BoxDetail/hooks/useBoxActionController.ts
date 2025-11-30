@@ -14,7 +14,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   const { box, boxId } = useBoxDetailContext();
   const roles = useBoxDetailStore((state) => state.userState.roles);
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
-  const { currentActionFunction, isPending } = useButtonInteractionStore();
+  const { functionWriting, isPending } = useButtonInteractionStore();
   const { write_BoxDetail, error } = useWrite_BoxDetail();
   const disabledByHook = config.activeKey ? useButtonActive(config.activeKey) : false;
 
@@ -52,9 +52,9 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   }, [shouldCheckAllowance]);
 
   const pendingFns = config.pendingFunctions ?? [config.functionName];
-  const isActionPending = pendingFns.includes((currentActionFunction ?? '') as FunctionNameType) && isPending;
+  const isActionPending = pendingFns.includes((functionWriting ?? '') as FunctionNameType) && isPending;
   const blockedByOtherAction =
-    currentActionFunction !== null && !pendingFns.includes((currentActionFunction ?? '') as FunctionNameType);
+    functionWriting !== null && !pendingFns.includes((functionWriting ?? '') as FunctionNameType);
 
   const lacksRole = config.allowedRoles ? !config.allowedRoles.some((role) => roles.includes(role)) : false;
   const customDisabled = config.isDisabled ? config.isDisabled(ctx) : false;

@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import BaseButton from '@/dapp/components/base/baseButton';
+import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
@@ -16,7 +16,7 @@ interface Props {
 
 const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { currentActionFunction } = useButtonInteractionStore();
+  const { functionWriting } = useButtonInteractionStore();
   const controller = useBoxActionController(boxActionConfigs.auction);
   
   const { auctioningTime } = usePeriodRate();
@@ -33,12 +33,12 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   return (
     <div className={cn('w-full', className)}>
       <div className='flex flex-col md:flex-row items-center gap-2'>
-        <BaseButton
+        <Button
           onClick={handleAuction}
-          disabled={currentActionFunction !== null}
+          disabled={functionWriting !== null}
         >
           Auction
-        </BaseButton>
+        </Button>
         <Paragraph color="muted-foreground" size="sm">
           Start the auction, the initial auction period is {auctioningTime / 24 / 3600} days.
         </Paragraph>

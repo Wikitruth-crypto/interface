@@ -13,8 +13,7 @@ import CountdownTimer from '@/dapp/components/countdownTimer';
 import RoleContainer from '../components/roleLabel';
 import PriceLabel from '@BoxDetail/components/priceLabel';
 import { BoxStatus } from '@/dapp/types/contracts/truthBox';
-import { useCheckDeadline, } from '../hooks/useCheckDeadline';
-import { useBoxDetailStore } from '../store/boxDetailStore';
+// import { useBoxDetailStore } from '../store/boxDetailStore';
 import ShareSocial from '@/dapp/components/shareSoical';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
@@ -26,7 +25,6 @@ interface Props {
 const ContentRight: React.FC<Props> = ({ tokenId }) => {
     const { box, metadataBox ,isLoading} = useBoxDetailContext();
 
-    useCheckDeadline();
 
     const [price, setPrice] = useState('');
     const [status, setStatus] = useState<BoxStatus>('Storing');

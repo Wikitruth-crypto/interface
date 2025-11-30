@@ -16,8 +16,6 @@ interface Props {
 const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
   const controller = useBoxActionController(boxActionConfigs.completeOrder);
   const { roles } = useBoxDetailStore(state => state.userState);
-  const deadlineCheckState = useBoxDetailStore(state => state.deadlineCheckState);
-  const inRequestRefundPeriod = deadlineCheckState.inRequestRefundPeriod;
   const { helperRewardRate } = usePeriodRate();
 
   return (
@@ -28,7 +26,7 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
             Complete the transaction.
           </Typography.Paragraph>
         )}
-        {!roles.includes('Buyer') && !inRequestRefundPeriod && (
+        {!roles.includes('Buyer') && (
           <Typography.Paragraph className="text-muted-foreground text-sm">
             You will get a {helperRewardRate}% reward for completing the transaction.
           </Typography.Paragraph>

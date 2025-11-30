@@ -35,15 +35,9 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
 
   return useMemo(() => {
     if (!box) {
-      return true;
+      return false;
     } 
 
-    if (!address) {
-      if (name === 'viewFileActive') {
-        return false;
-      }
-      return true;
-    }
     const now = Math.floor(Date.now() / 1000);
 
     const successedList = boxInteraction.map(interaction => interaction.functionName) || [];

@@ -1,7 +1,7 @@
 
 
 
-export type ExchangeRoleType = 'Minter' | 'Office DAO' | 'Buyer';
+export type ExchangeRoleType = 'Minter' | 'DAO' | 'Buyer';
 export type ViewFileRoleType = 'Minter' | 'Buyer';
 
 export type ModalType = 

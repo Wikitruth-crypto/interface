@@ -1,6 +1,6 @@
 ﻿"use client"
 import React, { useState } from 'react';
-import BaseButton from '@/dapp/components/base/baseButton';
+import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { usePeriodRate } from '@/dapp/constants/periodRate';
@@ -35,9 +35,9 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
   return (
     <div className={cn('w-full', className)}>
       <div className={'flex flex-col md:flex-row w-full items-center gap-2'}>
-        <BaseButton onClick={handleSell} disabled={controller.isDisabled}>
+        <Button onClick={handleSell} disabled={controller.isDisabled}>
           Sell
-        </BaseButton>
+        </Button>
         <div className={'flex flex-col items-start'}>
           {roles.includes('Minter') ? (
             <Paragraph color="muted-foreground" size="sm">

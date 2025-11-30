@@ -13,7 +13,7 @@ interface Props {
 
 const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { currentActionFunction } = useButtonInteractionStore();
+  const { functionWriting } = useButtonInteractionStore();
 
   const handleExtendDeadline = () => {
     onClick?.();
@@ -25,7 +25,7 @@ const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isDisabled = (currentActionFunction !== null );
+  const isDisabled = (functionWriting !== null );
 
   return (
     <div className={cn('w-full', className)}>

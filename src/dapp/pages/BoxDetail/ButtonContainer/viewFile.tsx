@@ -14,7 +14,7 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   
   // 使用集中的按钮交互状态（只检查是否有其他操作正在进行）
-  const { currentActionFunction } = useButtonInteractionStore();
+  const { functionWriting } = useButtonInteractionStore();
 
   const handleViewFile = () => {
     onClick?.();
@@ -23,8 +23,8 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
   
 
   // 计算按钮状态 - 模态框打开时或有其他操作时禁用
-  const isDisabled = (currentActionFunction !== null);
-
+  const isDisabled = (functionWriting !== null);
+  
   return (
     <div className={cn('w-full', className)}>
       <div className={'flex flex-col md:flex-row w-full items-center gap-2'}>

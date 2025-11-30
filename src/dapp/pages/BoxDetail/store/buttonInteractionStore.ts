@@ -6,25 +6,25 @@ import { FunctionNameType } from '@/dapp/types/contracts';
 
 interface ButtonInteractionState {
     // 当前正在执行的操作
-    currentActionFunction: FunctionNameType | null;
+    functionWriting: FunctionNameType | null;
     // 当前操作是否在pending状态
     isPending: boolean;
     
     // Actions
-    setCurrentActionFunction: (action: FunctionNameType | null) => void;
+    setFunctionWriting: (action: FunctionNameType | null) => void;
     setPending: (isPending: boolean) => void;
     reset: () => void;
 }
 
 export const useButtonInteractionStore = create<ButtonInteractionState>((set, get) => ({
-    currentActionFunction: null,
+    functionWriting: null,
     isPending: false,
 
-    setCurrentActionFunction: (action) => set({ currentActionFunction: action }),
+    setFunctionWriting: (functionName) => set({ functionWriting: functionName }),
     setPending: (isPending) => set({ isPending }),
 
     reset: () => set({
-        currentActionFunction: null,
+        functionWriting: null,
         isPending: false
     })
 }));

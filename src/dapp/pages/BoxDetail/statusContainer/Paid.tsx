@@ -1,6 +1,5 @@
 'use client'
 import React from 'react';
-import UriPassword from '@/dapp/components/uriPassword';
 import {
     RequestRefundButton,
     CompleteButton,

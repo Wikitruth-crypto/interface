@@ -12,7 +12,6 @@ interface Props {
 const Auction: React.FC<Props> = ({ }) => {
     const store = useBoxDetailStore(state => state)
     const { roles } = store.userState
-    const deadlineCheckState = store.deadlineCheckState
     const { box } = useBoxDetailContext()
 
     if (!box) {
@@ -35,7 +34,7 @@ const Auction: React.FC<Props> = ({ }) => {
                 />
             )}
             {
-                (box.biddersIds?.length === 0 && deadlineCheckState.isOverDeadline) &&
+                (box.biddersIds?.length === 0 && Number(box.deadline) < Math.floor(Date.now() / 1000)) &&
                 <div className="mb-4">
                     <Alert
                         type="warning"

@@ -49,7 +49,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
     const [writeType, setWriteType] = useState<FunctionNameType | null>(null);
     
     // 使用 buttonInteractionStore 管理按钮交互状态
-    const { setCurrentActionFunction, setPending } = useButtonInteractionStore();
+    const { setFunctionWriting, setPending } = useButtonInteractionStore();
     const addBoxInteraction = useAccountStore(state => state.addBoxInteraction);
 
     const write_BoxDetail = async (
@@ -58,7 +58,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
         const functionName = config.functionName as FunctionNameType;
         
         setWriteType(functionName);
-        setCurrentActionFunction(functionName);
+        setFunctionWriting(functionName);
         
         try {
             const result = await writeContractAsync({
@@ -72,7 +72,7 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
             console.error('Contract write failed:', err);
             throw err;
         } finally {
-            setCurrentActionFunction(null);
+            setFunctionWriting(null);
         }
     };
 
@@ -85,7 +85,9 @@ export const useWrite_BoxDetail = (): WriteContractResult => {
     useEffect(() => {
         if (isSuccessed && writeType && address) {
             addBoxInteraction(boxId, writeType, hash);
-            console.log(`[useWrite_BoxDetail] Transaction successful: ${writeType} on Box ${boxId}`);
+            if(import.meta.env.DEV) {
+                console.log(`[useWrite_BoxDetail] Transaction successful: ${writeType} on Box ${boxId}`);
+            } 
         }
     }, [isSuccessed, writeType, address, boxId, hash, addBoxInteraction]);
 
