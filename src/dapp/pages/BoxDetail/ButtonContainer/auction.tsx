@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
-import { usePeriodRate } from '@dapp/constants/periodRate';
+import { useProtocolConstants } from '@/dapp/contractsConfig';
 import Paragraph from '@/components/base/paragraph';
 import { boxActionConfigs } from '../actions/configs';
 import { useBoxActionController } from '../hooks/useBoxActionController';
@@ -19,7 +19,7 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const { functionWriting } = useButtonInteractionStore();
   const controller = useBoxActionController(boxActionConfigs.auction);
   
-  const { auctioningTime } = usePeriodRate();
+  const { auctioningTime } = useProtocolConstants();
 
   const handleAuction = () => {
     onClick?.();

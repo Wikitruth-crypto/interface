@@ -13,6 +13,7 @@ import { useAccountStore } from '@/dapp/store/accountStore';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import type { BoxRewardData, BoxUserOrderAmountData } from '../types/boxDetailData';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
+import { useCheckDeadline } from '../hooks/useCheckDeadline';
 
 interface BoxDetailContextType {
   // 基础数据（默认查询 - 必须）
@@ -22,7 +23,7 @@ interface BoxDetailContextType {
   isLoading: boolean;
 
   // 截止时间检查状态
-  // deadlineCheckState: DeadlineCheckStateType;
+  deadlineCheckState: DeadlineCheckStateType | undefined;
   
   // 奖励数据（按需查询 - 根据条件启用）
   boxRewardsData: BoxRewardData[] | undefined;
@@ -59,6 +60,8 @@ export const BoxDetailProvider: React.FC<{
     isLoading: isLoadingBase 
   } = useBoxAndMetadata(boxId);
 
+  // 截止时间检查状态查询
+  const deadlineCheckState = useCheckDeadline(box || {} as BoxDetailData);
 
   // ==================== 获取用户信息（用于条件查询） ====================
   // 获取 userId，用于 orderAmounts 查询
@@ -131,6 +134,9 @@ export const BoxDetailProvider: React.FC<{
     metadataBox,
     isLoading: isLoadingBase || !box,
 
+    // 截止时间检查状态
+    deadlineCheckState,
+
     // 奖励数据
     boxRewardsData,
     isLoadingRewards,
@@ -147,6 +153,7 @@ export const BoxDetailProvider: React.FC<{
     boxId,
     metadataBox,
     isLoadingBase,
+    deadlineCheckState,
     boxRewardsData,
     isLoadingRewards,
     biddersIds,

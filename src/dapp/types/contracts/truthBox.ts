@@ -15,6 +15,8 @@ export interface CreateAndPublishArgsType{
 }
 
 export type FunctionNameType_TruthBox = 
+'create' |
+'createAndPublish' |
 'publishByMinter' | 
 'publishByBuyer' | 
 'payConfiFee' |

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
-import { usePeriodRate } from '@/dapp/constants/periodRate';
+import { useProtocolConstants } from '@/dapp/contractsConfig';
 import Paragraph from '@/components/base/paragraph';
 import { useBoxActionController } from '@/dapp/pages/BoxDetail/hooks/useBoxActionController';
 import { boxActionConfigs } from '@/dapp/pages/BoxDetail/actions/configs';
@@ -18,7 +18,7 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const controller = useBoxActionController(boxActionConfigs.sell);
   const { roles } = useBoxDetailStore(state => state.userState);
-  const { helperRewardRate } = usePeriodRate();
+  const { helperRewardRate } = useProtocolConstants();
 
   const handleSell = () => {
     onClick?.();

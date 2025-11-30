@@ -6,6 +6,7 @@ import {
     getSupportedTokens_WithChainId, 
     getOfficialTokenConfig_WithChainId 
 } from "./tokens";
+import { getProtocolConstants, ProtocolConstantsType, SAPPHIRE_TESTNET_CONSTANTS } from "./ProtocolConstants";
 
 export let CHAIN_ID = 23295;
 export let CHAIN_CONFIG = sapphireTestnet;
@@ -18,6 +19,8 @@ export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     address: '0x0000000000000000000000000000000000000000',
     types: 'ERC20',
 }
+
+export let PROTOCOL_CONSTANTS: ProtocolConstantsType = SAPPHIRE_TESTNET_CONSTANTS;
 
 /**
  * 监听当前链的变化, 
@@ -38,6 +41,7 @@ export function useSetCurrentChainConfig() {
             CHAIN_ID = chainId;
             SUPPORTED_TOKENS = getSupportedTokens_WithChainId(chainId);
             OFFICIAL_TOKEN_CONFIG = getOfficialTokenConfig_WithChainId(chainId);
+            PROTOCOL_CONSTANTS = getProtocolConstants(chainId);
         }
 
     }, [chainId]);

@@ -1,36 +1,40 @@
-// import type { BoxDetailData } from '../types/boxDetailData';
+import type { BoxDetailData, DeadlineCheckStateType } from '../types/boxDetailData';
+import { PROTOCOL_CONSTANTS } from '@/dapp/contractsConfig';
 
-// export const useCheckDeadline = (box: BoxDetailData) => {
+export const useCheckDeadline = (box: BoxDetailData): DeadlineCheckStateType | undefined => {
 
-//     if (!box) {
-//         return;
-//     }
+    if (!box) {
+        return undefined;
+    }
 
-//     const {
-//         deadline,
-//         requestRefundDeadline,
-//         reviewDeadline,
-//     } = box;
+    const {
+        deadline,
+        requestRefundDeadline,
+        reviewDeadline,
+    } = box;
 
-//     let isInDeadline = false;
-//     let isInRequestRefundPeriod = true;
-//     let isInReviewRefundPeriod = true;
+    let isInDeadline = false;
+    let isInRequestRefundDeadline = true;
+    let isInReviewRefundDeadline = true;
 
-//     const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000);
 
-//     if (deadline) {
-//         isInDeadline = Number(deadline) > now;
-//     }
-//     if (requestRefundDeadline) {
-//         isInRequestRefundPeriod = Number(requestRefundDeadline) > now;
-//     }
-//     if (reviewDeadline) {
-//         isInReviewRefundPeriod = Number(reviewDeadline) > now;
-//     }
+    if (deadline) {
+        isInDeadline = Number(deadline) > now;
+    }
+    if (requestRefundDeadline) {
+        isInRequestRefundDeadline = Number(requestRefundDeadline) > now;
+    }
+    if (reviewDeadline) {
+        isInReviewRefundDeadline = Number(reviewDeadline) > now;
+    }
 
-//     return {
-//         isInRequestRefundPeriod: isInRequestRefundPeriod,
-//         isInReviewRefundPeriod: isInReviewRefundPeriod,
-//         isInDeadline: isInDeadline,
-//     };
-// }
+    const isInExtendDeadlineTimeWindow = now > Number(deadline) - PROTOCOL_CONSTANTS.extendDeadlineTimeWindow;
+
+    return {
+        isInRequestRefundDeadline: isInRequestRefundDeadline,
+        isInReviewRefundDeadline: isInReviewRefundDeadline,
+        isInDeadline: isInDeadline,
+        isInExtendDeadlineTimeWindow: isInExtendDeadlineTimeWindow,
+    };
+}

@@ -3,7 +3,7 @@ import React from 'react';
 import { Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
-import { usePeriodRate } from '@/dapp/constants/periodRate';
+import { useProtocolConstants } from '@/dapp/contractsConfig';
 import BoxActionButton from '@/dapp/pages/BoxDetail/components/boxActionButton';
 import { useBoxActionController } from '@/dapp/pages/BoxDetail/hooks/useBoxActionController';
 import { boxActionConfigs } from '@/dapp/pages/BoxDetail/actions/configs';
@@ -16,7 +16,7 @@ interface Props {
 const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
   const controller = useBoxActionController(boxActionConfigs.completeOrder);
   const { roles } = useBoxDetailStore(state => state.userState);
-  const { helperRewardRate } = usePeriodRate();
+  const { helperRewardRate } = useProtocolConstants();
 
   return (
     <BoxActionButton controller={controller} className={className} onClick={onClick}>

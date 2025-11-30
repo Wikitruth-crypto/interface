@@ -3,7 +3,7 @@ import type { BoxDetailData } from '../types/boxDetailData';
 // import type { DeadlineCheckStateType } from '../types/stateType';
 import type { ContractConfig, ContractConfigs } from '@/dapp/contractsConfig/types';
 import type { FunctionNameType } from '@/dapp/types/contracts';
-import type { ButtonDisabledNameType } from '../hooks/useButtonActive';
+import type { ButtonActiveNameType } from '../hooks/useButtonActive';
 
 export interface BoxActionContext {
   box?: BoxDetailData;
@@ -31,7 +31,7 @@ export interface BoxActionConfig {
   getAllowanceParams?: (ctx: BoxActionContext, configs: ContractConfigs) => { token: string; amount: number | string | bigint } | null;
   allowedRoles?: BoxRoleType[];
   isDisabled?: (ctx: BoxActionContext) => boolean;
-  activeKey?: ButtonDisabledNameType;
+  activeKey?: ButtonActiveNameType;
   buildWrite?: (
     ctx: BoxActionContext,
     configs: ContractConfigs,

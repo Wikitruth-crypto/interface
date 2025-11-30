@@ -3,7 +3,7 @@ import React from 'react';
 import { Typography } from 'antd';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
-import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { MAX_UINT256 } from '@/dapp/constants';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';

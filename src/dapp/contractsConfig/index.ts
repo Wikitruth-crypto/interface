@@ -21,8 +21,15 @@ export {
   CHAIN_ID,
   CHAIN_CONFIG,
   OFFICIAL_TOKEN_CONFIG,
+  PROTOCOL_CONSTANTS,
   useSetCurrentChainConfig,
 } from './current';
+
+// 导出协议常量
+export {
+  getProtocolConstants,
+  useProtocolConstants,
+} from './ProtocolConstants';
 
 // 导出配置管理器和工具函数
 export {

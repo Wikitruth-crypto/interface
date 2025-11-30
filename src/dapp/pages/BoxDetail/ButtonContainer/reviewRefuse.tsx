@@ -5,7 +5,7 @@ import { Button } from 'antd';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
-import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {

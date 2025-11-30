@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from 'antd';
 import Line from '@/components/base/line';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import { useUpdateNft_array } from '@dapp/hooks/useUpdateNft_array';
 // interface Props {
@@ -17,7 +17,7 @@ type ActiveButton = 'AddBlackList' | 'Unblacklist' | null;
 const AdminFunction = () => {
     const { boxId } = useBoxDetailContext();
     const allConfigs = useAllContractConfigs();
-    const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
+    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2(boxId);
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);
     
 
@@ -31,7 +31,7 @@ const AdminFunction = () => {
 
     const handleAddBlackList = async () => {
         setActiveButton('AddBlackList');
-        await write_BoxDetail({
+        await writeCustormV2({
             contract: allConfigs.TruthBox,
             functionName: 'addBlackTokenId',
             args: [boxId],

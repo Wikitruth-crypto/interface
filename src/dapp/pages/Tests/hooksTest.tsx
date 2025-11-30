@@ -7,7 +7,7 @@ import {
     Card,
 } from 'antd';
 import { useReadContract } from '@dapp/hooks/readContracts/useReadContract';
-import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import {
     ContractName,
     useAllContractConfigs,

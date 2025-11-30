@@ -54,7 +54,7 @@ export interface DeadlineCheckStateType {
     isInRequestRefundDeadline: boolean,
     isInReviewRefundDeadline: boolean,
     isInDeadline: boolean,
-    completeOrderDeadline: number,
+    isInExtendDeadlineTimeWindow: boolean,
 }
 
 // const initialDeadlineCheckState: DeadlineCheckStateType = {

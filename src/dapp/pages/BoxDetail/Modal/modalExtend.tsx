@@ -11,7 +11,7 @@ import {
     useEffect,
 } from 'react';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';

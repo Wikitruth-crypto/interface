@@ -4,7 +4,7 @@ import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useAllowance_BoxDetail } from '../hooks/useAllowanceBoxDetail';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
-import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { useButtonActive } from './useButtonActive';
 import type { BoxActionConfig, BoxActionController, BoxActionContext, BoxActionWriteParams } from '../actions/types';
 import type { FunctionNameType } from '@/dapp/types/contracts';

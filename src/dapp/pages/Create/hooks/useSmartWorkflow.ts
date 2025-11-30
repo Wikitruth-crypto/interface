@@ -45,7 +45,7 @@ import {
 
 // 导入 Mint 步骤需要的依赖
 import { useContractConfig, ContractName, useSupportedTokens } from '@/dapp/contractsConfig';
-import { useWriteCustorm } from '@/dapp/hooks/useWritCustormV2';
+import { useWriteCustorm } from '@/dapp/hooks/useWriteCustorm';
 
 export interface SmartWorkflowResult {
   success: boolean;
@@ -62,7 +62,7 @@ export const useSmartWorkflow = () => {
   const orchestratorRef = useRef<SmartWorkflowOrchestrator | null>(null);
 
   // 获取 Mint 步骤需要的 Hook 依赖
-  const { write } = useWriteCustorm();
+  const { writeCustorm } = useWriteCustorm();
   const contractConfig = useContractConfig(ContractName.TRUTH_BOX);
   const tokens = useSupportedTokens();
 
@@ -89,14 +89,14 @@ export const useSmartWorkflow = () => {
       .registerStep(createMetadataNFTStep())
       .registerStep(createMetadataBoxStep())
       .registerStep(createMintStep({
-        write,
+        writeCustorm,
         contractConfig,
         tokens,
       }))
       .registerStep(createUploadResultDataStep());
 
     return orchestrator;
-  }, [write, contractConfig, tokens]);
+  }, [writeCustorm, contractConfig, tokens]);
 
   /**
    * 启动工作流

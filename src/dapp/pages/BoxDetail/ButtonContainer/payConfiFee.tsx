@@ -2,7 +2,7 @@
 import React from 'react';
 import { Typography } from 'antd';
 import { cn } from '@/lib/utils';
-import { usePeriodRate } from '@/dapp/constants/periodRate';
+import { useProtocolConstants } from '@/dapp/contractsConfig';
 import BoxActionButton from '@/dapp/pages/BoxDetail/components/boxActionButton';
 import { useBoxActionController } from '@/dapp/pages/BoxDetail/hooks/useBoxActionController';
 import { boxActionConfigs } from '@/dapp/pages/BoxDetail/actions/configs';
@@ -17,7 +17,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const {
     payConfiFeeExtendDeadline,
     incrementRate,
-  } = usePeriodRate();
+  } = useProtocolConstants();
 
   return (
     <BoxActionButton controller={controller} className={className} onClick={onClick}>

@@ -12,7 +12,7 @@ export * from './transaction';
 export * from './addressRoles';
 
 // 周期比率（现有的）
-export * from './periodRate';
+export * from '../contractsConfig/ProtocolConstants';
 
 // 超时配置（现有的）
 export * from './timeOut';

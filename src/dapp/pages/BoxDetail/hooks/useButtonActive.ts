@@ -6,53 +6,50 @@ import { BoxInteractionRecord, useAccountStore, AccountStoreState } from '@/dapp
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 
-export type ButtonDisabledNameType = 
-'extendActive' | 
-'sellActive' | 
-'auctionActive' | 
-'buyActive' | 
-'bidActive' | 
-'requestRefundActive' | 
-'cancelRefundActive' | 
-'agreeRefundActive' | 
-'refuseRefundActive' | 
-'completeActive' | 
-'payConfiFeeActive' | 
-'publishActive' | 
-'viewFileActive';
+export type ButtonActiveNameType =
+  'extendActive' |
+  'sellActive' |
+  'auctionActive' |
+  'buyActive' |
+  'bidActive' |
+  'requestRefundActive' |
+  'cancelRefundActive' |
+  'agreeRefundActive' |
+  'refuseRefundActive' |
+  'completeActive' |
+  'payConfiFeeActive' |
+  'publishActive' |
+  'viewFileActive';
 
-export const useButtonActive= (name: ButtonDisabledNameType) => {
-  const { boxId, box } = useBoxDetailContext();
-  const { userState, modalStatus} = useBoxDetailStore(state => state);
+export const useButtonActive = (name: ButtonActiveNameType) => {
+  const { boxId, box, deadlineCheckState } = useBoxDetailContext();
+  const { userState, modalStatus } = useBoxDetailStore(state => state);
   const { address } = useWalletContext() || {};
   const normalizedAddress = address?.toLowerCase();
   const emptyInteractions: BoxInteractionRecord[] = [];
 
 
 
-const selector = useMemo(() => {
-  if (!normalizedAddress || !CHAIN_ID) {
-    return () => emptyInteractions;  // 始终返回同一个数组引用
-  }
-  return (state: AccountStoreState) =>
-    state.accounts[CHAIN_ID]?.[normalizedAddress]?.boxInteractions[boxId] ?? emptyInteractions;
-}, [normalizedAddress, boxId]);
+  const selector = useMemo(() => {
+    if (!normalizedAddress || !CHAIN_ID) {
+      return () => emptyInteractions;  // 始终返回同一个数组引用
+    }
+    return (state: AccountStoreState) =>
+      state.accounts[CHAIN_ID]?.[normalizedAddress]?.boxInteractions[boxId] ?? emptyInteractions;
+  }, [normalizedAddress, boxId]);
 
-const boxInteractions = useAccountStore(selector);
+  const boxInteractions = useAccountStore(selector);
 
   return useMemo(() => {
     if (!box) {
       return false;
-    } 
+    }
 
-    const now = Math.floor(Date.now() / 1000);
 
     const wroteList = boxInteractions.map(interaction => interaction.functionWrote) || [];
 
     const roles = userState.roles;
-    const isInDeadline = Number(box.deadline) > now;
-    const isInRequestRefundDeadline = Number(box.requestRefundDeadline) > now;
-    const isInReviewRefundDeadline = Number(box.reviewDeadline) > now;
+    const { isInDeadline, isInRequestRefundDeadline, isInReviewRefundDeadline } = deadlineCheckState || {};
 
     const isInBlackListed = box.isInBlacklist || false;
     const status = box.status || 'Storing';
@@ -110,11 +107,6 @@ const boxInteractions = useAccountStore(selector);
       }
     }
 
-    const payConfiFee_deadlineCheck = (): boolean => {
-      // 当前时间，必须距离deadline小于30天
-      return now > Number(box?.deadline) - 30 * 24 * 60 * 60;
-    };
-
     const viewFileActive = (): boolean => {
       if (status === 'Storing' || status === 'Selling' || status === 'Auctioning') {
         return isMinter;
@@ -124,7 +116,7 @@ const boxInteractions = useAccountStore(selector);
         return !isGuest;
       } else if (status === 'Published') {
         return !isGuest;
-      } 
+      }
       return false;
     };
 
@@ -134,14 +126,15 @@ const boxInteractions = useAccountStore(selector);
         return !isInBlackListed &&
           isMinter &&
           isInDeadline &&
-          !wroteList.includes('extendDeadline') && 
+          deadlineCheckState?.isInExtendDeadlineTimeWindow &&
+          !wroteList.includes('extendDeadline') &&
           modalStatus.ExtendDeadline === 'close';
 
       case 'sellActive':
         return !isInBlackListed &&
           status === 'Storing' &&
           sellOrAuction_roleCheck() &&
-          !wroteList.includes('sell') && 
+          !wroteList.includes('sell') &&
           modalStatus.SellAuction === 'close';
 
       case 'auctionActive':
@@ -163,7 +156,7 @@ const boxInteractions = useAccountStore(selector);
         return !isInBlackListed &&
           status === 'Auctioning' &&
           !isBuyer &&
-          (isOther || isBidder )&&
+          (isOther || isBidder) &&
           isInDeadline &&
           !wroteList.includes('bid');
 
@@ -209,7 +202,7 @@ const boxInteractions = useAccountStore(selector);
       case 'payConfiFeeActive':
         return !isInBlackListed &&
           status === 'InSecrecy' &&
-          payConfiFee_deadlineCheck() && 
+          deadlineCheckState?.isInExtendDeadlineTimeWindow &&
           !isGuest &&
           !wroteList.includes('payConfiFee');
 
@@ -221,19 +214,18 @@ const boxInteractions = useAccountStore(selector);
 
       case 'viewFileActive':
         return !isInBlackListed &&
-        viewFileActive();
+          viewFileActive();
 
       default:
         return true;
     }
   }, [
-    name, 
-    box, 
+    name,
+    box,
     normalizedAddress,
-    userState.roles, 
+    userState.roles,
     boxInteractions,
     modalStatus,
     boxId
   ]);
 };
-
