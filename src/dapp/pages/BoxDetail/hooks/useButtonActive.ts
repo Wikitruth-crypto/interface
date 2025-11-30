@@ -1,7 +1,8 @@
 import { useBoxDetailStore } from '../store/boxDetailStore';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useAccountStore } from '@/dapp/store/accountStore';
+import { BoxInteractionRecord, useAccountStore, AccountStoreState } from '@/dapp/store/accountStore';
+// import { Address_0 } from '@/dapp/constants/addressRoles';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 
@@ -25,11 +26,19 @@ export const useButtonActive= (name: ButtonDisabledNameType) => {
   const { userState, modalStatus} = useBoxDetailStore(state => state);
   const { address } = useWalletContext() || {};
   const normalizedAddress = address?.toLowerCase();
+  const emptyInteractions: BoxInteractionRecord[] = [];
 
-  const boxInteractions = useAccountStore((state) => {
-    if (!CHAIN_ID || !normalizedAddress) return [];
-    return state.accounts[CHAIN_ID]?.[normalizedAddress]?.boxInteractions[boxId] || [];
-  });
+
+
+const selector = useMemo(() => {
+  if (!normalizedAddress || !CHAIN_ID) {
+    return () => emptyInteractions;  // 始终返回同一个数组引用
+  }
+  return (state: AccountStoreState) =>
+    state.accounts[CHAIN_ID]?.[normalizedAddress]?.boxInteractions[boxId] ?? emptyInteractions;
+}, [normalizedAddress, boxId]);
+
+const boxInteractions = useAccountStore(selector);
 
   return useMemo(() => {
     if (!box) {

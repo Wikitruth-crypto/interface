@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import ModalExtend from '@BoxDetail/Modal/modalExtend';
-import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
+import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
 
 interface Props {

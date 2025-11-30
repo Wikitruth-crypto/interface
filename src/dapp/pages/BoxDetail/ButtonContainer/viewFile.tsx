@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
-import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
+import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 
 interface Props {
   onClick?: () => void;
@@ -24,7 +24,7 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
 
   // 计算按钮状态 - 模态框打开时或有其他操作时禁用
   const isDisabled = (functionWriting !== null);
-  
+
   return (
     <div className={cn('w-full', className)}>
       <div className={'flex flex-col md:flex-row w-full items-center gap-2'}>

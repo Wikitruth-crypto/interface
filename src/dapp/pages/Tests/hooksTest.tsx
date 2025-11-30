@@ -7,7 +7,7 @@ import {
     Card,
 } from 'antd';
 import { useReadContract } from '@dapp/hooks/readContracts/useReadContract';
-import { useWriteCustorm } from '@/dapp/hooks/useWritCustorm';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
 import {
     ContractName,
     useAllContractConfigs,
@@ -23,7 +23,7 @@ const HooksTest = () => {
 
     const { address } = useAccount();
     const [result, setResult] = useState<any>(null);
-    const { write } = useWriteCustorm();
+    const { writeCustormV2 } = useWriteCustormV2();
 
     const { readContract } = useReadContract();
     const { readAllowance } = useReadAllowance();
@@ -62,7 +62,7 @@ const HooksTest = () => {
     const [resultWriteSapphire, setResultWriteSapphire] = useState<any>(null);
     const testWriteSapphire = async () => {
         if (!address) return;
-        const result = await write({
+        const result = await writeCustormV2({
             contract: allConfigs.OfficialTokenSecret,
             functionName: 'approve',
             args: [allConfigs.FundManager.address, 6000000],

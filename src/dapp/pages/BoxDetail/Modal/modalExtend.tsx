@@ -11,7 +11,7 @@ import {
     useEffect,
 } from 'react';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
@@ -26,7 +26,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
     // const { address } = useWalletContext();
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
     const { roles } = useBoxDetailStore(state => state.userState);
-    const { write_BoxDetail, error, isPending, isSuccessed } = useWrite_BoxDetail();
+    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2(boxId);
     const allConfigs = useAllContractConfigs();
     const [isAble, setIsAble] = useState<boolean>(false)
     const [okText, setOkText] = useState<string>('Submit')
@@ -66,7 +66,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
     const handleExtend = async () => {
         if (timestamp) {
             if (roles.includes('Minter')) {
-                await write_BoxDetail({
+                await writeCustormV2({
                     contract: allConfigs.TruthBox,
                     functionName: 'extendDeadline',
                     args: [boxId, timestamp], // 
@@ -99,7 +99,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
             cancelButtonProps={{ disabled: isAble }}
             okText={okText}
             cancelText="Close"
-            width={600}
+            width={450}
         >
             <div className='flex flex-col gap-2'>
 

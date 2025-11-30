@@ -3,8 +3,8 @@ import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useAllowance_BoxDetail } from '../hooks/useAllowanceBoxDetail';
-import { useButtonInteractionStore } from '../store/buttonInteractionStore';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
 import { useButtonActive } from './useButtonActive';
 import type { BoxActionConfig, BoxActionController, BoxActionContext, BoxActionWriteParams } from '../actions/types';
 import type { FunctionNameType } from '@/dapp/types/contracts';
@@ -14,8 +14,8 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   const { box, boxId } = useBoxDetailContext();
   const roles = useBoxDetailStore((state) => state.userState.roles);
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
-  const { functionWriting, isPending } = useButtonInteractionStore();
-  const { write_BoxDetail, error } = useWrite_BoxDetail();
+  const { functionWriting} = useButtonInteractionStore();
+  const { writeCustormV2, error } = useWriteCustormV2(boxId);
   const disabledByHook = config.activeKey ? useButtonActive(config.activeKey) : false;
 
   const [isCheckingAllowance, setIsCheckingAllowance] = useState(false);
@@ -52,7 +52,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   }, [shouldCheckAllowance]);
 
   const pendingFns = config.pendingFunctions ?? [config.functionName];
-  const isActionPending = pendingFns.includes((functionWriting ?? '') as FunctionNameType) && isPending;
+  const isActionPending = pendingFns.includes((functionWriting ?? '') as FunctionNameType);
   const blockedByOtherAction =
     functionWriting !== null && !pendingFns.includes((functionWriting ?? '') as FunctionNameType);
 
@@ -100,7 +100,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
 
     options?.onClick?.();
 
-    await write_BoxDetail({
+    await writeCustormV2({
       contract: writeParams.contract,
       functionName: writeParams.functionName,
       args: writeParams.args,

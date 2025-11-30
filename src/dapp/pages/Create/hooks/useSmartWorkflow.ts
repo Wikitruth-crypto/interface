@@ -45,7 +45,7 @@ import {
 
 // 导入 Mint 步骤需要的依赖
 import { useContractConfig, ContractName, useSupportedTokens } from '@/dapp/contractsConfig';
-import { useWriteCustorm } from '@/dapp/hooks/useWritCustorm';
+import { useWriteCustorm } from '@/dapp/hooks/useWritCustormV2';
 
 export interface SmartWorkflowResult {
   success: boolean;

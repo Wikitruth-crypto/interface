@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
-import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
+import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { usePeriodRate } from '@dapp/constants/periodRate';
 import Paragraph from '@/components/base/paragraph';

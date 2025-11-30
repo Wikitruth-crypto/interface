@@ -4,8 +4,8 @@ import { Typography } from 'antd';
 import { Button } from 'antd';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { cn } from '@/lib/utils';
-import { useButtonInteractionStore } from '@BoxDetail/store/buttonInteractionStore';
-import { useWrite_BoxDetail } from '../hooks/useWriteBoxDetail';
+import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWritCustormV2';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
@@ -15,15 +15,15 @@ interface Props {
 
 const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
   const { boxId } = useBoxDetailContext();
-  const { write_BoxDetail, error } = useWrite_BoxDetail();
+  const { writeCustormV2, error } = useWriteCustormV2(boxId);
   const allConfigs = useAllContractConfigs();
   
   // 使用集中的按钮交互状态
-  const { functionWriting, isPending } = useButtonInteractionStore();
+  const { functionWriting} = useButtonInteractionStore();
 
   const handleRefuse = async () => {
     onClick?.();
-    await write_BoxDetail({
+    await writeCustormV2({
       contract: allConfigs.Exchange,
       functionName: 'refuseRefund',
       args: [boxId],
@@ -31,7 +31,7 @@ const RefuseButton: React.FC<Props> = ({ onClick, className }) => {
   };
 
   // 计算按钮状态
-  const isLoading = functionWriting === 'refuseRefund' || isPending;
+  const isLoading = functionWriting === 'refuseRefund';
   const isDisabled = (functionWriting !== null && functionWriting !== 'refuseRefund');
 
   return (

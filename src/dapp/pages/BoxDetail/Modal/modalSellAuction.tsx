@@ -97,7 +97,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
             cancelButtonProps={{ disabled: controller.isLoading }}
             okText={controller.isLoading ? 'Processing...' : 'Submit'}
             cancelText="Close"
-            width={600}
+            width={450}
         >
             <div className='flex flex-col gap-2'>
 

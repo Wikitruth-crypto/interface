@@ -82,7 +82,7 @@ const ModalViewFile: React.FC<Props> = ({ onClose }) => {
             cancelButtonProps={{ disabled: false }}
             okText={okText}
             cancelText="Close"
-            width={600}
+            width={450}
         >
             <div className='flex flex-col gap-2'>
 
