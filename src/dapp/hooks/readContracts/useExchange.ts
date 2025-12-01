@@ -11,12 +11,12 @@ export function useExchange() {
 
     // 支付相关
     // function calcPayMoney(uint256 boxId_) external view returns (uint256);
-    const calcPayMoney = async (id: number | string): Promise<number> => {
+    const calcPayMoney = async (id: number | string, address: string): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'calcPayMoney',
-                args: [BigInt(id)],
+                args: [BigInt(id), address],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {

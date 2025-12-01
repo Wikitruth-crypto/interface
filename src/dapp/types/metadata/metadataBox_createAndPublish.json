@@ -1,0 +1,40 @@
+{
+  "project": "Wiki Truth",
+  "website": [
+    "https://wikitruth.eth.limo/"
+  ],
+  "name": "Truth Box",
+  "tokenId": "",
+  "typeOfCrime": "Financial Crime",
+  "label": [
+    "eternal",
+    "oasis",
+    "ponzi",
+    "Fraud",
+    "Ponzi Scheme"
+  ],
+  "title": "I am an early investor and promoter of the \"Eternal Oasis\" agricultural investment fund. I have a complete fund flow chart showing how the founder use",
+  "nftImage": "ipfs://bafkreifwqhqtzmbxddz6ia6lbylzi46jdpmu37jfeodzpp72mbxqlhejpm",
+  "boxImage": "ipfs://bafkreifoypw3i5bohdjb6lwxgllhi3exppk67d7hk2tldvjavmg3pooxua",
+  "country": "Bolivia",
+  "state": "Cochabamba Department",
+  "description": "I once believed the \"Eternal Oasis\" agricultural investment fund was a revolutionary project, promising 30% annual stable returns through investing in \"high-tech organic farms\" in South America. Founder Charles Miller was charismatic, and the farm photos in his PPT looked vibrant. I not only invested all my savings but also became their regional promotion partner using my connections. Initially everything was perfect, with \"returns\" wired to my account on time every month. But as I developed more downlines, I began accessing the company's internal accounting system. By chance, I discovered something chilling: funds invested by my downlines, after entering the company's main fund pool, were almost instantly split by an automated script. A small portion went to an \"operating costs\" account, while the vast majority was directly routed to the \"returns\" payment accounts of early investors like me. I spent a month secretly tracking hundreds of transactions and created a detailed fund flow ne",
+  "eventDate": "2022-08-20",
+  "createDate": "2025/10/31 16:39:00",
+  "timestamp": 1761899940685,
+  "mintMethod": "createAndPublish",
+  "encryptionSlicesMetadataCID": {
+    "slicesMetadataCID_encryption": "",
+    "slicesMetadataCID_iv": ""
+  },
+  "encryptionFileCID": [],
+  "encryptionPasswords": {
+    "password_encryption": "",
+    "password_iv": ""
+  },
+  "publicKey": "",
+  "fileList": [
+    "bafkreibnsg36tgfxsoyq3jb6dfwwb3ffunn3mrrd6twlj6p5mhstfym3xy"
+  ],
+  "password": ""
+}

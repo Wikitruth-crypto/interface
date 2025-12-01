@@ -1,8 +1,9 @@
 'use client'
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
+import BoxActionButton from '@/dapp/pages/BoxDetail/components/boxActionButton';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { useProtocolConstants } from '@/dapp/contractsConfig';
 import Paragraph from '@/components/base/paragraph';
@@ -16,7 +17,6 @@ interface Props {
 
 const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { functionWriting } = useButtonInteractionStore();
   const controller = useBoxActionController(boxActionConfigs.auction);
   
   const { auctioningTime } = useProtocolConstants();
@@ -35,13 +35,14 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
       <div className='flex flex-col md:flex-row items-center gap-2'>
         <Button
           onClick={handleAuction}
-          disabled={functionWriting !== null}
+          loading={controller.isLoading}
+          disabled={controller.isDisabled}
         >
           Auction
         </Button>
-        <Paragraph color="muted-foreground" size="sm">
+        <Typography.Paragraph className="text-muted-foreground text-sm">
           Start the auction, the initial auction period is {auctioningTime / 24 / 3600} days.
-        </Paragraph>
+        </Typography.Paragraph>
         {modalOpen && <ModalSellAuction onClose={closeModal} listedMode='Auction' controller={controller} />}
       </div>
     </div>

@@ -36,7 +36,7 @@ export const useLisenerRoles = () => {
     useEffect(() => {
         let roles: BoxRoleType[] = [];
         updateUserState({ roles: roles });
-        if (!address || !isConnected || !box || !userId) {
+        if (!address || !isConnected || !box) {
             return;
         }
 
@@ -52,7 +52,7 @@ export const useLisenerRoles = () => {
         const completerId = box.completerId ? String(box.completerId).trim() : '';
         const biddersIds = box.biddersIds || [];
 
-        if (biddersIds.length > 0) {
+        if (biddersIds.length > 0 && userIdStr && userIdStr !== '') {
             // bidders 现在是字符串数组
             const isBidder = biddersIds.some(bidderId => bidderId === userIdStr);
             if (isBidder && buyerId !== userIdStr) {
@@ -61,18 +61,19 @@ export const useLisenerRoles = () => {
         }
 
         const role = (): BoxRoleType[] => {
-
             if (accountRole === 'Admin') {
                 roles.push('Admin');
             };
-            if (userIdStr === minterId) {
-                roles.push('Minter');
-            };
-            if (userIdStr === sellerId) roles.push('Seller');
-            if (userIdStr === buyerId) {
-                roles.push('Buyer');
-            };
-            if (userIdStr === completerId) roles.push('Completer');
+            if (userIdStr && userIdStr !== '') {
+                if (userIdStr === minterId) {
+                    roles.push('Minter');
+                };
+                if (userIdStr === sellerId) roles.push('Seller');
+                if (userIdStr === buyerId) {
+                    roles.push('Buyer');
+                };
+                if (userIdStr === completerId) roles.push('Completer');
+            }
             
             if (roles.length === 0) roles.push('Other');
 

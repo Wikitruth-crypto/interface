@@ -8,7 +8,7 @@ export const boxActionConfigs: Record<string, BoxActionConfig> = {
   buy: {
     id: 'buy',
     label: 'Buy',
-    description: 'You can purchase this box.',
+    description: 'Buy this box.',
     contract: exchangeContract,
     functionName: 'buy',
     getArgs: ({ boxId }) => [boxId],
@@ -26,6 +26,7 @@ export const boxActionConfigs: Record<string, BoxActionConfig> = {
   bid: {
     id: 'bid',
     label: 'Bid',
+    description: 'Bid for this box.',
     contract: exchangeContract,
     functionName: 'bid',
     getArgs: ({ boxId }) => [boxId],
@@ -43,6 +44,7 @@ export const boxActionConfigs: Record<string, BoxActionConfig> = {
   payConfiFee: {
     id: 'payConfiFee',
     label: 'PayConfiFee',
+    description: 'Pay the confidentiality fee and extend the confidentiality period.',
     contract: exchangeContract,
     functionName: 'payConfiFee',
     getArgs: ({ boxId }) => [boxId],
@@ -95,7 +97,7 @@ export const boxActionConfigs: Record<string, BoxActionConfig> = {
   completeOrder: {
     id: 'completeOrder',
     label: 'Complete',
-    description: 'Complete the transaction.',
+    // description: 'Complete the order.',
     contract: exchangeContract,
     functionName: 'completeOrder',
     getArgs: ({ boxId }) => [boxId],

@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
+import {useButtonActive} from '../hooks/useButtonActive';
+// import { useBoxActionController } from '../hooks/useBoxActionController';
+// import { boxActionConfigs } from '../actions/configs';
 
 interface Props {
   onClick?: () => void;
@@ -12,9 +15,9 @@ interface Props {
 
 const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  
   // 使用集中的按钮交互状态（只检查是否有其他操作正在进行）
   const { functionWriting } = useButtonInteractionStore();
+  const isActive = useButtonActive('viewFileActive');
 
   const handleViewFile = () => {
     onClick?.();
@@ -32,7 +35,7 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
           color='primary'
           variant='outlined'
           onClick={handleViewFile}
-          disabled={isDisabled}
+          disabled={isDisabled || !isActive}
         >
           ViewFile
         </Button>

@@ -20,7 +20,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   } = useProtocolConstants();
 
   return (
-    <BoxActionButton controller={controller} className={className} onClick={onClick}>
+    <BoxActionButton controller={controller} className={className} onClick={onClick} >
       <div className={cn('flex flex-col items-start')}>
         <Typography.Paragraph className="text-muted-foreground text-sm">
           Pay the confidentiality fee to extend the confidentiality period: {payConfiFeeExtendDeadline / 24 / 3600} days

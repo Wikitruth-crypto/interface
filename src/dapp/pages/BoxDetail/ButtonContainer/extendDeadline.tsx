@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import { cn } from '@/lib/utils';
 import ModalExtend from '@BoxDetail/Modal/modalExtend';
-import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
+// import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 import Paragraph from '@/components/base/paragraph';
+import { boxActionConfigs } from '../actions/configs';
+import { useBoxActionController } from '../hooks/useBoxActionController';
 
 interface Props {
   onClick?: () => void;
@@ -13,7 +15,7 @@ interface Props {
 
 const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { functionWriting } = useButtonInteractionStore();
+  const controller = useBoxActionController(boxActionConfigs.extendDeadline);
 
   const handleExtendDeadline = () => {
     onClick?.();
@@ -24,9 +26,6 @@ const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
     setModalOpen(false);
   };
 
-  // 计算按钮状态
-  const isDisabled = (functionWriting !== null );
-
   return (
     <div className={cn('w-full', className)}>
       <div className={'flex flex-col md:flex-row w-full items-center gap-2'}>
@@ -34,7 +33,8 @@ const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
           color='primary'
           variant='outlined'
           onClick={handleExtendDeadline}
-          disabled={isDisabled}
+          loading={controller.isLoading}
+          disabled={controller.isDisabled}
         >
           Extend Deadline
         </Button>

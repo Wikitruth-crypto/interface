@@ -1,10 +1,10 @@
 ﻿"use client"
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import ModalSellAuction from '@BoxDetail/Modal/modalSellAuction';
 import { useProtocolConstants } from '@/dapp/contractsConfig';
-import Paragraph from '@/components/base/paragraph';
+// import Paragraph from '@/components/base/paragraph';
 import { useBoxActionController } from '@/dapp/pages/BoxDetail/hooks/useBoxActionController';
 import { boxActionConfigs } from '@/dapp/pages/BoxDetail/actions/configs';
 import { useBoxDetailStore } from '@/dapp/pages/BoxDetail/store/boxDetailStore';
@@ -40,13 +40,13 @@ const SellButton: React.FC<Props> = ({ onClick, className }) => {
         </Button>
         <div className={'flex flex-col items-start'}>
           {roles.includes('Minter') ? (
-            <Paragraph color="muted-foreground" size="sm">
+            <Typography.Paragraph className="text-muted-foreground text-sm">
               You can sell or auction the Box at any time.
-            </Paragraph>
+            </Typography.Paragraph>
           ) : (
-            <Paragraph color="muted-foreground" size="sm">
+            <Typography.Paragraph className="text-muted-foreground text-sm">
               Sell or auction the Box, you can get the Rewards, the Rewards is {helperRewardRate}% of the Box price.
-            </Paragraph>
+            </Typography.Paragraph>
           )}
         </div>
         {modalOpen && (
