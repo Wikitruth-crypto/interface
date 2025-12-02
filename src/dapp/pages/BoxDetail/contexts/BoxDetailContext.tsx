@@ -11,7 +11,7 @@ import { useBoxOrderAmounts } from '../hooks/useBoxOrderAmounts';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
-import type { BoxRewardData, BoxUserOrderAmountData } from '../types/boxDetailData';
+import { type BoxRewardData, type BoxUserOrderAmountData } from '@/dapp/services/supabase/fundsBox';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 import { useCheckDeadline } from '../hooks/useCheckDeadline';
 
@@ -114,15 +114,13 @@ export const BoxDetailProvider: React.FC<{
   // 关键点：
   // - userId 在 queryKey 中，所以当 userId 变化时，React Query 会自动重新查询
   // - enabled 参数控制是否查询，只有当所有条件满足时才查询
-  const acceptedToken = box?.acceptedToken || '';
-  const shouldQueryOrderAmounts = !!boxId && !!userId && !!acceptedToken;
+  const shouldQueryOrderAmounts = !!boxId && !!userId ;
   const { 
     orderAmountsData, 
     isLoading: isLoadingOrderAmounts 
   } = useBoxOrderAmounts(
     boxId,
     userId || '', // 当 userId 为 null 时传入空字符串
-    acceptedToken,
     shouldQueryOrderAmounts // 只有当所有条件满足时才查询
   );
   

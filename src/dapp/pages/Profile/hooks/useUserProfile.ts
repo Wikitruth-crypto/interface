@@ -15,10 +15,10 @@ import { UserProfileData } from '../types/profile.types';
  * - 保持与旧版本相同的接口（向后兼容）
  */
 export const useUserProfile = (
-    address: string | undefined,
-    userId: string | null = null
+    address: string,
+    userId: string
 ) => {
-    const {network,layer} = CHAIN_CONFIG 
+    const {network,layer} = CHAIN_CONFIG
 
     // 使用 React Query 查询用户统计数据
     const {
@@ -34,7 +34,7 @@ export const useUserProfile = (
                 return null;
             }
 
-            const result = await queryUserStats(network, address, userId);
+            const result = await queryUserStats(address, userId);
 
             if (result.error) {
                 throw result.error;

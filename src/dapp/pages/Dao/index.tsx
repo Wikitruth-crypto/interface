@@ -5,11 +5,6 @@ import { TeamOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
 
-/**
- * DAO 页面
- * 
- * 占位页面，显示 DAO 功能即将推出的提示
- */
 const DAO: React.FC = () => {
     return (
         <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -21,10 +16,10 @@ const DAO: React.FC = () => {
                             <Space direction="vertical" size="middle">
                                 <div>
                                     <Title level={1} style={{ margin: 0, display: 'inline-block', marginRight: 8 }}>
-                                        Truth
+                                        Wiki
                                     </Title>
                                     <Title level={1} style={{ margin: 0, display: 'inline-block' }}>
-                                        Market
+                                        Truth
                                     </Title>
                                 </div>
                                 <Paragraph style={{ fontSize: '16px', marginBottom: 0 }}>

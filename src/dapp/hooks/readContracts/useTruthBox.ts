@@ -15,7 +15,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getStatus',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -30,7 +30,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getBasicData',
-                args: [BigInt(id)],
+                args: [id],
             });
             if (tx && Array.isArray(tx) && tx.length >= 3) {
                 return [Number(tx[0]), Number(tx[1]), Number(tx[2])];
@@ -47,7 +47,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getDeadline',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -62,7 +62,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getPrivateData',
-                args: [BigInt(id), siweToken],
+                args: [id, siweToken],
             });
             return tx ? String(tx) : '';
         } catch (error) {
@@ -76,7 +76,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getPrice',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -119,7 +119,7 @@ export function useTruthBox() {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'isInBlacklist',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {

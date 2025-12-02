@@ -1,24 +1,20 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-// import StatusLabel from './statusLabel';
+import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
 
 export interface BoxImageProps {
     src: string;
     alt: string;
-    status: string;
     onClick?: () => void;
     className?: string;
-    showStatus?: boolean;
     aspectRatio?: 'square' | 'wide' | 'tall';
 }
 
 const BoxImage: React.FC<BoxImageProps> = ({
     src,
     alt,
-    status,
     onClick,
     className,
-    showStatus = false,
     aspectRatio = 'square'
 }) => {
     const aspectClasses = {
@@ -45,7 +41,7 @@ const BoxImage: React.FC<BoxImageProps> = ({
         >
             {/* 主图片 */}
             <img
-                src={src}
+                src={ipfsCidToUrl(src)}
                 alt={alt}
                 className={cn(
                     "w-full h-full object-cover",

@@ -1,6 +1,5 @@
 "use client"
-import { FundType } from "../types/cardProfile.types";
-import { useWriteCustorm } from "@/dapp/hooks/useWritSapphire";
+import { useWriteCustormV2 } from "@/dapp/hooks/useWriteCustormV2";
 import { useAllContractConfigs } from "@/dapp/contractsConfig";
 import { useWithdrawStore } from "../store/withdrawStore";
 import { useSupportedTokens } from "@/dapp/contractsConfig";
@@ -8,31 +7,38 @@ import { useSupportedTokens } from "@/dapp/contractsConfig";
 export const useWithdraw = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
-    const { write, error, isPending, isSuccessed } = useWriteCustorm();
+    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2();
 
     const withdraw = async () => {
         const withdrawData = useWithdrawStore.getState().withdrawData;
-        const { selectedBoxes, selectedTokenSymbol, selectedType, selectedClaimMethod } = withdrawData;
+        const { selectedBoxes, selectedTokenSymbol, selectedTokenAddress, selectedClaimMethod } = withdrawData;
 
         try {
-            if (!selectedBoxes || !selectedTokenSymbol || !selectedType || !selectedClaimMethod) {
+            if (!selectedTokenSymbol || !selectedClaimMethod) {
                 throw new Error('Invalid withdraw data');
             }
 
-            const token = supportedTokens.find(item => item.symbol === selectedTokenSymbol);
-            if (!token) {
+            if ((selectedClaimMethod === 'withdrawOrderAmounts' || selectedClaimMethod === 'withdrawRefundAmounts') && (!selectedBoxes || selectedBoxes.length === 0)) {
+                throw new Error('Please select at least one box');
+            }
+
+            const fallbackToken = supportedTokens.find(item => item.symbol === selectedTokenSymbol);
+            const tokenAddress = selectedTokenAddress ?? fallbackToken?.address;
+            if (!tokenAddress) {
                 throw new Error('Invalid token');
             }
-            const tokenAddress = token.address;
 
-            let args = [selectedBoxes, tokenAddress];
+            let args: (string | bigint[])[] = [];
 
-            if (selectedClaimMethod === 'withdrawOrderAmounts') {
-                args = [selectedBoxes, tokenAddress, selectedType as FundType];
+            if (selectedClaimMethod === 'withdrawOrderAmounts' || selectedClaimMethod === 'withdrawRefundAmounts') {
+                const boxList = (selectedBoxes ?? []).map((boxId) => BigInt(boxId));
+                args = [tokenAddress, boxList];
+            } else {
+                args = [tokenAddress];
             }
             console.log('args:', args);
 
-            const hash = await write({
+            const hash = await writeCustormV2({
                 contract: allConfigs.FundManager,
                 functionName: selectedClaimMethod,
                 args: args

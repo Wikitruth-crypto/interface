@@ -16,7 +16,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'calcPayMoney',
-                args: [BigInt(id), address],
+                args: [id, address],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -30,7 +30,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundPermit',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -44,7 +44,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'acceptedToken',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? String(tx) : '';
         } catch (error) {
@@ -60,7 +60,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundReviewDeadline',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -75,7 +75,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundRequestDeadline',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -91,7 +91,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'inRequestRefundDeadline',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -106,7 +106,7 @@ export function useExchange() {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'inReviewDeadline',
-                args: [BigInt(id)],
+                args: [id],
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {

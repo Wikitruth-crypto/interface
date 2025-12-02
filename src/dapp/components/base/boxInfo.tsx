@@ -1,8 +1,8 @@
-import React from 'react';
-import { Typography } from 'antd';
+import React, { useMemo } from 'react';
+import { Typography, Space, Tag, Tooltip } from 'antd';
+import { EnvironmentOutlined, CalendarOutlined } from '@ant-design/icons';
 import { cn } from '@/lib/utils';
 import StatusLabel from '@/dapp/components/base/statusLabel';
-import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 
 export interface BoxMetadata {
     tokenId: string;
@@ -22,8 +22,6 @@ export interface BoxInfoProps {
     descriptionMaxLength?: number;
     /** 是否启用响应式设计 */
     responsive?: boolean;
-    /** 响应式尺寸变体 */
-    size?: 'sm' | 'md' | 'lg';
 }
 
 const BoxInfo: React.FC<BoxInfoProps> = ({
@@ -35,7 +33,6 @@ const BoxInfo: React.FC<BoxInfoProps> = ({
     titleMaxLength,
     descriptionMaxLength,
     responsive = true,
-    size = 'md'
 }) => {
 
     // 响应式配置
@@ -115,94 +112,180 @@ const BoxInfo: React.FC<BoxInfoProps> = ({
         }
     };
 
+    // 获取标题级别
+    const getTitleLevel = useMemo(() => {
+        if (!responsive) return 3;
+        return 4;
+    }, [responsive]);
+
+    // 处理位置信息
+    const locationText = useMemo(() => {
+        return [metadata.country, metadata.state]
+            .filter(Boolean)
+            .join(', ');
+    }, [metadata.country, metadata.state]);
+
+    // 处理标题显示
+    const displayTitle = useMemo(() => {
+        return truncateText(title, config.titleMaxLength);
+    }, [title, config.titleMaxLength]);
+
+    // 处理描述显示
+    const displayDescription = useMemo(() => {
+        return truncateText(description, config.descriptionMaxLength);
+    }, [description, config.descriptionMaxLength]);
+
+    // 检查是否需要显示 Tooltip（文本被截断时）
+    const showTitleTooltip = title && title.length > (typeof config.titleMaxLength === 'number' 
+        ? config.titleMaxLength 
+        : config.titleMaxLength?.md || 70);
+    
+    const showDescriptionTooltip = description && description.length > (typeof config.descriptionMaxLength === 'number' 
+        ? config.descriptionMaxLength 
+        : config.descriptionMaxLength?.md || 180);
+
     return (
-        <div className={cn("flex-1 min-w-0 space-y-3", className)}>
-            {/* 标题和描述区域 */}
-            <div className={cn(
-                "space-y-2",
-                responsive && "space-y-1 sm:space-y-1.5 md:space-y-2" // 响应式间距
-            )}>
-                {responsive ? (
-                    // 响应式模式：直接使用自定义 className
-                    <Typography.Title level={4} className="text-gray-200 font-semibold text-left">{truncateText(title, config.titleMaxLength)}</Typography.Title>
-                ) : (
-                    // 非响应式模式：使用固定尺寸
-                    <Typography.Title level={3} className="text-gray-200 font-semibold text-left">{truncateText(title, config.titleMaxLength)}</Typography.Title>
-                )}
-
-                <p
-                    className={cn(
-                        "text-gray-300 leading-relaxed break-words",
-                        responsive ? [
-                            // 响应式字体大小
-                            "text-xs sm:text-sm md:text-sm lg:text-base",
-                            // 响应式行数限制
-                            "line-clamp-2 sm:line-clamp-3 md:line-clamp-3 lg:line-clamp-4"
-                        ] : [
-                            "text-sm line-clamp-3"
-                        ]
+        <div className={cn("flex-1 min-w-0", className)}>
+            <Space direction="vertical" size={responsive ? ['small', 'middle'] : 'middle'} style={{ width: '100%' }}>
+                {/* 标题和描述区域 */}
+                <Space direction="vertical" size={responsive ? 'small' : 'middle'} style={{ width: '100%' }}>
+                    {showTitleTooltip ? (
+                        <Tooltip title={title} placement="topLeft">
+                            <Typography.Title 
+                                level={getTitleLevel as any}
+                                style={{ 
+                                    margin: 0,
+                                    cursor: 'help',
+                                    wordBreak: 'break-word',
+                                }}
+                            >
+                                {displayTitle}
+                            </Typography.Title>
+                        </Tooltip>
+                    ) : (
+                        <Typography.Title 
+                            level={getTitleLevel as any}
+                            style={{ 
+                                margin: 0,
+                                wordBreak: 'break-word',
+                            }}
+                        >
+                            {displayTitle}
+                        </Typography.Title>
                     )}
-                    title={description}
+
+                    {description && (
+                        showDescriptionTooltip ? (
+                            <Tooltip title={description} placement="topLeft">
+                                <Typography.Paragraph
+                                    type="secondary"
+                                    style={{
+                                        margin: 0,
+                                        cursor: 'help',
+                                        wordBreak: 'break-word',
+                                    }}
+                                    ellipsis={{
+                                        rows: responsive ? 3 : 3,
+                                        expandable: false,
+                                        symbol: '',
+                                    }}
+                                >
+                                    {displayDescription}
+                                </Typography.Paragraph>
+                            </Tooltip>
+                        ) : (
+                            <Typography.Paragraph
+                                type="secondary"
+                                style={{
+                                    margin: 0,
+                                    wordBreak: 'break-word',
+                                }}
+                                ellipsis={{
+                                    rows: responsive ? 3 : 3,
+                                    expandable: false,
+                                    symbol: '',
+                                }}
+                            >
+                                {displayDescription}
+                            </Typography.Paragraph>
+                        )
+                    )}
+                </Space>
+
+                {/* 元数据区域 */}
+                <Space 
+                    wrap 
+                    size={responsive ? ['small', 'middle'] : 'middle'}
+                    style={{ 
+                        width: '100%',
+                    }}
                 >
-                    {truncateText(description, config.descriptionMaxLength)}
-                </p>
-            </div>
+                    {/* Token ID */}
+                    <Tag
+                        style={{
+                            fontFamily: 'monospace',
+                            fontSize: responsive ? undefined : 13,
+                        }}
+                        className={cn(
+                            responsive && "text-xs sm:text-sm"
+                        )}
+                    >
+                        ID: {metadata.tokenId}
+                    </Tag>
 
-            {/* 元数据区域 */}
-            <div className={cn(
-                "flex flex-wrap items-center justify-start gap-3",
-                responsive && "gap-2 sm:gap-2.5 md:gap-3", // 响应式间距
-                responsive ? "text-xs sm:text-sm" : "text-sm" // 响应式字体大小
-            )}>
-                {/* Token ID */}
-                <div className="flex items-center gap-1">
-                    <span className={cn(
-                        "font-semibold font-mono text-gray-400",
-                        responsive ? "text-sm sm:text-base md:text-base" : "text-base"
-                    )}>
-                        #{metadata.tokenId}
-                    </span>
-                </div>
+                    {/* 状态 */}
+                    <StatusLabel
+                        status={metadata.status}
+                        size="sm"
+                        responsive={responsive}
+                    />
 
-                {/* 状态 */}
-                <StatusLabel
-                    status={metadata.status as BoxStatus}
-                    size="sm"
-                    responsive={responsive}
-                />
+                    {/* 位置信息 */}
+                    {locationText && (
+                        <Tooltip title={locationText}>
+                            <Tag
+                                icon={<EnvironmentOutlined />}
+                                style={{
+                                    fontSize: responsive ? undefined : 12,
+                                }}
+                                className={cn(
+                                    responsive && "text-xs sm:text-sm"
+                                )}
+                            >
+                                <span 
+                                    style={{
+                                        maxWidth: responsive ? undefined : 140,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        display: 'inline-block',
+                                    }}
+                                    className={cn(
+                                        responsive && "max-w-[100px] sm:max-w-[120px] md:max-w-[140px]"
+                                    )}
+                                >
+                                    {locationText}
+                                </span>
+                            </Tag>
+                        </Tooltip>
+                    )}
 
-                {/* 位置信息 */}
-                {(metadata.country || metadata.state) && (
-                    <div className="flex items-center gap-1 text-gray-400">
-                        <svg className={cn(
-                            responsive ? "w-3 h-3 sm:w-3.5 sm:h-3.5" : "w-3 h-3"
-                        )} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className={cn(
-                            responsive && "truncate max-w-[100px] sm:max-w-[120px] md:max-w-[140px] lg:max-w-[180px]"
-                        )}>
-                            {[metadata.country, metadata.state]
-                                .filter(Boolean)
-                                .join(', ')
-                            }
-                        </span>
-                    </div>
-                )}
-
-                {/* 事件日期 */}
-                {metadata.eventDate && (
-                    <div className="flex items-center gap-1 text-gray-400">
-                        <svg className={cn(
-                            responsive ? "w-3 h-3 sm:w-3.5 sm:h-3.5" : "w-3 h-3"
-                        )} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
-                        </svg>
-                        <span className="whitespace-nowrap">{formatDate(metadata.eventDate)}</span>
-                    </div>
-                )}
-            </div>
+                    {/* 事件日期 */}
+                    {metadata.eventDate && formatDate(metadata.eventDate) && (
+                        <Tag
+                            icon={<CalendarOutlined />}
+                            style={{
+                                fontSize: responsive ? undefined : 12,
+                            }}
+                            className={cn(
+                                responsive && "text-xs sm:text-sm"
+                            )}
+                        >
+                            {formatDate(metadata.eventDate)}
+                        </Tag>
+                    )}
+                </Space>
+            </Space>
         </div>
     );
 };

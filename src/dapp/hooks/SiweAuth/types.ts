@@ -16,23 +16,14 @@ export interface SignatureRSV {
  * SIWE 消息参数
  */
 export interface SiweMessageParams {
-    /** 域名（如：wikitruth.eth.limo） */
     domain: string;
-    /** 用户地址 */
     address: `0x${string}`;
-    /** 声明文本（可选） */
     statement?: string;
-    /** URI（可选） */
     uri?: string;
-    /** 资源列表（可选） */
     resources?: string[];
-    /** 随机数（可选，不提供则自动生成） */
     nonce?: string;
-    /** 过期时间（可选，默认24小时） */
     expirationTime?: Date;
-    /** 生效时间（可选） */
     notBefore?: Date;
-    /** 签发时间（可选，默认当前时间） */
     issuedAt?: Date;
 }
 

@@ -31,7 +31,7 @@ export function useReadSiweAuth() {
             const tx = await readContract({
                 contractName: ContractName.SIWE_AUTH,
                 functionName: 'getDomainByIndex',
-                args: [BigInt(index)],
+                args: [index],
             });
             return tx ? String(tx) : '';
         } catch (error) {

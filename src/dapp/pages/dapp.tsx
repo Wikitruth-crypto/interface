@@ -12,7 +12,7 @@ import CreatePage from '@/dapp/pages/Create';
 import StakingPage from '@/dapp/pages/Staking';
 import DaoPage from '@/dapp/pages/Dao';
 import TokenPage from '@/dapp/pages/Token';
-// import ProfilePage from '@/dapp/pages/Profile';
+import ProfilePage from '@/dapp/pages/Profile';
 import BoxDetailPage from '@/dapp/pages/BoxDetail';
 import TestsPage from '@/dapp/pages/Tests';
 
@@ -29,7 +29,7 @@ function DappRoutes() {
             <Route path="staking" element={<StakingPage />} />
             <Route path="dao" element={<DaoPage />} />
             <Route path="token" element={<TokenPage />} />
-            {/* <Route path="profile" element={<ProfilePage />} /> */}
+            <Route path="profile" element={<ProfilePage />} />
             <Route path="boxDetail/:tokenId" element={<BoxDetailPage />} />
             <Route path="tests" element={<TestsPage />} />
         </Routes>

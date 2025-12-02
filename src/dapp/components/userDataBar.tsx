@@ -52,49 +52,49 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
             key: 'all',
             displayName: 'All Boxes',
             count: data?.totalBoxes || 0,
-            description: '所有盒子'
+            description: 'All Boxes Count of User'
         },
         { 
             key: 'owned',
             displayName: 'Owned',
             count: data?.ownedBoxes || 0,
-            description: '拥有的盒子'
+            description: 'Owned Boxes Count of User'
         },
         { 
             key: 'minted',
             displayName: 'Minted',
             count: data?.mintedBoxes || 0,
-            description: '铸造的盒子'
+            description: 'Minted Boxes Count of User'
         },
         { 
             key: 'sold',
             displayName: 'Sold',
             count: data?.soldBoxes || 0,
-            description: '已售出的盒子'
+            description: 'Sold Boxes Count of User, include sell and auction'
         },
         { 
             key: 'bought',
             displayName: 'Bought',
             count: data?.boughtBoxes || 0,
-            description: '购买的盒子'
+            description: 'Bought Boxes Count of User'
         },
         { 
             key: 'bade',
             displayName: 'Bade',
             count: data?.bidBoxes || 0,
-            description: '竞拍的盒子'
+            description: 'Bid Boxes Count of User'
         },
         { 
             key: 'completed',
             displayName: 'Completed',
             count: data?.completedBoxes || 0,
-            description: '已完成的盒子'
+            description: 'Completed Boxes Count of User'
         },
         { 
             key: 'published',
             displayName: 'Published',
             count: data?.publishedBoxes || 0,
-            description: '已发布的盒子'
+            description: 'Published Boxes Count of User'
         },
     ];
 

@@ -30,7 +30,7 @@ export function useAddressManager() {
             const tx = await readContract({
                 contractName: ContractName.ADDRESS_MANAGER,
                 functionName: 'getTokenByIndex',
-                args: [BigInt(index)],
+                args: [index],
             });
             return tx ? String(tx) : '';
         } catch (error) {

@@ -33,23 +33,6 @@ export interface BoxDetailData {
     reviewDeadline?: string | null;
 }
 
-export interface BoxRewardData {
-    id: string;
-    boxId: string;
-    rewardType: string;
-    token: string;
-    rewardAmount: string;
-}
-
-export interface BoxUserOrderAmountData {
-    id: string;
-    userId: string;
-    boxId: string;
-    token: string;
-    amount: string;
-}
-
-
 export interface DeadlineCheckStateType {
     isInRequestRefundDeadline: boolean,
     isInReviewRefundDeadline: boolean,

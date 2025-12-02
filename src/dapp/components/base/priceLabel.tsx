@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 export interface PriceTextProps {
     price: string | number;
     symbol?: string;
-    token?: string;
     decimals?: number;
     decimalLength?: number;
     fontSize?: number;
@@ -22,7 +21,6 @@ export interface PriceTextProps {
     suffix?: string;
     className?: string;
     style?: React.CSSProperties;
-    loading?: boolean;
     unitPosition?: 'left' | 'right';
     variant?: 'default' | 'large' | 'small';
     theme?: 'default' | 'success' | 'warning' | 'error';
@@ -38,7 +36,6 @@ export interface PriceTextProps {
 const PriceLabel: React.FC<PriceTextProps> = ({
     price,
     symbol = 'ETH',
-    token,
     decimals = 18,
     decimalLength = 3,
     fontSize,
@@ -54,7 +51,6 @@ const PriceLabel: React.FC<PriceTextProps> = ({
     suffix = '', 
     className = '',
     style = {},
-    loading = false,
     unitPosition = 'right',
     variant = 'default',
     theme = 'default',
@@ -197,27 +193,6 @@ const PriceLabel: React.FC<PriceTextProps> = ({
         marginLeft: !responsive && unitPosition === 'right' ? `${gap}px` : 0,
         marginRight: !responsive && unitPosition === 'left' ? `${gap}px` : 0,
     };
-
-    // 加载状态
-    if (loading) {
-        return (
-            <div className={cn(
-                "flex items-baseline",
-                getAlignClass(),
-                className
-            )}>
-                <div className={cn(
-                    // 响应式加载骨架
-                    responsive 
-                        ? "h-4 w-12 sm:h-5 sm:w-16 md:h-6 md:w-20" 
-                        : "h-5 w-16",
-                    "bg-muted rounded animate-pulse",
-                    variant === 'large' && !responsive && "h-8 w-24",
-                    variant === 'small' && !responsive && "h-4 w-12"
-                )} />
-            </div>
-        );
-    }
 
     return (
         <div 

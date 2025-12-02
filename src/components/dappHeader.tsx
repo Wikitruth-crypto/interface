@@ -1,9 +1,9 @@
 import Logo from "@/components/base/logo";
 import LinkList from "@/components/customer/link";
 import { Container } from "@/components/Container";
-import { ConnectButtonComponent } from "@/dapp/context/connectWallet/connectButton";
+import LoginDropdown from "@/dapp/components/login";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const dappMenu = [
     { name: "Marketplace", href: "/app" },
@@ -11,7 +11,6 @@ const dappMenu = [
     { name: "Staking", href: "/app/staking" },
     { name: "DAO", href: "/app/dao" },
     { name: "Token", href: "/app/token" },
-    { name: "Profile", href: "/app/profile" },
     { name: "Tests", href: "/app/tests" },
     // { name: "Account Query Test", href: "/app/accountQueryTest" },
 ];
@@ -54,9 +53,7 @@ export default function DappHeader() {
                         onLinkClick={setActiveKey}
                         activeKey={activeKey}
                     />
-                    <ConnectButtonComponent 
-                    size="sm"
-                    />
+                    <LoginDropdown size="sm" />
                 </nav>
             </Container>
         </header>

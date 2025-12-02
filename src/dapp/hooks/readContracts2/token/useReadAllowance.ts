@@ -10,7 +10,7 @@ import { useGetTokenMetadata } from './useGetTokenMetadata';
 import { 
     useERC20, 
     useERC20Secret 
-} from '../index';
+} from '../../readContracts/index';
 
 export interface ReadAllowanceResult {
     isEnough: boolean;

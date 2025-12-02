@@ -4,26 +4,20 @@ import { LockOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
 
-/**
- * Staking 页面
- * 
- * 占位页面，显示 Staking 功能即将推出的提示
- */
 const Staking: React.FC = () => {
     return (
         <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                {/* 标题区域 */}
                 <Card>
                     <Row gutter={[24, 24]} align="middle">
                         <Col xs={24} md={12}>
                             <Space direction="vertical" size="middle">
                                 <div>
                                     <Title level={1} style={{ margin: 0, display: 'inline-block', marginRight: 8 }}>
-                                        Truth
+                                        Wiki
                                     </Title>
                                     <Title level={1} style={{ margin: 0, display: 'inline-block' }}>
-                                        Market
+                                        Truth
                                     </Title>
                                 </div>
                                 <Paragraph style={{ fontSize: '16px', marginBottom: 0 }}>

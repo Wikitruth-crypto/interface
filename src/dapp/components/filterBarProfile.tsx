@@ -14,13 +14,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
     className
 }) => {
     const statuses: { value: string; label: string }[] = [
-        { value: 'all', label: '全部状态' },
+        { value: 'all', label: 'Default' },
         { value: 'Storing', label: 'Storing' },
         { value: 'Selling', label: 'Selling' },
         { value: 'Auctioning', label: 'Auctioning' },
         { value: 'Refunding', label: 'Refunding' },
-        { value: 'Delivered', label: 'Delivered' },
-        { value: 'Completed', label: 'Completed' },
+        { value: 'Paid', label: 'Paid' },
+        { value: 'InSecrecy', label: 'InSecrecy' },
         { value: 'Published', label: 'Published' },
     ];
 

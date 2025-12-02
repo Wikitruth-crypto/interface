@@ -8,6 +8,7 @@ import {
     AgreementButton
 } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
+import useViewFileTruthBox from '../hooks/useDecryptionViewFile';
 
 interface Props {
     tokenId?: string,

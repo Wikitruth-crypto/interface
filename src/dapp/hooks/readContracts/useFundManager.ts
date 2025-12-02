@@ -45,7 +45,7 @@ export function useFundManager() {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'orderAmounts',
-                args: [BigInt(id), siweToken],
+                args: [id, siweToken],
             });
             return tx ? Number(tx) : 0;
         } catch (error) {

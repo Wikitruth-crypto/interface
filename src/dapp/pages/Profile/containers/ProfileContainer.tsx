@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState, useEffect } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 // 使用原有的真实数据hooks，而不是mock hooks
 import { useUserProfile, useUserBoxes, useProfileTable, useLisener } from '../hooks';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
@@ -7,11 +7,12 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { LoaderModal } from '@/dapp/components/loaderModal';
 import UserDataBar from '@/dapp/components/userDataBar';
-import FilterBarProfile from '@/dapp/components/filterBarProfile';
-// import ProfileList from '@/dapp/components/profileList';
 import CardProfileContainer from './CardProfileContainer';
+import ProfileWithdrawPanel from '../components/ProfileWithdrawPanel';
 // import ProgressiveRevealCard from '@/dapp/components/base/progressiveRevealCard';
 import SkeletonProfile from '@/dapp/components/base/skeletonProfile';
+import ProfileRewardsPanel from '../components/ProfileRewardsPanel';
+import { useGetMyUserId } from '@/dapp/hooks/readContracts2/useGetMyUserId';
 
 // 导入hooks
 // import { useProgressiveReveal } from '@/dapp/hooks/useProgressiveReveal';
@@ -68,18 +69,18 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
     // 监听器：处理tab切换时的数据重置
     useLisener();
     
-    // TODO: 获取 userId
-    // 目前 userId 为 null,这意味着只能查询 'owned' tab
-    // 要支持其他 tab (minted, sold, bought, bade, completed, published),
-    // 需要通过合约调用获取 userId,例如使用 useUserId hook
-    const userId: string | null = null;
+    // 通过合约/user store 解析 userId（为空时部分 tab 不可用）
+    const resolvedUserId = useGetMyUserId();
+    const userId: string | null = resolvedUserId && resolvedUserId.trim() !== ''
+        ? resolvedUserId.trim()
+        : null;
     
     // 数据获取 - 使用 Supabase 查询
     const { 
         data: userProfile, 
         isLoading: userLoading,
         error: userError 
-    } = useUserProfile(address, userId);
+    } = useUserProfile(address as string, userId as string);
     
     const {
         data: boxPages,
@@ -88,7 +89,7 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
         hasNextPage,
         isFetchingNextPage,
         error: boxesError
-    } = useUserBoxes(address, filters, userId);
+    } = useUserBoxes(address as string, filters, userId as string);
 
     // 扁平化数据 - 与原有逻辑保持一致
     const flatData = useMemo(() => 
@@ -133,7 +134,7 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
     // 事件处理器
     const handleCardClick = (cardId: string) => {
         setOpen(true);
-        navigate(`/app/nftDetail/${cardId}`);
+        navigate(`/app/boxDetail/${cardId}`);
     };
 
     const [open, setOpen] = useState(false);
@@ -189,7 +190,8 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
                 {flatData.map((boxData) => (
                     <CardProfileContainer
                         key={boxData.id}
-                        data={boxData} // 直接传递原始数据
+                        data={boxData}
+                        userId={userId}
                         onCardClick={() => handleCardClick(boxData.id)}
                     />
                 ))}
@@ -206,6 +208,7 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
                     {address}
                 </p>
             </div>
+            <ProfileRewardsPanel userId={userId} className="w-full" />
 
             {/* 用户数据栏 */}
             <div className="w-full">
@@ -216,6 +219,10 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
                     onTabClick={updateTab}
                 />
             </div>
+
+            <ProfileWithdrawPanel className="w-full" />
+
+
 
             {/* 筛选栏 */}
             {/* <FilterBarProfile 
@@ -261,44 +268,6 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({
                 )}
             </div>
 
-            {/* 开发环境下显示调试信息 */}
-            {/* {debug && process.env.NODE_ENV === 'development' && (
-                <div className="mt-8 p-4 bg-background/50 rounded-lg">
-                    <details>
-                        <summary className="cursor-pointer text-sm font-medium">🔧 调试信息</summary>
-                        <pre className="mt-2 text-xs overflow-auto">
-                            {JSON.stringify({
-                                address: address?.slice(0, 8) + '...',
-                                filters,
-                                userProfile: userProfile ? {
-                                    hasStats: !!userProfile.stats,
-                                    statsData: userProfile.stats
-                                } : null,
-                                boxPages: boxPages ? {
-                                    pagesCount: boxPages.pages.length,
-                                    totalItems: boxPages.pages.reduce((total, page) => total + page.items.length, 0),
-                                    pagesData: boxPages.pages.map((page, index) => ({
-                                        pageIndex: index,
-                                        itemsCount: page.items.length,
-                                        hasMore: page.hasMore
-                                    }))
-                                } : null,
-                                flatDataLength: flatData.length,
-                                loading: {
-                                    user: userLoading,
-                                    boxes: boxesLoading,
-                                    fetchingMore: isFetchingNextPage
-                                },
-                                progressiveReveal: enableProgressiveReveal ? {
-                                    isRevealing,
-                                    revealedCount,
-                                    progress
-                                } : null
-                            }, null, 2)}
-                        </pre>
-                    </details>
-                </div>
-            )} */}
             <LoaderModal open={open} closable={true}/>
         </Container>
     );

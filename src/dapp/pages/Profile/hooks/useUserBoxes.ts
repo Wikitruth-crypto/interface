@@ -42,7 +42,7 @@ const convertToBoxData = (result: UserBoxQueryResult): BoxData => {
         // 元数据字段
         title: metadata?.title || undefined,
         description: metadata?.description || undefined,
-        image: metadata?.nft_image || undefined,
+        nftImage: metadata?.nft_image || undefined,
         boxImage: metadata?.box_image || undefined,
         country: metadata?.country || undefined,
         state: metadata?.state || undefined,
@@ -62,9 +62,9 @@ const convertToBoxData = (result: UserBoxQueryResult): BoxData => {
  * - 保持与旧版本相同的接口（向后兼容）
  */
 export const useUserBoxes = (
-    address: string | undefined, 
+    address: string, 
     filters: FilterState,
-    userId: string | null = null
+    userId: string
 ) => {
     const {network,layer} = CHAIN_CONFIG 
 
@@ -80,19 +80,18 @@ export const useUserBoxes = (
         isFetchingNextPage,
     } = useInfiniteQuery({
         queryKey: ['user-boxes', network, layer, address, userId, filters],
-        queryFn: async ({ pageParam = 0 }) => {
+        queryFn: async ({ pageParam }) => {
             if (!address) {
                 return { items: [], hasMore: false };
             }
 
             const limit = 20;
             const result = await queryUserBoxes(
-                network,
                 address,
                 userId,
                 filters,
                 limit,
-                pageParam
+                pageParam as number
             );
 
             if (result.error) {
@@ -106,6 +105,7 @@ export const useUserBoxes = (
                 hasMore: items.length === limit, // 如果返回的数据量等于 limit，可能还有更多数据
             };
         },
+        initialPageParam: 0,
         getNextPageParam: (lastPage, allPages) => {
             if (!lastPage.hasMore) {
                 return undefined;

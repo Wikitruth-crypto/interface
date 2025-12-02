@@ -1,33 +1,105 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { Typography } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Typography, Alert } from 'antd';
 import UriPassword from '@/dapp/components/uriPassword';
 import { timeToDate } from '@dapp/utils/time';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
+import useDecryptionViewFile from '../hooks/useDecryptionViewFile';
 
 interface Props {
     tokenId?: string,
 }
 
 const Published: React.FC<Props> = ({ }) => {
-    const { box } = useBoxDetailContext()
+    const { box, metadataBox } = useBoxDetailContext();
+    const { decryptionViewFile } = useDecryptionViewFile();
+    const decryptionViewFileRef = useRef(decryptionViewFile);
+    decryptionViewFileRef.current = decryptionViewFile;
+
+    const [fileCidList, setFileCidList] = useState<string[]>([]);
+    const [password, setPassword] = useState<string>('');
+    const [slicesMetadataCID, setSlicesMetadataCID] = useState<string>('');
+    const [uriError, setUriError] = useState<string | null>(null);
+    const [isResolving, setIsResolving] = useState<boolean>(false);
 
     const [date, setDate] = useState<string | null>(null);
 
     useEffect(() => {
         if (box?.deadline) {
-            const result = timeToDate(Number(box.deadline))
-            setDate(result)
+            const result = timeToDate(Number(box.deadline));
+            setDate(result);
         }
     }, [box?.deadline]);
 
+    const mintMethod = metadataBox?.mintMethod || 'create';
+    const isCreateMode = mintMethod === 'create';
+
+    useEffect(() => {
+        if (!metadataBox) {
+            setFileCidList([]);
+            setPassword('');
+            setSlicesMetadataCID('');
+            setUriError('Metadata not found, cannot show download information.');
+            setIsResolving(false);
+            return;
+        }
+
+        if (metadataBox.mintMethod === 'createAndPublish') {
+            setFileCidList(metadataBox.fileList || []);
+            setPassword('');
+            setSlicesMetadataCID('');
+            setUriError(null);
+            setIsResolving(false);
+            return;
+        }
+
+        if (!box?.privateKey) {
+            setFileCidList([]);
+            setPassword('');
+            setSlicesMetadataCID('');
+            setUriError('Cannot find public privateKey in Box data, cannot decrypt files.');
+            setIsResolving(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        const loadEncryptedData = async () => {
+            setIsResolving(true);
+            setUriError(null);
+            try {
+                const result = await decryptionViewFileRef.current?.(box.privateKey as string, metadataBox);
+                if (cancelled || !result) return;
+                setFileCidList(result.fileCIDList || []);
+                setPassword(result.password || '');
+                setSlicesMetadataCID(result.slicesMetadataCID || '');
+            } catch (error) {
+                if (cancelled) return;
+                const message = error instanceof Error ? error.message : 'Failed to decrypt file information, please try again later.';
+                setUriError(message);
+                setFileCidList([]);
+                setPassword('');
+                setSlicesMetadataCID('');
+            } finally {
+                if (!cancelled) {
+                    setIsResolving(false);
+                }
+            }
+        };
+
+        void loadEncryptedData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [metadataBox, box?.privateKey]);
+
     if (!box) {
-        return <div>loading...</div>
+        return <div>loading...</div>;
     }
 
-    // 从box中获取公开数据
-    const privateKey = box.privateKey;
+    const hasUriData = fileCidList.length > 0 || (isCreateMode && (password || slicesMetadataCID));
 
     return (
         <div className="flex w-full flex-col items-start justify-center gap-4">
@@ -40,6 +112,44 @@ const Published: React.FC<Props> = ({ }) => {
                 <br />
                 it means that a password is not required.
             </Typography.Paragraph>
+
+            {metadataBox && (
+                <Typography.Paragraph className="text-muted-foreground text-xs">
+                    The current Box uses the <strong className="text-primary">{mintMethod}</strong> mode to publish,
+                    {isCreateMode ? ' need to decrypt to get file CID / password.' : ' metadata directly contains file CID.'}
+                </Typography.Paragraph>
+            )}
+
+            {isResolving && (
+                <Typography.Paragraph className="text-muted-foreground text-xs">
+                    Parsing file links, please wait...
+                </Typography.Paragraph>
+            )}
+
+            {uriError && (
+                <Alert
+                    type="error"
+                    showIcon
+                    message="Cannot show file information"
+                    description={uriError}
+                />
+            )}
+
+            {!uriError && metadataBox && (
+                <UriPassword
+                    fileCidList={fileCidList}
+                    slicesMetadataCID={isCreateMode ? slicesMetadataCID : ''}
+                    password={isCreateMode ? password : ''}
+                    showPassword={isCreateMode}
+                    hidePasswordByDefault={false}
+                />
+            )}
+
+            {!isResolving && !uriError && metadataBox && !hasUriData && (
+                <Typography.Paragraph className="text-muted-foreground text-xs">
+                    Metadata does not contain files to display.
+                </Typography.Paragraph>
+            )}
         </div>
     );
 }

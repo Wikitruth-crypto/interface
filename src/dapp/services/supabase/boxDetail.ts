@@ -10,17 +10,12 @@ import { supabase, Database } from '@supabaseDocs/supabase.config';
 import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import type { 
     BoxDetailData, 
-    BoxRewardData,
-    BoxUserOrderAmountData,
 } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
 
 
 type BoxRow = Database['public']['Tables']['boxes']['Row'];
 type MetadataBoxRow = Database['public']['Tables']['metadata_boxes']['Row'];
-type BoxUserOrderAmountsRow = Database['public']['Tables']['box_user_order_amounts']['Row'];
-type BoxRewardsRow = Database['public']['Tables']['box_rewards']['Row'];
-type BoxBiddersRow = Database['public']['Tables']['box_bidders']['Row'];
 
 type QueryError = PostgrestError | Error | null;
 
@@ -31,18 +26,8 @@ export interface BoxDetailResult {
 }
 
 
-export interface BoxDetailResult_BoxRewardsData {
-    boxRewardsData: BoxRewardData[] | null;
-    error: QueryError;
-}
-
 export interface BoxDetailResult_BiddersIds {
     biddersIds: string[] | null;
-    error: QueryError;
-}
-
-export interface BoxDetailResult_OrderAmountsData {
-    orderAmountsData: BoxUserOrderAmountData[] | null;
     error: QueryError;
 }
 
@@ -72,39 +57,6 @@ function convertMetadataBoxRow(metadataRow: MetadataBoxRow): MetadataBoxType {
     const camelCased = camelcaseKeys(metadataRow, { deep: true }) as any;
     return {
         ...camelCased,
-    };
-}
-
-/**
- * 转换 BoxRewardsRow 为 BoxRewardData
- * @param boxRewardsRow - box_rewards 表的数据行
- * @returns 转换后的 BoxRewardData
- */
-function convertBoxRewardsRow(boxRewardsRow: BoxRewardsRow): BoxRewardData {
-    const camelCased = camelcaseKeys(boxRewardsRow, { deep: true }) as any;
-    return {
-        id: camelCased.id || '',
-        boxId: camelCased.boxId || boxRewardsRow.box_id.toString(),
-        rewardType: camelCased.rewardType || camelCased.reward_type || '',
-        token: camelCased.token || '',
-        rewardAmount: camelCased.amount?.toString() || '0',
-    };
-}
-
-
-/**
- * 转换 BoxUserOrderAmountsRow 为 BoxUserOrderAmountData
- * @param boxUserOrderAmountsRow - box_user_order_amounts 表的数据行
- * @returns 转换后的 BoxUserOrderAmountData
- */
-function convertBoxUserOrderAmountsRow(boxUserOrderAmountsRow: BoxUserOrderAmountsRow): BoxUserOrderAmountData {
-    const camelCased = camelcaseKeys(boxUserOrderAmountsRow, { deep: true }) as any;
-    return {
-        id: camelCased.id || '',
-        userId: camelCased.userId || camelCased.user_id?.toString() || '',
-        boxId: camelCased.boxId || camelCased.box_id?.toString() || '',
-        token: camelCased.token || '',
-        amount: camelCased.amount?.toString() || '0',
     };
 }
 
@@ -182,52 +134,6 @@ export async function queryBoxAndMetadata(
 }
 
 /**
- * 查询 Box 的奖励数据（box_rewards 表）
- * 
- * 根据情况决定是否查询：当需要显示奖励信息时调用
- * 
-
- * @returns Box 奖励数据列表
- */
-export async function queryBoxDetail_BoxRewardsData(
-    boxId: string,
-): Promise<BoxDetailResult_BoxRewardsData> {
-    const { network, layer } = CHAIN_CONFIG;
-    try {
-        // 查询当前 boxId 的所有 box_rewards 数据
-        const { data, error } = await supabase
-            .from('box_rewards')
-            .select('*')
-            .eq('network', network)
-            .eq('layer', layer)
-            .eq('box_id', boxId);
-
-        if (error) {
-            console.warn('Failed to fetch box_rewards:', error);
-            return {
-                boxRewardsData: null,
-                error: error,
-            };
-        }
-
-        // 转换数据格式
-        const boxRewardsData: BoxRewardData[] = data
-            ? data.map(row => convertBoxRewardsRow(row))
-            : [];
-
-        return {
-            boxRewardsData: boxRewardsData.length > 0 ? boxRewardsData : null,
-            error: null,
-        };
-    } catch (error) {
-        return {
-            boxRewardsData: null,
-            error: toQueryError(error),
-        };
-    }
-}
-
-/**
  * 查询 Box 的竞标者 ID 列表（box_bidders 表）
  * 
  * 根据情况决定是否查询：当 listedMode 为 'Auctioning' 时调用
@@ -289,62 +195,7 @@ export async function queryBoxDetail_BiddersIds(
     }
 }
 
-/**
- * 查询 Box 用户的订单金额数据（box_user_order_amounts 表）
- * 
- * 根据情况决定是否查询：当需要显示用户在该 Box 中的资金状态时调用
- * 需要同时拥有 boxId、currentUserId、acceptedToken 三者都存在，才能查询到数据
- * 
- * @param boxId - Box ID (字符串形式)
- * @param currentUserId - 当前用户 ID (字符串形式)
- * @param acceptedToken - 接受的代币地址 (字符串形式)
- * @returns 用户订单金额数据列表
- */
-export async function queryBoxDetail_OrderAmountsData(
-    boxId: string,
-    currentUserId: string,
-    acceptedToken: string,
-): Promise<BoxDetailResult_OrderAmountsData> {
-    try {
-        const { network, layer } = CHAIN_CONFIG;
-        let orderAmountsData: BoxUserOrderAmountData[] | null = null;
 
-        // 只有当 acceptedToken 和 currentUserId 都存在时才查询
-        if (acceptedToken && currentUserId) {
-            const { data, error } = await supabase
-                .from('box_user_order_amounts')
-                .select('*')
-                .eq('network', network)
-                .eq('layer', layer)
-                .eq('box_id', boxId)
-                .eq('user_id', currentUserId)
-                .eq('token', acceptedToken);
-
-            if (error) {
-                console.warn('Failed to fetch box_user_order_amounts:', error);
-                return {
-                    orderAmountsData: null,
-                    error: error,
-                };
-            }
-
-            // 转换数据格式
-            if (data && Array.isArray(data)) {
-                orderAmountsData = data.map(row => convertBoxUserOrderAmountsRow(row));
-            }
-        }
-
-        return {
-            orderAmountsData: orderAmountsData && orderAmountsData.length > 0 ? orderAmountsData : null,
-            error: null,
-        };
-    } catch (error) {
-        return {
-            orderAmountsData: null,
-            error: toQueryError(error),
-        };
-    }
-}
 /**
  * 将错误转换为 QueryError 类型
  */

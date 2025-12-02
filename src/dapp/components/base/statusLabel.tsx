@@ -1,16 +1,11 @@
 "use client"
 
-/**
- * 状态标签组件（使用 antd Tag）
- */
 import { Tag } from 'antd';
-import { BoxStatus } from "@/dapp/types/contracts/truthBox";
 import { cn } from "@/lib/utils";
 
-export type StatusType = BoxStatus;
 
 export interface StatusLabelProps {
-    status: StatusType;
+    status: string;
     className?: string;
     disabled?: boolean;
     /** 尺寸变体 */

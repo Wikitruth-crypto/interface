@@ -8,13 +8,13 @@ export type ViewFileResult = {
     slicesMetadataCID: string;
 };
 
-const useViewFileTruthBox = () => {
+const useDecryptionViewFile = () => {
 
     const [data, setData] = useState<ViewFileResult | null>(null);
 
     const { decryptList, decrypt } = useDecryption();
 
-    const viewFileTruthBox = async (
+    const decryptionViewFile = async (
         privateKey: string,
         metadataBox: MetadataBoxType
     ): Promise<ViewFileResult> => {
@@ -72,7 +72,7 @@ const useViewFileTruthBox = () => {
             
     }
 
-    return { viewFileTruthBox, data };
+    return { decryptionViewFile, data };
 }
 
-export default useViewFileTruthBox;
+export default useDecryptionViewFile;

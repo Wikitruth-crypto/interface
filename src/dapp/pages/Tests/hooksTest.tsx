@@ -13,7 +13,7 @@ import {
     useAllContractConfigs,
     useSupportedTokens,
 } from '@dapp/contractsConfig';
-import { useReadAllowance } from '@/dapp/hooks/readContracts/token/useReadAllowance';
+import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { RequestEip712 } from '@/dapp/components/secret/requestEip712';
 import { RequestSiwe } from '@/dapp/components/secret/requestSiwe';
 import { PermitType } from '@/dapp/hooks/EIP712/types_ERC20secret';

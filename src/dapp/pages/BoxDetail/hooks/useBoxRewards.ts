@@ -7,9 +7,8 @@
 
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { queryBoxDetail_BoxRewardsData } from '@/dapp/services/supabase/boxDetail';
+import { query_BoxRewardsData, type BoxRewardData } from '@/dapp/services/supabase/fundsBox';
 import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
-import type { BoxRewardData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 export const useBoxRewards = (
     boxId: string,
@@ -23,7 +22,7 @@ export const useBoxRewards = (
     const { data, isLoading, error, isFetching } = useQuery({
         queryKey: ['box-rewards', network, layer, boxId],
         queryFn: async () => {
-            const result = await queryBoxDetail_BoxRewardsData(
+            const result = await query_BoxRewardsData(
                 boxId
             );
             

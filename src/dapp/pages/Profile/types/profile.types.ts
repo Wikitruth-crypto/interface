@@ -6,8 +6,12 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 export type { BoxStatus };
 
 // Box数据接口（基于 Supabase 数据结构）
+// Box参与者
+export interface BoxParticipant {
+    id: string;
+}
+
 export interface BoxData {
-    // 基础字段
     id: string;
     tokenId: string;
     price: string;
@@ -18,20 +22,17 @@ export interface BoxData {
     acceptedToken?: string;
     refundPermit?: boolean;
     listedMode?: 'Selling' | 'Auctioning';
-    
-    // 用户关系字段
-    owner: string;
-    minter: string;
-    seller?: string;
-    buyer?: string;
-    completer?: string;
-    publisher?: string;
-    bidders: string[];
-    
-    // 元数据字段（从 Supabase metadata_boxes 表获取）
+    owner: BoxParticipant;
+    minter: BoxParticipant;
+    seller?: BoxParticipant;
+    buyer?: BoxParticipant;
+    completer?: BoxParticipant;
+    publisher?: BoxParticipant;
+    bidders: BoxParticipant[];
     title?: string;
     description?: string;
     nftImage?: string;
+    image?: string;
     boxImage?: string;
     country?: string;
     state?: string;
@@ -39,6 +40,7 @@ export interface BoxData {
     typeOfCrime?: string;
     hasError?: boolean;
 }
+
 
 // Box元数据接口
 export interface BoxMetadata {

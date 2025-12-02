@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import AlertCustom from './base/alertCustom';
-import { useGetMyUserId } from '@/dapp/hooks/readContracts/useGetMyUserId';
+import { useGetMyUserId } from '@/dapp/hooks/readContracts2/useGetMyUserId';
 
 const UserIdAlert: React.FC = () => {
     const [isOpen, setIsOpen] = useState(true);

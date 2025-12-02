@@ -14,6 +14,8 @@ export { useUserProfile } from './useUserProfile';
 export { useUserBoxes } from './useUserBoxes';
 export { useProfileTable } from './useProfileTable';
 export { useLisener } from './useLisener';
+export { useUserRewardsSummary } from './useUserRewardsSummary';
+export { useRewardsWithdraw } from './useRewardsWithdraw';
 
 // 重新导出类型定义
 export type { 

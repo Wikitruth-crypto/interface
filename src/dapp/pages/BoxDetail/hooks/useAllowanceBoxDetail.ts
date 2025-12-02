@@ -1,4 +1,4 @@
-import { useReadAllowance } from '@/dapp/hooks/readContracts/token/useReadAllowance';
+import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useState } from 'react';

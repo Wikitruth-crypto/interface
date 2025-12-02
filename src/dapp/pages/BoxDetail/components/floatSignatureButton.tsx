@@ -72,20 +72,20 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
 
         try {
             // 先检查本地状态
-            if (!session.isLoggedIn || !session.token) {
-                return false;
-            }
+            // if (!session.isLoggedIn || !session.token) {
+            //     return false;
+            // }
 
-            // 检查过期时间
-            if (session.expiresAt && session.expiresAt < new Date()) {
-                return false;
-            }
+            // // 检查过期时间
+            // if (session.expiresAt && session.expiresAt < new Date()) {
+            //     return false;
+            // }
 
             // 验证会话（调用合约验证）
             const isValid = await validateSession();
             return isValid;
         } catch (error) {
-            console.error('[FloatSignatureButton] 检查 SIWE session 失败:', error);
+            console.error('[FloatSignatureButton] Check SIWE session failed:', error);
             return false;
         }
     }, [address, session, validateSession]);
@@ -110,7 +110,7 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
             setIsValidSIWE(siweValid);
 
         } catch (error) {
-            console.error('[FloatSignatureButton] 签名检查失败:', error);
+            console.error('[FloatSignatureButton] Signature check failed:', error);
             // 出错时显示按钮，让用户手动处理
             setIsValidEIP712(false);
             setIsValidSIWE(false);

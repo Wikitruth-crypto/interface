@@ -1,39 +1,55 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
-import RadioCard from './base/radioCard';
+import { Radio, Typography, Space, Empty, Alert } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { formatAmount } from '@dapp/utils/formatAmount';
 
-export interface TokenInfo {
+const { Text, Title } = Typography;
+
+export interface FundsData {
     amount: string;
-    formattedAmount: string;
     symbol: string;
-    hasValidAmount: boolean;
-}
-export interface FundsSectionProps {
-    title: string;
-    officeToken?: TokenInfo;
-    acceptedToken?: TokenInfo;
-    selectedValue: string;
+    type?: string;
+    decimals?: number;
     disabled?: boolean;
+}
+
+export interface FundsSectionProps {
+    title?: string;
+    funds: FundsData[];
+    selectedValue: string;
     onSelect?: (tokenSymbol: string) => void;
     onDeselect?: (tokenSymbol: string) => void;
     className?: string;
 }
 
-
 const FundsSection: React.FC<FundsSectionProps> = ({
-    title,
-    officeToken,
-    acceptedToken,
+    title = "Your Funds",
+    funds,
     selectedValue,
-    disabled = false,
     onSelect,
     onDeselect,
     className
 }) => {
-    // 处理代币点击逻辑
-    const handleTokenClick = (tokenSymbol: string) => {
-        if (disabled) return;
+    // 检查每个资金是否有有效金额
+    const validFunds = funds.filter(fund => {
+        if (fund.disabled) return false;
+        if (!fund.amount || fund.amount === '0' || fund.amount === '0n') return false;
+        try {
+            const amountValue = typeof fund.amount === 'string' && fund.amount.includes('n')
+                ? BigInt(fund.amount.replace('n', ''))
+                : BigInt(fund.amount);
+            return amountValue > BigInt(0);
+        } catch {
+            return false;
+        }
+    });
 
+    // 检查是否有可用资金
+    const hasAnyFunds = validFunds.length > 0;
+
+    // 处理代币选择逻辑
+    const handleChange = (e: any) => {
+        const tokenSymbol = e.target.value;
         if (selectedValue === tokenSymbol) {
             // 取消选择
             onDeselect?.(tokenSymbol);
@@ -43,87 +59,90 @@ const FundsSection: React.FC<FundsSectionProps> = ({
         }
     };
 
-    // 检查是否有可用资金
-    const hasAnyFunds = officeToken?.hasValidAmount || acceptedToken?.hasValidAmount;
+    // 检查是否所有资金都被禁用
+    const allDisabled = funds.length > 0 && validFunds.length === 0;
 
     // 无资金时的空状态显示
-    if (disabled && !hasAnyFunds) {
+    if (allDisabled) {
         return (
-            <div className={cn(
-                "p-4 text-center text-muted-foreground text-sm",
-                "bg-muted/20 rounded-lg border border-dashed border-muted-foreground/30",
-                className
-            )}>
-                <div className="flex flex-col items-center gap-2">
-                    <div className="text-xs opacity-60">💰</div>
-                    <div>No funds available</div>
-                </div>
+            <div className={className}>
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                        <Space direction="vertical" size="small" align="center">
+                            <Text type="secondary">💰</Text>
+                            <Text type="secondary">No funds available</Text>
+                        </Space>
+                    }
+                    style={{ padding: '16px 0' }}
+                />
             </div>
         );
     }
 
     return (
-        <div className={cn("space-y-4", className)}>
-            {/* 标题区域 */}
-            <div className="flex items-center justify-between">
-                <h5 className="text-sm font-semibold text-foreground">{title}</h5>
-            </div>
+        <div className={className}>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {/* 标题区域 */}
+                <Title level={5} style={{ margin: 0 }}>
+                    {title}
+                </Title>
 
-            {/* 代币选择区域 */}
-            <div className="space-y-3">
-                {/* Office Token */}
-                {officeToken?.hasValidAmount && (
-                    <div className="relative">
-                        <RadioCard
-                            label={officeToken.formattedAmount}
-                            value={officeToken.amount}
-                            description={officeToken.symbol}
-                            variant='outline'
-                            size='small'
-                            onClick={() => handleTokenClick(officeToken.symbol)}
-                            selected={selectedValue === officeToken.symbol}
-                            disabled={disabled}
-                        />
-                    </div>
+                {/* 代币选择区域 */}
+                {validFunds.length > 0 && (
+                    <Radio.Group
+                        value={selectedValue || undefined}
+                        onChange={handleChange}
+                        style={{ width: '100%' }}
+                    >
+                        <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                            {validFunds.map((fund, index) => (
+                                <Radio.Button
+                                    key={`${fund.symbol}-${index}`}
+                                    value={fund.symbol}
+                                    disabled={fund.disabled}
+                                    style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        padding: '12px 16px',
+                                        textAlign: 'left',
+                                    }}
+                                >
+                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                        <Text strong style={{ fontSize: 16, fontFamily: 'monospace' }}>
+                                            {formatAmount(fund.amount, fund.decimals ?? 18)}
+                                        </Text>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            {fund.symbol}
+                                        </Text>
+                                        {fund.type && (
+                                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                                {fund.type}
+                                            </Text>
+                                        )}
+                                    </Space>
+                                </Radio.Button>
+                            ))}
+                        </Space>
+                    </Radio.Group>
                 )}
 
-                {/* Accepted Token */}
-                {acceptedToken?.hasValidAmount && (
-                    <div className="relative">
-                        <RadioCard
-                            label={acceptedToken.formattedAmount}
-                            value={acceptedToken.amount}
-                            description={acceptedToken.symbol}
-                            variant='outline'
-                            size='small'
-                            onClick={() => handleTokenClick(acceptedToken.symbol)}
-                            selected={selectedValue === acceptedToken.symbol}
-                            disabled={disabled}
-                        />
-                    </div>
+                {/* 选择状态提示 */}
+                {selectedValue && hasAnyFunds && (
+                    <Alert
+                        message={
+                            <Space>
+                                <CheckCircleOutlined />
+                                <Text strong>Selected: {selectedValue}</Text>
+                            </Space>
+                        }
+                        description="Click to deselect or choose another token"
+                        type="info"
+                        showIcon
+                        style={{ fontSize: 12 }}
+                    />
                 )}
-            </div>
-
-            {/* 选择状态提示 */}
-            {selectedValue && hasAnyFunds && (
-                <div className="mt-3 p-2 bg-primary/10 rounded-md border border-primary/20">
-                    <div className="text-xs text-primary font-medium">
-                        ✓ Selected: {selectedValue}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                        Click to deselect or choose another token
-                    </div>
-                </div>
-            )}
-
-            {/* 禁用状态提示 */}
-            {disabled && hasAnyFunds && (
-                <div className="mt-3 p-2 bg-muted/20 rounded-md border border-muted-foreground/20">
-                    <div className="text-xs text-muted-foreground">
-                        🔒 Selection disabled
-                    </div>
-                </div>
-            )}
+            </Space>
         </div>
     );
 };

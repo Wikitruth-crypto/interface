@@ -93,7 +93,7 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
 
     const refuseRefund_roleCheck = (): boolean => {
       if (isInReviewRefundDeadline) {
-        return isAdmin; // 在审核退款期限内，则必须是admin或minter
+        return isAdmin; // 在审核退款期限内，则必须是admin
       } else {
         return !isGuest; // 过期，则只要不是guest就可以
       }

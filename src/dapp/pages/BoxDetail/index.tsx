@@ -5,7 +5,7 @@ import ContentRight from './containers/right';
 import { Container } from '@/components/Container';
 import { BoxDetailProvider } from './contexts/BoxDetailContext';
 import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
-// import UserIdAlert from '@/dapp/components/userIdAlert';
+import UserIdAlert from '@/dapp/components/userIdAlert';
 
 const BoxDetail: React.FC = () => {
     const { tokenId } = useParams<{ tokenId: string }>();
@@ -21,7 +21,7 @@ const BoxDetail: React.FC = () => {
                     </h2>
                 </div>
 
-                {/* <UserIdAlert /> */}
+                <UserIdAlert />
 
                 {/* Main Content */}
                 <div className="bg-muted/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 lg:p-12">

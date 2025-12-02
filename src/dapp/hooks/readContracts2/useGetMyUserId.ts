@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useAccountStore } from '@/dapp/store/accountStore';
-import { useUserId } from './useUserId';
+import { useUserId } from '../readContracts/useUserId';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { CHAIN_ID } from '@/dapp/contractsConfig';

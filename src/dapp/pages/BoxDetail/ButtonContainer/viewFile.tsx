@@ -5,6 +5,7 @@ import { Button, Typography } from 'antd';
 import { cn } from '@/lib/utils';
 import { useButtonInteractionStore } from '@/dapp/store/buttonInteractionStore';
 import {useButtonActive} from '../hooks/useButtonActive';
+import ModalViewFile from '../Modal/modalViewFile';
 // import { useBoxActionController } from '../hooks/useBoxActionController';
 // import { boxActionConfigs } from '../actions/configs';
 
@@ -15,7 +16,6 @@ interface Props {
 
 const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  // 使用集中的按钮交互状态（只检查是否有其他操作正在进行）
   const { functionWriting } = useButtonInteractionStore();
   const isActive = useButtonActive('viewFileActive');
 
@@ -24,7 +24,6 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
     setModalOpen(true);
   };
   
-
   // 计算按钮状态 - 模态框打开时或有其他操作时禁用
   const isDisabled = (functionWriting !== null);
 
@@ -41,6 +40,7 @@ const ViewFileButton: React.FC<Props> = ({ onClick, className }) => {
         </Button>
         <Typography.Paragraph color="muted-foreground">You can view the confidential file here.</Typography.Paragraph>
       </div>
+      {modalOpen && <ModalViewFile onClose={() => setModalOpen(false)} />}
     </div>
   );
 };

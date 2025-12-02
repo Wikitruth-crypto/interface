@@ -27,7 +27,7 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     onImageLoad, // 新增
 }) => {
     const supportedTokens = useSupportedTokens();
-    const symbol = supportedTokens.find(token => token.address === data.acceptToken)?.symbol;
+    const tokenMetadata = supportedTokens.find(token => token.address === data.acceptToken);
     
     const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6];
 
@@ -156,8 +156,8 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                         {shouldShowPrice && data.price !== undefined && (
                             <PriceLabel
                                 price={data.price}
-                                token={data.acceptToken}
-                                symbol={symbol}
+                                symbol={tokenMetadata?.symbol}
+                                decimals={tokenMetadata?.decimals}
                                 variant="small"
                                 responsive={true}
                                 className="shrink min-w-0"
