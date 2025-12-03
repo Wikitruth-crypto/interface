@@ -49,7 +49,9 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
                 message.error('Token is required');
                 return;
             }
-            priceBigInt = price && Number(price) > 0 ? parseUnits(price, decimals) : BigInt(0);
+            // 确保 price 是字符串，parseUnits 需要字符串参数
+            const priceStr = String(price || '');
+            priceBigInt = priceStr && Number(priceStr) > 0 ? parseUnits(priceStr, decimals) : BigInt(0);
         } else {
             tokenAddress = box.acceptedToken as `0x${string}`;
             priceBigInt = BigInt(box.price || 0);
@@ -69,8 +71,13 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
         setDecimals(token?.decimals as number);
     };
 
-    const handlePriceChange = (value: string) => {
-        setPrice(value);
+    const handlePriceChange = (value: number | string | null) => {
+        // InputNumber 的 onChange 可能返回 number | null，需要转换为字符串
+        if (value === null || value === undefined) {
+            setPrice('');
+        } else {
+            setPrice(String(value));
+        }
     };
 
     const handleClose = () => {
@@ -127,8 +134,8 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
                                 <Paragraph color='muted-foreground'>Price:</Paragraph>
                                 <div className='flex flex-row items-center '>
                                     <InputNumber
-                                        onChange={(value) => handlePriceChange(value || '')}
-                                        value={price}
+                                        onChange={(value) => handlePriceChange(value)}
+                                        value={price ? Number(price) : undefined}
                                         placeholder="Enter price"
                                     />
                                 </div>

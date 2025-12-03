@@ -7,7 +7,10 @@ import { useSupportedTokens } from "@/dapp/contractsConfig";
 export const useWithdraw = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
-    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2();
+    // const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2();
+    const error: any = null;
+    const isPending = false;
+    const isSuccessed = false;
 
     const withdraw = async () => {
         const withdrawData = useWithdrawStore.getState().withdrawData;
@@ -38,11 +41,13 @@ export const useWithdraw = () => {
             }
             console.log('args:', args);
 
-            const hash = await writeCustormV2({
-                contract: allConfigs.FundManager,
-                functionName: selectedClaimMethod,
-                args: args
-            });
+            // TODO ：模拟交易，后续需要替换为实际交易
+            // const hash = await writeCustormV2({
+            //     contract: allConfigs.FundManager,
+            //     functionName: selectedClaimMethod,
+            //     args: args
+            // });
+            const hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
             return hash;
         } catch (error) {
             console.error(error);

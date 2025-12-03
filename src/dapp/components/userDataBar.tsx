@@ -52,49 +52,41 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
             key: 'all',
             displayName: 'All Boxes',
             count: data?.totalBoxes || 0,
-            description: 'All Boxes Count of User'
         },
         { 
             key: 'owned',
             displayName: 'Owned',
             count: data?.ownedBoxes || 0,
-            description: 'Owned Boxes Count of User'
         },
         { 
             key: 'minted',
             displayName: 'Minted',
             count: data?.mintedBoxes || 0,
-            description: 'Minted Boxes Count of User'
         },
         { 
             key: 'sold',
             displayName: 'Sold',
             count: data?.soldBoxes || 0,
-            description: 'Sold Boxes Count of User, include sell and auction'
         },
         { 
             key: 'bought',
             displayName: 'Bought',
             count: data?.boughtBoxes || 0,
-            description: 'Bought Boxes Count of User'
         },
         { 
             key: 'bade',
             displayName: 'Bade',
             count: data?.bidBoxes || 0,
-            description: 'Bid Boxes Count of User'
         },
         { 
             key: 'completed',
             displayName: 'Completed',
             count: data?.completedBoxes || 0,
-            description: 'Completed Boxes Count of User'
         },
         { 
             key: 'published',
             displayName: 'Published',
             count: data?.publishedBoxes || 0,
-            description: 'Published Boxes Count of User'
         },
     ];
 
@@ -155,8 +147,8 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
     // 默认样式
     return (
         <div className={cn(
-            "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-4",
-            "p-6 bg-card border rounded-xl shadow-sm",
+            "grid grid-cols-4 md:grid-cols-8 gap-1 md:gap-1.5",
+            "p-1.5 md:p-2 bg-card border rounded-xl shadow-sm",
             className
         )}>
             {visibleTabs.map((tab) => (
@@ -165,16 +157,16 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
                     onClick={() => handleTabClick(tab.key)}
                     className={cn(
                         "relative flex flex-col items-center justify-center",
-                        "p-4 rounded-lg transition-all duration-300",
-                        "border-2 border-transparent",
+                        "p-1 md:p-1.5 rounded-lg transition-all duration-300",
+                        "border border-transparent",
                         // 基础样式
-                        "hover:shadow-md hover:border-primary hover:border-1",
+                        "hover:shadow-md hover:border-primary",
                         // 交互状态
                         onTabClick && !loading && "cursor-pointer hover:scale-105",
                         // 选中状态
                         selectedTab === tab.key && [
                             "bg-primary/10 border-primary shadow-lg scale-105",
-                            "ring-2 ring-primary/20"
+                            "ring-1 ring-primary/20"
                         ],
                         // 非选中状态
                         selectedTab !== tab.key && [
@@ -189,7 +181,7 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
                 >
                     {/* 数字显示 */}
                     <div className={cn(
-                        "text-2xl md:text-3xl font-bold mb-2",
+                        "text-sm md:text-base lg:text-lg font-bold",
                         "transition-all duration-300",
                         selectedTab === tab.key 
                             ? "text-primary" 
@@ -197,7 +189,7 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
                         loading && "animate-pulse"
                     )}>
                         {loading ? (
-                            <Loader2 className="h-6 w-6 animate-spin" />
+                            <Loader2 className="h-3 w-3 md:h-3.5 md:w-3.5 animate-spin" />
                         ) : (
                             tab.count.toLocaleString()
                         )}
@@ -206,38 +198,19 @@ const UserDataBar: React.FC<UserDataBarProps> = ({
                     {/* 标签文本 */}
                     <div className="text-center">
                         <p className={cn(
-                            "text-sm font-medium mb-1",
+                            "text-xs font-medium leading-tight mt-0.5",
                             selectedTab === tab.key 
                                 ? "text-primary" 
                                 : "text-muted-foreground"
                         )}>
                             {tab.displayName}
                         </p>
-                        
-                        {/* 描述文本（仅在选中时显示） */}
-                        {selectedTab === tab.key && tab.description && (
-                            <p className="text-xs text-muted-foreground opacity-75">
-                                {tab.description}
-                            </p>
-                        )}
                     </div>
 
                     {/* 选中指示器 */}
                     {selectedTab === tab.key && (
                         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-                            <div className="w-2 h-2 bg-primary rounded-full" />
-                        </div>
-                    )}
-
-                    {/* 新数据指示器（可选） */}
-                    {tab.count > 0 && selectedTab !== tab.key && (
-                        <div className="absolute top-2 right-2">
-                            <div className={cn(
-                                "w-2 h-2 rounded-full",
-                                tab.count > 10 ? "bg-green-500" :
-                                tab.count > 5 ? "bg-yellow-500" :
-                                "bg-blue-500"
-                            )} />
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full" />
                         </div>
                     )}
                 </div>

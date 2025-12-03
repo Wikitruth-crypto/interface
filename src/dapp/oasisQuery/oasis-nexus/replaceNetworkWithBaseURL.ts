@@ -1,16 +1,28 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
+const ensureTrailingSlash = (value: string) => (value.endsWith('/') ? value : `${value}/`)
+
+const replacePrefixWithBase = (config: AxiosRequestConfig, prefix: string, base: string | undefined, name: string) => {
+  if (!config.url?.startsWith(prefix)) return false
+  const resolvedBase = ensureTrailingSlash(base ?? '')
+  if (!base) {
+    throw new Error(`[oasisQuery] Missing environment variable ${name}. Please define it in your .env file.`)
+  }
+  config.url = config.url.replace(prefix, resolvedBase)
+  return true
+}
+
 export const replaceNetworkWithBaseURL = <T>(
   config: AxiosRequestConfig,
   requestOverrides?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T>> => {
-  if (config.url?.startsWith('/mainnet/')) {
-    config.url = config.url.replace('/mainnet/', import.meta.env.REACT_APP_API!)
-  } else if (config.url?.startsWith('/testnet/')) {
-    config.url = config.url.replace('/testnet/', import.meta.env.REACT_APP_TESTNET_API!)
-  } else if (config.url?.startsWith('/localnet/')) {
-    config.url = config.url.replace('/localnet/', import.meta.env.REACT_APP_LOCALNET_API!)
-  } else {
+  if (
+    !(
+      replacePrefixWithBase(config, '/mainnet/', import.meta.env.REACT_APP_API, 'REACT_APP_API') ||
+      replacePrefixWithBase(config, '/testnet/', import.meta.env.REACT_APP_TESTNET_API, 'REACT_APP_TESTNET_API') ||
+      replacePrefixWithBase(config, '/localnet/', import.meta.env.REACT_APP_LOCALNET_API, 'REACT_APP_LOCALNET_API')
+    )
+  ) {
     throw new Error(`Expected URL to be prefixed with network: ${config.url}`)
   }
 

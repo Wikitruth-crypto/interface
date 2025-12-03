@@ -1,6 +1,7 @@
 # Nexus API 说明
 
 **版本**: v1
+**依赖**："@tanstack/react-query": "^5.81.2"
 
 ## 概述
 

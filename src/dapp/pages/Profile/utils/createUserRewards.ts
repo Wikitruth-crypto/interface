@@ -1,1 +1,0 @@
-import { SUPPORTED_TOKENS } from "@/dapp/contractsConfig";

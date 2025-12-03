@@ -14,6 +14,7 @@ export default defineConfig({
       }
     })
   ],
+  envPrefix: ['VITE_', 'REACT_APP_'],
   
   resolve: {
     alias: {
@@ -85,4 +86,3 @@ export default defineConfig({
     'process.env': {}
   }
 })
-

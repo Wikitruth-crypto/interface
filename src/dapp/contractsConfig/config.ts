@@ -12,7 +12,7 @@ import {
 } from './types';
 import { ABIS } from './abis';
 import { NETWORK_CONTRACTS } from './contracts';
-import { getChainConfig, isSupportedChain } from './chains';
+import { isSupportedChain } from './chains';
 import { CHAIN_CONFIG } from './current';
 
 /**

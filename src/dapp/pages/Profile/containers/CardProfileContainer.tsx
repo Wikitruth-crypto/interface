@@ -7,7 +7,7 @@ import CardProfile, {
 } from '@/dapp/components/cardProfile';
 import { FundsData } from '@/dapp/components/fundsSection';
 import { BoxData } from '@dapp/pages/Profile/types/profile.types';
-import { useFunds } from '@/dapp/pages/Profile/hooks/useFunds';
+import { useFunds } from '@/dapp/pages/Profile/hooks/useTestFunds';
 import { useWithdrawStore, SelectableItem } from '@/dapp/pages/Profile/store/withdrawStore';
 
 export interface CardProfileContainerProps {

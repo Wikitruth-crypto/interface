@@ -58,6 +58,12 @@ export const usePaginatedRuntimeEvents = ({
 
   return useGetRuntimeEvents(scope.network, scope.layer, requestParams, {
     query: {
+      queryKey: [
+        'usePaginatedRuntimeEvents',
+        scope.network,
+        scope.layer,
+        requestParams,
+      ],
       enabled,
     },
   })

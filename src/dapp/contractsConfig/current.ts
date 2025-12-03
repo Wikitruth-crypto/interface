@@ -14,9 +14,10 @@ export let SUPPORTED_TOKENS: TokenMetadata[] = [];
 export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     index: 0,
     name: 'WikiTruth Coin',
-    symbol: 'WTC',
+    symbol: 'WTRC',
+    precision: 3,
     decimals: 18,
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x990DE401CD0103a0107D27F82283db60F4844203',
     types: 'ERC20',
 }
 

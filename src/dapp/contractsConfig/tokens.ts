@@ -8,28 +8,41 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
     {
       index: 0,
       name: 'WikiTruth Coin',
-      symbol: 'WTC',
-      decimals: 3,
+      symbol: 'WTRC',
+      decimals: 18,
+      precision: 3,
       address: addresses.OfficialToken,
       types: 'ERC20',
     },
     {
-      index: 0,
-      name: 'WROSE Secret',
-      symbol: 'WROSE.S',
-      decimals: 18,
-      address: addresses.WROSE_Secret,
-      types: 'Secret',
-    },
-    {
       index: 1,
       name: 'WikiTruth Coin Secret',
-      symbol: 'WTC.S',
+      symbol: 'WTRC.S',
       decimals: 18,
+      precision: 3,
       address: addresses.OfficialTokenSecret,
       types: 'Secret',
     },
-
+    {
+      index: 2,
+      name: 'Wrapped ROSE',
+      symbol: 'wROSE',
+      decimals: 18,
+      precision: 3,
+      address: addresses.wROSE,
+      types: 'ERC20',
+    },
+    {
+      index: 3,
+      name: 'WROSE Secret',
+      symbol: 'wROSE.S',
+      decimals: 18,
+      precision: 3,
+      address: addresses.wROSE_Secret,
+      types: 'Secret',
+    },
+    
+    
     // TODO add more tokens here...
   ];
 }
@@ -41,6 +54,7 @@ export function getOfficialTokenConfig_WithChainId(chainId: SupportedChainId): T
     name: 'WikiTruth Coin',
     symbol: 'WTC',
     decimals: 18,
+    precision: 2,
     address: addresses.OfficialToken,
     types: 'ERC20',
   };

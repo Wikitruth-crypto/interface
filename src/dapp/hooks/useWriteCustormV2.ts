@@ -58,7 +58,6 @@ export const useWriteCustormV2 = (boxIds?: string| string[]): WriteContractResul
         config: WriteContractConfig
     ) => {
         const functionName = config.functionName as FunctionNameType;
-        
         setWriteType(functionName);
         setFunctionWriting(functionName);
         

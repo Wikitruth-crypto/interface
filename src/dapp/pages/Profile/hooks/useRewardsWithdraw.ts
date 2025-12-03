@@ -28,13 +28,18 @@ export const useRewardsWithdraw = (userId: string | null) => {
         setCurrentAction({ method, tokenAddress });
 
         try {
-            await writeCustormV2({
-                contract: allConfigs.FundManager,
-                functionName: method,
-                args: [tokenAddress],
-            });
+            // TODO ：模拟交易，后续需要替换为实际交易
+            // await writeCustormV2({
+            //     contract: allConfigs.FundManager,
+            //     functionName: method,
+            //     args: [tokenAddress],
+            // });
+            // await queryClient.invalidateQueries({ queryKey: rewardsQueryKey });
 
-            await queryClient.invalidateQueries({ queryKey: rewardsQueryKey });
+            const hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+            console.log('hash:', hash);
+            return hash;
+
         } finally {
             setCurrentAction(null);
         }

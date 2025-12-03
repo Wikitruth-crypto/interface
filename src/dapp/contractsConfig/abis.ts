@@ -28,6 +28,7 @@ export const ABIS: Record<ContractName, Abi> = {
   [ContractName.OFFICIAL_TOKEN_SECRET]: erc20SecretJson.abi as Abi,
   [ContractName.WROSE_SECRET]: wroseSecretJson.abi as Abi,
   [ContractName.ERC20_SECRET]: erc20SecretJson.abi as Abi,
+  [ContractName.WROSE]: officialTokenJson.abi as Abi,
   // [ContractName.USDC_SECRET]: erc20SecretJson.abi as Abi,
   // [ContractName.WBTC_SECRET]: erc20SecretJson.abi as Abi,
   // [ContractName.WETH_SECRET]: erc20SecretJson.abi as Abi,

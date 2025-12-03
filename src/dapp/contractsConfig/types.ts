@@ -47,8 +47,9 @@ export enum ContractName {
   // Token 合约
   OFFICIAL_TOKEN = 'OfficialToken',
   OFFICIAL_TOKEN_SECRET = 'OfficialTokenSecret',
-  WROSE_SECRET = 'WROSE_Secret',
+  WROSE_SECRET = 'wROSE_Secret',
   ERC20_SECRET = 'ERC20_Secret',
+  WROSE = 'wROSE',
   // USDC_SECRET = 'ERC20Secret',
   // WBTC_SECRET = 'WBTCSecret',
   // WETH_SECRET = 'WETHSercet',
@@ -96,6 +97,7 @@ export interface TokenMetadata {
   name: string;
   symbol: string;
   decimals: number;
+  precision: number; // 精度，用于显示小数位数
   address: `0x${string}`;
   logo?: string;
   types: 'ERC20' | 'Secret';

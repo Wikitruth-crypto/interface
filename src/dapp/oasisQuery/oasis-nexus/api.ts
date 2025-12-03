@@ -387,10 +387,14 @@ export const useGetConsensusAccountsAddress: typeof generated.useGetConsensusAcc
   options?,
 ) => {
   const ticker = getTokensForScope({ network, layer: 'consensus' })[0].ticker
+  const queryKey =
+    (options?.query?.queryKey as QueryKey | undefined) ??
+    generated.getGetConsensusAccountsAddressQueryKey(network, address)
   return generated.useGetConsensusAccountsAddress(network, address, {
     ...options,
     query: {
       ...(options?.query ?? {}),
+      queryKey,
       enabled: options?.query?.enabled ?? true,
     },
     request: {
@@ -430,10 +434,14 @@ export const useGetRuntimeAccountsAddress: typeof generated.useGetRuntimeAccount
   address,
   options,
 ) => {
+  const queryKey =
+    (options?.query?.queryKey as QueryKey | undefined) ??
+    generated.getGetRuntimeAccountsAddressQueryKey(network, runtime, address)
   const query = generated.useGetRuntimeAccountsAddress(network, runtime, address, {
     ...options,
     query: {
       ...(options?.query ?? {}),
+      queryKey,
       enabled: !!address && (options?.query?.enabled ?? true),
     },
     request: {
@@ -539,14 +547,17 @@ export const useGetRuntimeAccountsAddresses = (
   const queries = MASS_LOAD_INDEXES.map((i): RuntimeTarget | undefined => targets[i]).map(target =>
     // The number of iterations is constant here, so we will always call the hook the same number.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useGetRuntimeAccountsAddress(
-      target?.network ?? 'mainnet',
-      target?.layer ?? 'emerald',
-      target?.address ?? '',
-      {
-        query: { enabled: queryOptions.enabled && !!target?.address },
-      },
-    ),
+    {
+      const network = target?.network ?? 'mainnet'
+      const layer = target?.layer ?? 'emerald'
+      const address = target?.address ?? ''
+      return useGetRuntimeAccountsAddress(network, layer, address, {
+        query: {
+          queryKey: generated.getGetRuntimeAccountsAddressQueryKey(network, layer, address),
+          enabled: queryOptions.enabled && !!target?.address,
+        },
+      })
+    },
   )
   return {
     isLoading: !!targets?.length && queries.some(query => query.isLoading && query.fetchStatus !== 'idle'),
@@ -567,9 +578,16 @@ export const useGetConsensusAccountsAddresses = (
   const queries = MASS_LOAD_INDEXES.map((i): ConsensusTarget | undefined => targets[i]).map(target =>
     // The number of iterations is constant here, so we will always call the hook the same number.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useGetConsensusAccountsAddress(target?.network ?? 'mainnet', target?.address ?? '', {
-      query: { enabled: queryOptions.enabled && !!target?.address },
-    }),
+    {
+      const network = target?.network ?? 'mainnet'
+      const address = target?.address ?? ''
+      return useGetConsensusAccountsAddress(network, address, {
+        query: {
+          queryKey: generated.getGetConsensusAccountsAddressQueryKey(network, address),
+          enabled: queryOptions.enabled && !!target?.address,
+        },
+      })
+    },
   )
 
   return {
@@ -826,10 +844,14 @@ export const useGetRuntimeEvmTokensAddress: typeof generated.useGetRuntimeEvmTok
   address,
   options,
 ) => {
+  const queryKey =
+    (options?.query?.queryKey as QueryKey | undefined) ??
+    generated.getGetRuntimeEvmTokensAddressQueryKey(network, runtime, address)
   return generated.useGetRuntimeEvmTokensAddress(network, runtime, address, {
     ...options,
     query: {
       ...(options?.query ?? {}),
+      queryKey,
       enabled: options?.query?.enabled ?? true,
     },
     request: {
@@ -1114,7 +1136,12 @@ export const useGetConsensusProposalsProposalId: typeof generated.useGetConsensu
 }
 
 export const useGetConsensusProposalsByName = (network: Network, nameFragments: string[]) => {
-  const query = useGetConsensusProposals(network, {}, { query: { enabled: !!nameFragments.length } })
+  const query = useGetConsensusProposals(network, {}, {
+    query: {
+      queryKey: generated.getGetConsensusProposalsQueryKey(network, {}),
+      enabled: !!nameFragments.length,
+    },
+  })
   const { isError, isLoading, isInitialLoading, data, status, error } = query
   const textMatcher = nameFragments.length
     ? ({
