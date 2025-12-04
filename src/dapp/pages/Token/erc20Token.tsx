@@ -1,17 +1,21 @@
 import React from 'react';
 import { Card, Alert, Spin } from 'antd';
-import { useAccount } from 'wagmi';
-import { useTokenBalances } from './hooks/useTokenBalances';
 import TokenBalanceList from './components/TokenBalanceList';
 import ERC20Write from './erc20Write';
 import SecretTokenWrap from './secretTokenWrap';
+import { TokenPageProvider, useTokenPageContext } from './context/TokenPageContext';
 export type { TokenInfo } from './types';
 
-const ERC20Token: React.FC = () => {
-    const { address } = useAccount();
-    const { nativeBalances, erc20Tokens, allTokens, isLoading, error, scope } = useTokenBalances();
+const TokenContent: React.FC = () => {
+    const {
+        address,
+        nativeBalances,
+        erc20Tokens,
+        scope,
+        isBalancesLoading,
+        balancesError,
+    } = useTokenPageContext();
 
-    // 如果没有连接钱包
     if (!address) {
         return (
             <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -26,8 +30,7 @@ const ERC20Token: React.FC = () => {
         );
     }
 
-    // 如果正在加载账户数据
-    if (isLoading) {
+    if (isBalancesLoading) {
         return (
             <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
                 <Card>
@@ -37,8 +40,7 @@ const ERC20Token: React.FC = () => {
         );
     }
 
-    // 如果查询出错
-    if (error) {
+    if (balancesError) {
         return (
             <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
                 <Card>
@@ -59,13 +61,16 @@ const ERC20Token: React.FC = () => {
                 erc20Tokens={erc20Tokens}
                 scope={scope}
             />
-            {/* ERC20 代币操作区域 */}
-            {erc20Tokens.length > 0 && (
-                <ERC20Write tokens={erc20Tokens} />
-            )}
-            <SecretTokenWrap tokens={allTokens} />
+            {erc20Tokens.length > 0 && <ERC20Write />}
+            <SecretTokenWrap />
         </div>
     );
 };
+
+const ERC20Token: React.FC = () => (
+    <TokenPageProvider>
+        <TokenContent />
+    </TokenPageProvider>
+);
 
 export default ERC20Token;

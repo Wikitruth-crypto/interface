@@ -70,13 +70,16 @@ const TokenWithdrawForm: React.FC<TokenWithdrawFormProps> = ({
                     ))}
                 </Select>
             )}
-            <Input
-                placeholder="Amount"
-                value={withdrawAmount}
-                onChange={handleAmountInput}
-                addonAfter={selectedPair?.secret?.symbol || ''}
-                disabled={isLoading || !selectedPair}
-            />
+            <Space.Compact style={{ width: '100%' }}>
+                <Input
+                    placeholder="Amount"
+                    value={withdrawAmount}
+                    suffix={selectedPair?.secret?.symbol || ''}
+                    onChange={handleAmountInput}
+                    disabled={isLoading || !selectedPair}
+                    style={{ flex: 1 }}
+                />
+            </Space.Compact>
             <Space.Compact style={{ width: '100%' }}>
                 <Button
                     onClick={handleWithdrawAll}

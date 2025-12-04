@@ -6,11 +6,13 @@ import { PermitType } from '@/dapp/hooks/EIP712';
 // import { TokenMetadata } from '@/dapp/contractsConfig';
 import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
 // import { useChainId } from 'wagmi';
-import { useGetTokenMetadata } from './useGetTokenMetadata';
+// import { useGetTokenMetadata } from './useGetTokenMetadata';
+import { formatUnits } from 'viem';
 import { 
     useERC20, 
     useERC20Secret 
 } from '../../readContracts/index';
+import { useSupportedTokens ,TokenMetadata} from '@/dapp/contractsConfig';
 
 export interface ReadAllowanceResult {
     isEnough: boolean;
@@ -27,7 +29,8 @@ export const useReadAllowance = () => {
 
     // const { getAllowanceBase } = useAllowanceBase();
     const { getValidPermit } = useEIP712Permit();
-    const { getTokenMetadata } = useGetTokenMetadata();
+    // const { getTokenMetadata } = useGetTokenMetadata();
+    const supportedTokens = useSupportedTokens();
     /**
      * @example
      * // 检查 ERC20 代币授权
@@ -46,8 +49,13 @@ export const useReadAllowance = () => {
         setIsLoading(true);
 
         try {
-            // 1. 获取代币配置
-            const tokenMetadata = await getTokenMetadata(tokenAddress);
+            // 查找代币配置，使用toLowerCase()进行大小写不敏感匹配
+            const tokenMetadata = supportedTokens.find(
+                (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+            );
+            if (!tokenMetadata) {
+                throw new Error('Token metadata not found');
+            }
 
             // 2. 根据代币类型生成参数
             // let params: AllowanceERC20Params | AllowanceERC20SecretParams;
@@ -56,7 +64,7 @@ export const useReadAllowance = () => {
             if (tokenMetadata?.types === 'ERC20') {
                 allowanceAmount = await allowance(tokenAddress, owner, spender);
                 if (import.meta.env.DEV) {
-                    console.log(`[ERC20] Allowance: ${allowanceAmount}, Target: ${targetAmount}`);
+                    console.log(`[ERC20] Allowance: ${tokenMetadata.symbol}, ${spender}`);
                 }
                 
 

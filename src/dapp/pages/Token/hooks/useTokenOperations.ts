@@ -1,50 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useWriteContract } from 'wagmi';
 import { useAccount } from 'wagmi';
-import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { parseUnits } from 'viem';
-import { ContractConfig } from '@/dapp/contractsConfig/types';
 import { ActiveButton } from '../types';
+import { useWriteToken } from '@/dapp/hooks/useWriteToken';
 
 /**
  * Hook for managing token operations
  * 统一管理代币操作
  */
 export const useTokenOperations = () => {
-    const { writeContract, status, isPending } = useWriteContract();
+    const { writeToken, status, isPending, isError, isSuccessed } = useWriteToken();
     const { address } = useAccount();
-    const allContracts = useAllContractConfigs();
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);
     const [error, setError] = useState<Error | null>(null);
-
-    // 重置状态当交易完成
-    useEffect(() => {
-        if (status === 'success' || status === 'error') {
-            setActiveButton(null);
-            if (status === 'error') {
-                setError(new Error('Transaction failed'));
-            } else {
-                setError(null);
-            }
-        }
-    }, [status]);
-
-    /**
-     * 获取代币合约配置
-     */
-    const getTokenContract = useCallback((tokenAddress: `0x${string}`): ContractConfig | null => {
-        // 尝试从 allContracts 中找到匹配的合约
-        const contract = Object.values(allContracts).find(
-            (c) => c.address.toLowerCase() === tokenAddress.toLowerCase()
-        );
-        if (contract) return contract;
-        // 如果没有找到，创建一个基本配置（使用默认 ABI）
-        return {
-            address: tokenAddress,
-            abi: allContracts.OfficialToken.abi,
-            chainId: allContracts.OfficialToken.chainId,
-        };
-    }, [allContracts]);
 
     /**
      * Transfer 操作
@@ -60,16 +28,11 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const tokenContract = getTokenContract(tokenAddress);
-            if (!tokenContract) {
-                throw new Error('Token contract not found');
-            }
-
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('transfer');
             setError(null);
-            writeContract({
-                ...tokenContract,
+            writeToken({
+                contractAddress: tokenAddress,
                 functionName: 'transfer',
                 args: [to, amountInWei],
             });
@@ -79,7 +42,7 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, getTokenContract, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Burn 操作
@@ -94,16 +57,12 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const tokenContract = getTokenContract(tokenAddress);
-            if (!tokenContract) {
-                throw new Error('Token contract not found');
-            }
 
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('burn');
             setError(null);
-            writeContract({
-                ...tokenContract,
+            writeToken({
+                contractAddress: tokenAddress,
                 functionName: 'burn',
                 args: [amountInWei],
             });
@@ -113,33 +72,25 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, getTokenContract, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Wrap 操作：ERC20 -> Secret Token
      */
     const wrap = useCallback(async (
-        secretContractAddress: `0x${string}`,
+        secretTokenAddress: `0x${string}`,
         amount: string,
         decimals: number
     ): Promise<void> => {
         if (!address) {
             throw new Error('Wallet not connected');
         }
-
         try {
-            const contract = Object.values(allContracts).find(
-                (c) => c.address.toLowerCase() === secretContractAddress.toLowerCase()
-            );
-            if (!contract) {
-                throw new Error('Secret contract not found');
-            }
-
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('wrap');
             setError(null);
-            writeContract({
-                ...contract,
+            writeToken({
+                contractAddress: secretTokenAddress,
                 functionName: 'wrap',
                 args: [amountInWei],
             });
@@ -149,13 +100,13 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, allContracts, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Unwrap 操作：Secret Token -> ERC20
      */
     const unwrap = useCallback(async (
-        secretContractAddress: `0x${string}`,
+        secretTokenAddress: `0x${string}`,
         amount: string,
         decimals: number
     ): Promise<void> => {
@@ -164,18 +115,12 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const contract = Object.values(allContracts).find(
-                (c) => c.address.toLowerCase() === secretContractAddress.toLowerCase()
-            );
-            if (!contract) {
-                throw new Error('Secret contract not found');
-            }
 
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('unwrap');
             setError(null);
-            writeContract({
-                ...contract,
+            writeToken({
+                contractAddress: secretTokenAddress,
                 functionName: 'unwrap',
                 args: [amountInWei],
             });
@@ -185,13 +130,14 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, allContracts, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Deposit 操作：原生 ROSE -> wROSE.S
+     * function deposit() external payable{}
      */
     const deposit = useCallback(async (
-        secretContractAddress: `0x${string}`,
+        secretTokenAddress: `0x${string}`,
         amount: string,
         decimals: number
     ): Promise<void> => {
@@ -200,22 +146,15 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const contract = Object.values(allContracts).find(
-                (c) => c.address.toLowerCase() === secretContractAddress.toLowerCase()
-            );
-            if (!contract) {
-                throw new Error('Secret contract not found');
-            }
 
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('deposit');
             setError(null);
-            writeContract({
-                address: contract.address,
-                abi: contract.abi,
+            writeToken({
+                contractAddress: secretTokenAddress,
                 functionName: 'deposit',
-                args: [], // deposit 函数不需要参数
-                value: amountInWei,
+                args: [], // deposit() 函数无参数
+                value: amountInWei, // 通过 value 发送原生代币
             });
         } catch (err) {
             console.error('Deposit error:', err);
@@ -223,13 +162,13 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, allContracts, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Withdraw 操作：wROSE.S -> 原生 ROSE
      */
     const withdraw = useCallback(async (
-        secretContractAddress: `0x${string}`,
+        secretTokenAddress: `0x${string}`,
         amount: string,
         decimals: number
     ): Promise<void> => {
@@ -238,19 +177,12 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const contract = Object.values(allContracts).find(
-                (c) => c.address.toLowerCase() === secretContractAddress.toLowerCase()
-            );
-            if (!contract) {
-                throw new Error('Secret contract not found');
-            }
 
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('withdraw');
             setError(null);
-            writeContract({
-                address: contract.address,
-                abi: contract.abi,
+            writeToken({
+                contractAddress: secretTokenAddress,
                 functionName: 'withdraw',
                 args: [amountInWei],
             });
@@ -260,7 +192,7 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, allContracts, writeContract]);
+    }, [address, writeToken]);
 
     /**
      * Approve 操作：授权代币
@@ -276,16 +208,11 @@ export const useTokenOperations = () => {
         }
 
         try {
-            const tokenContract = getTokenContract(tokenAddress);
-            if (!tokenContract) {
-                throw new Error('Token contract not found');
-            }
-
             const amountInWei = parseUnits(amount, decimals);
             setActiveButton('approve');
             setError(null);
-            writeContract({
-                ...tokenContract,
+            writeToken({
+                contractAddress: tokenAddress,
                 functionName: 'approve',
                 args: [spender, amountInWei],
             });
@@ -295,7 +222,7 @@ export const useTokenOperations = () => {
             setActiveButton(null);
             throw err;
         }
-    }, [address, getTokenContract, writeContract]);
+    }, [address, writeToken]);
 
     return {
         transfer,
@@ -305,10 +232,12 @@ export const useTokenOperations = () => {
         deposit,
         withdraw,
         approve,
-        isLoading: isPending || activeButton !== null,
+        isLoading: isPending || activeButton !== null ,
         activeButton,
         error,
         status,
+        isError,
+        isSuccessed,
     };
 };
 

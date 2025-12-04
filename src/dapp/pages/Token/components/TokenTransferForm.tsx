@@ -65,13 +65,17 @@ const TokenTransferForm: React.FC<TokenTransferFormProps> = ({
                     ))}
                 </Select>
             )}
-            <Input
-                placeholder="Amount"
-                value={transferAmount}
-                onChange={handleTransferAmount}
-                addonAfter={selectedToken?.symbol || ''}
-                disabled={isLoading || !selectedToken}
-            />
+            <Space.Compact style={{ width: '100%' }}>
+                <Input
+                    placeholder="Amount"
+                    value={transferAmount}
+                    suffix={selectedToken?.symbol || ''}
+                    onChange={handleTransferAmount}
+                    disabled={isLoading || !selectedToken}
+                    style={{ flex: 1 }}
+                />
+                
+            </Space.Compact>
             <Input
                 placeholder="Recipient Address"
                 value={transferAddress}

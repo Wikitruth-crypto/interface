@@ -1,5 +1,6 @@
-import { SupportedChainId, TokenMetadata } from './types';
+import { ContractName, SupportedChainId, TokenMetadata } from './types';
 import { NETWORK_CONTRACTS } from './contracts';
+import { ABIS } from './chain-23295/abis';
 
 export function getSupportedTokens_WithChainId(chainId: SupportedChainId): TokenMetadata[] {
   const addresses = NETWORK_CONTRACTS[chainId];
@@ -12,7 +13,10 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       decimals: 18,
       precision: 3,
       address: addresses.OfficialToken,
+      secretAddress: addresses.OfficialTokenSecret,
       types: 'ERC20',
+      contractName: ContractName.OFFICIAL_TOKEN,
+      abi: ABIS[ContractName.OFFICIAL_TOKEN],
     },
     {
       index: 1,
@@ -21,7 +25,10 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       decimals: 18,
       precision: 3,
       address: addresses.OfficialTokenSecret,
+      erc20Address: addresses.OfficialToken,
       types: 'Secret',
+      contractName: ContractName.OFFICIAL_TOKEN_SECRET,
+      abi: ABIS[ContractName.OFFICIAL_TOKEN_SECRET],
     },
     {
       index: 2,
@@ -30,7 +37,10 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       decimals: 18,
       precision: 3,
       address: addresses.wROSE,
+      secretAddress: addresses.wROSE_Secret,
       types: 'ERC20',
+      contractName: ContractName.WROSE,
+      abi: ABIS[ContractName.WROSE],
     },
     {
       index: 3,
@@ -39,7 +49,10 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       decimals: 18,
       precision: 3,
       address: addresses.wROSE_Secret,
+      erc20Address: addresses.wROSE,
       types: 'Secret',
+      contractName: ContractName.WROSE_SECRET,
+      abi: ABIS[ContractName.WROSE_SECRET],
     },
     
     
@@ -52,10 +65,13 @@ export function getOfficialTokenConfig_WithChainId(chainId: SupportedChainId): T
   return {
     index: 0,
     name: 'WikiTruth Coin',
-    symbol: 'WTC',
+    symbol: 'WTRC',
     decimals: 18,
-    precision: 2,
+    precision: 3,
     address: addresses.OfficialToken,
+    secretAddress: addresses.OfficialTokenSecret,
     types: 'ERC20',
+    contractName: ContractName.OFFICIAL_TOKEN,
+    abi: ABIS[ContractName.OFFICIAL_TOKEN],
   };
 }

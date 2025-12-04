@@ -6,7 +6,7 @@ import { PermitType } from '@/dapp/hooks/EIP712';
 // import { TokenMetadata } from '@/dapp/contractsConfig';
 import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
 // import { useChainId } from 'wagmi';
-import { useGetTokenMetadata } from './useGetTokenMetadata';
+import { useSupportedTokens ,TokenMetadata} from '@/dapp/contractsConfig';
 import { 
     useERC20, 
     useERC20Secret 
@@ -26,7 +26,7 @@ export const useReadBalance = () => {
     const { balanceOfWithPermit } = useERC20Secret();
 
     const { getValidPermit } = useEIP712Permit();
-    const { getTokenMetadata } = useGetTokenMetadata();
+    const supportedTokens = useSupportedTokens();
     /**
      * @example
      * // 检查 ERC20 代币余额
@@ -46,7 +46,12 @@ export const useReadBalance = () => {
 
         try {
             // 1. 获取代币配置
-            const tokenMetadata = await getTokenMetadata(tokenAddress);
+            const tokenMetadata = supportedTokens.find(
+                (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+            );
+            if (!tokenMetadata) {
+                throw new Error('Token metadata not found');
+            }
 
             // 2. 根据代币类型生成参数
             // let params: AllowanceERC20Params | AllowanceERC20SecretParams;

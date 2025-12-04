@@ -6,7 +6,7 @@ export * from './types';
 export * from './chains';
 
 // 导出 ABI
-export { ABIS, getABI } from './abis';
+export { ABIS, getABI } from './chain-23295/abis';
 
 // 导出合约地址
 export { 

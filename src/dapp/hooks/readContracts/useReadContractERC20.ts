@@ -1,7 +1,5 @@
-// hooks/contracts/useContractReadService.ts
+
 import { useQueryClient } from '@tanstack/react-query';
-// import { usePublicClient, useChainId } from 'wagmi';
-// import { getPublicClient } from '@wagmi/core';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { getContractConfig, ContractName } from '@dapp/contractsConfig';
 import { useRef, useCallback } from 'react';

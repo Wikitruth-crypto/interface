@@ -70,8 +70,8 @@ const TokenBurnForm: React.FC<TokenBurnFormProps> = ({
                 <Input
                     placeholder="Amount"
                     value={burnAmount}
+                    suffix={selectedToken?.symbol || ''}
                     onChange={handleBurnAmount}
-                    addonAfter={selectedToken?.symbol || ''}
                     disabled={isLoading || !selectedToken}
                     style={{ flex: 1 }}
                 />

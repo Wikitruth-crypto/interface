@@ -1,12 +1,14 @@
 import { useChainId } from "wagmi";
-import { TokenMetadata } from "./types";
+import { ContractName, TokenMetadata } from "./types";
 import { useEffect } from "react";
 import { getChainConfig, sapphireTestnet } from "./chains";
+
 import { 
     getSupportedTokens_WithChainId, 
     getOfficialTokenConfig_WithChainId 
 } from "./tokens";
 import { getProtocolConstants, ProtocolConstantsType, SAPPHIRE_TESTNET_CONSTANTS } from "./ProtocolConstants";
+import { ABIS } from "./chain-23295/abis";
 
 export let CHAIN_ID = 23295;
 export let CHAIN_CONFIG = sapphireTestnet;
@@ -18,7 +20,10 @@ export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     precision: 3,
     decimals: 18,
     address: '0x990DE401CD0103a0107D27F82283db60F4844203',
+    secretAddress: '0x449e2CD61F0328Ae68f4A530170C892B45b4B269',
     types: 'ERC20',
+    contractName: ContractName.OFFICIAL_TOKEN,
+    abi: ABIS[ContractName.OFFICIAL_TOKEN],
 }
 
 export let PROTOCOL_CONSTANTS: ProtocolConstantsType = SAPPHIRE_TESTNET_CONSTANTS;

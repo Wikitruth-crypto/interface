@@ -99,9 +99,13 @@ export interface TokenMetadata {
   decimals: number;
   precision: number; // 精度，用于显示小数位数
   address: `0x${string}`;
+  erc20Address?: `0x${string}`; // 如果types为ERC20，则有secretAddress
+  secretAddress?: `0x${string}`; // 如果types为Secret，则有erc20Address
   logo?: string;
   types: 'ERC20' | 'Secret';
   mintPeriod?: number; // seconds only official token
+  contractName: ContractName;
+  abi: Abi;
 }
 
 /**

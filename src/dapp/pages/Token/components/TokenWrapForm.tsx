@@ -3,6 +3,7 @@ import { Button, Input, Space, Typography, Select, Alert } from 'antd';
 import { formatBalance } from '@dapp/utils/formatBalance';
 import { TokenPair } from '../types';
 import TokenWrapModal from './TokenWrapModal';
+// import { useTokenPage } from '../context/TokenPageContext';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -12,25 +13,13 @@ export interface TokenWrapFormProps {
     selectedPairIndex?: number;
     onPairChange?: (index: number) => void;
     isLoading: boolean;
-    wrapStatus?: 'idle' | 'error' | 'loading' | 'success';
-    approveStatus?: 'idle' | 'error' | 'loading' | 'success';
-    wrapLoading?: boolean;
-    approveLoading?: boolean;
 }
 
-/**
- * Component for Wrap operation form (with allowance check)
- * Wrap 操作表单（包含授权检查）
- */
 const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
     tokenPairs,
     selectedPairIndex = 0,
     onPairChange,
     isLoading,
-    wrapStatus = 'idle',
-    approveStatus = 'idle',
-    wrapLoading = false,
-    approveLoading = false,
 }) => {
     const [wrapAmount, setWrapAmount] = useState<string>('');
     const [modalOpen, setModalOpen] = useState(false);
@@ -39,7 +28,6 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
 
     const handleAmountInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        // 只允许输入数字和小数点
         const numberRegex = /^\d*\.?\d*$/;
         if (value === '' || numberRegex.test(value)) {
             setWrapAmount(value);
@@ -57,16 +45,6 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
         setModalOpen(true);
     }, [wrapAmount, selectedPair]);
 
-    // Wrap 成功后关闭弹窗并清空输入
-    useEffect(() => {
-        if (wrapStatus === 'success' && modalOpen) {
-            setTimeout(() => {
-                setModalOpen(false);
-                setWrapAmount('');
-            }, 2000); // 2秒后关闭弹窗
-        }
-    }, [wrapStatus, modalOpen]);
-
     if (!selectedPair) {
         return <Alert type="info" message="Please select a token pair" showIcon />;
     }
@@ -83,18 +61,22 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
                     >
                         {tokenPairs.map((pair, index) => (
                             <Option key={index} value={index}>
-                                {pair.erc20.symbol} ↔ {pair.secret?.symbol || `${pair.erc20.symbol}.S`}
+                                {pair.erc20.symbol} - {pair.secret?.symbol || `${pair.erc20.symbol}.S`}
                             </Option>
                         ))}
                     </Select>
                 )}
-                <Input
-                    placeholder="Amount"
-                    value={wrapAmount}
-                    onChange={handleAmountInput}
-                    addonAfter={selectedPair?.erc20.symbol || ''}
-                    disabled={isLoading || !selectedPair}
-                />
+                <Space.Compact style={{ width: '100%' }}>
+                    <Input
+                        placeholder="Amount"
+                        value={wrapAmount}
+                        suffix={selectedPair?.erc20.symbol || ''}
+                        onChange={handleAmountInput}
+                        disabled={isLoading || !selectedPair}
+                        style={{ flex: 1 }}
+                    />
+                    
+                </Space.Compact>
                 <Space.Compact style={{ width: '100%' }}>
                     <Button
                         onClick={handleWrapAll}
@@ -128,14 +110,9 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
                 onClose={() => setModalOpen(false)}
                 tokenPair={selectedPair}
                 amount={wrapAmount}
-                wrapLoading={wrapLoading}
-                approveLoading={approveLoading}
-                wrapStatus={wrapStatus}
-                approveStatus={approveStatus}
             />
         </>
     );
 };
 
 export default TokenWrapForm;
-

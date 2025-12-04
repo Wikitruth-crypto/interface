@@ -3,25 +3,22 @@
  */
 
 // Token 合约
-import officialTokenJson from '../artifacts/contracts_23295/token/MockERC20.sol/MockERC20.json';
-import erc20SecretJson from '../artifacts/contracts_23295/token/ERC20Secret.sol/ERC20Secret.json';
-import wroseSecretJson from '../artifacts/contracts_23295/token/WroseSecret.sol/WroseSecret.json';
+import officialTokenJson from '@dapp/artifacts/contracts_23295/token/MockERC20.sol/MockERC20.json';
+import erc20SecretJson from '@dapp/artifacts/contracts_23295/token/ERC20Secret.sol/ERC20Secret.json';
+import wroseSecretJson from '@dapp/artifacts/contracts_23295/token/WroseSecret.sol/WroseSecret.json';
 
 // 核心合约
-import truthBoxJson from '../artifacts/contracts_23295/TruthBox.sol/TruthBox.json';
-import truthNFTJson from '../artifacts/contracts_23295/TruthNFT.sol/TruthNFT.json';
-import exchangeJson from '../artifacts/contracts_23295/Exchange.sol/Exchange.json';
-import fundManagerJson from '../artifacts/contracts_23295/FundManager.sol/FundManager.json';
-import addressManagerJson from '../artifacts/contracts_23295/AddressManager.sol/AddressManager.json';
-import siweAuthJson from '../artifacts/contracts_23295/SiweAuthWikiTruth.sol/SiweAuthWikiTruth.json';
-import userIdJson from '../artifacts/contracts_23295/UserId.sol/UserId.json';
+import truthBoxJson from '@dapp/artifacts/contracts_23295/TruthBox.sol/TruthBox.json';
+import truthNFTJson from '@dapp/artifacts/contracts_23295/TruthNFT.sol/TruthNFT.json';
+import exchangeJson from '@dapp/artifacts/contracts_23295/Exchange.sol/Exchange.json';
+import fundManagerJson from '@dapp/artifacts/contracts_23295/FundManager.sol/FundManager.json';
+import addressManagerJson from '@dapp/artifacts/contracts_23295/AddressManager.sol/AddressManager.json';
+import siweAuthJson from '@dapp/artifacts/contracts_23295/SiweAuthWikiTruth.sol/SiweAuthWikiTruth.json';
+import userIdJson from '@dapp/artifacts/contracts_23295/UserId.sol/UserId.json';
 
 import { Abi } from 'viem';
-import { ContractName } from './types';
+import { ContractName } from '../types';
 
-/**
- * ABI 映射表
- */
 export const ABIS: Record<ContractName, Abi> = {
   // Token 合约
   [ContractName.OFFICIAL_TOKEN]: officialTokenJson.abi as Abi,
@@ -43,9 +40,6 @@ export const ABIS: Record<ContractName, Abi> = {
   [ContractName.USER_ID]: userIdJson.abi as Abi,
 };
 
-/**
- * 根据合约名称获取 ABI
- */
 export function getABI(contractName: ContractName): Abi {
   const abi = ABIS[contractName];
   if (!abi) {

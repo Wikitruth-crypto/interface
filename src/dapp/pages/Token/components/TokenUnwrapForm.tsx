@@ -69,13 +69,16 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
                     ))}
                 </Select>
             )}
-            <Input
-                placeholder="Amount"
-                value={unwrapAmount}
-                onChange={handleAmountInput}
-                addonAfter={selectedPair?.secret?.symbol || ''}
-                disabled={isLoading || !selectedPair}
-            />
+            <Space.Compact style={{ width: '100%' }}>
+                <Input
+                    placeholder="Amount"
+                    value={unwrapAmount}
+                    suffix={selectedPair?.secret?.symbol || ''}
+                    onChange={handleAmountInput}
+                    disabled={isLoading || !selectedPair}
+                    style={{ flex: 1 }}
+                />
+            </Space.Compact>
             <Space.Compact style={{ width: '100%' }}>
                 <Button
                     onClick={handleUnwrapAll}

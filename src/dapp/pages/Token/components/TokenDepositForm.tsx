@@ -39,13 +39,16 @@ const TokenDepositForm: React.FC<TokenDepositFormProps> = ({
 
     return (
         <Space direction="vertical" size="middle">
-            <Input
-                placeholder="ROSE Amount"
-                value={depositAmount}
-                onChange={handleAmountInput}
-                addonAfter="ROSE"
-                disabled={isLoading || !selectedPair}
-            />
+            <Space.Compact style={{ width: '100%' }}>
+                <Input
+                    placeholder="ROSE Amount"
+                    value={depositAmount}
+                    suffix="ROSE"
+                    onChange={handleAmountInput}
+                    disabled={isLoading || !selectedPair}
+                    style={{ flex: 1 }}
+                />
+            </Space.Compact>
             <Button
                 type="primary"
                 onClick={handleDeposit}

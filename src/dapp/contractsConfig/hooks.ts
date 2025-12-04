@@ -10,7 +10,6 @@ import {
   ContractConfig,
   ContractConfigs,
   ContractAddresses,
-  SupportedChainId,
   TokenMetadata,
   ChainConfig,
 } from './types';

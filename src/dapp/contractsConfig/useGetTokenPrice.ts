@@ -15,9 +15,9 @@ import { formatUnits } from 'viem';
  */
 
 const TEST_PRICE = {
-    'WTC': 4.8,
+    'WTRC': 4.8,
     'WROSE.S': 0.005,
-    'WTC.S': 4.8,
+    'WTRC.S': 4.8,
 }
 
 

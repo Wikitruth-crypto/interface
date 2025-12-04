@@ -140,9 +140,9 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
             // 使用 setTimeout 确保在下一个事件循环中执行，避免在渲染期间更新状态
             const timer = setTimeout(() => {
                 onImageLoad();
-                if (import.meta.env.DEV) {
-                    console.log('onImageLoad: imageSwiper');
-                }
+                // if (import.meta.env.DEV) {
+                //     console.log('onImageLoad: imageSwiper');
+                // }
             }, 0);
             return () => clearTimeout(timer);
         }
@@ -245,44 +245,3 @@ const ImageSwiper: React.FC<ImageSwiperProps> = ({
 };
 
 export default ImageSwiper;
-
-/**
- * 使用示例：
- * 
- * // 基础用法 (默认 1:1 宽高比)
- * <ImageSwiper images={['image1.jpg', 'image2.jpg', 'image3.jpg']} />
- * 
- * // 自定义宽高比
- * <ImageSwiper 
- *   images={imageList}
- *   aspectRatio={16/9}  // 16:9 宽高比
- *   autoPlayInterval={3000}
- *   autoPlay={true}
- *   enableMask={true}
- *   transitionDuration={1.5}
- *   className="w-full rounded-lg"
- *   altPrefix="product"
- * />
- * 
- * // 常用宽高比示例
- * <ImageSwiper images={imageList} aspectRatio={1} />      // 1:1 (正方形)
- * <ImageSwiper images={imageList} aspectRatio={16/9} />   // 16:9 (宽屏)
- * <ImageSwiper images={imageList} aspectRatio={4/3} />    // 4:3 (传统屏幕)
- * <ImageSwiper images={imageList} aspectRatio={3/2} />    // 3:2 (摄影常用)
- * <ImageSwiper images={imageList} aspectRatio={21/9} />   // 21:9 (超宽屏)
- * 
- * // 禁用自动播放和遮罩效果
- * <ImageSwiper 
- *   images={imageList}
- *   aspectRatio={16/9}
- *   autoPlay={false}
- *   enableMask={false}
- * />
- * 
- * // 使用新的状态颜色系统示例
- * <ImageSwiper 
- *   images={imageList}
- *   aspectRatio={1}
- *   className="border-2 border-status-storing bg-gray-5"
- * />
- */

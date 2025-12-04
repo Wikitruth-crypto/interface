@@ -1,7 +1,3 @@
-/**
- * 配置管理器 - 核心模块
- * 负责根据 chainId 自动获取和切换合约配置
- */
 
 import { 
   SupportedChainId, 
@@ -10,7 +6,7 @@ import {
   ContractConfigs, 
   ContractAddresses 
 } from './types';
-import { ABIS } from './abis';
+import { ABIS } from './chain-23295/abis';
 import { NETWORK_CONTRACTS } from './contracts';
 import { isSupportedChain } from './chains';
 import { CHAIN_CONFIG } from './current';

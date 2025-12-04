@@ -87,13 +87,7 @@ export const useWriteCustormV2 = (boxIds?: string| string[]): WriteContractResul
             } else {
                 addBoxInteraction(boxIds, writeType, hash);
             }
-            if(import.meta.env.DEV) {
-                console.log(`[useWrite_BoxDetail] Transaction successful: ${writeType} on Box ${boxIds}`);
-            } 
         } else if (isError){
-            if(import.meta.env.DEV) {
-                console.log(`[useWrite_BoxDetail] Transaction failed: ${writeType} on Box ${boxIds}`);
-            } 
             setFunctionWriting(null);
         }
     }, [isSuccessed, writeType, address, boxIds, hash, addBoxInteraction, isError]);
