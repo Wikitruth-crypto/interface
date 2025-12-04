@@ -26,7 +26,11 @@ export const formatString = (value?: string) => {
 }
 
 export function useConnectController() {
-  const { address, status: accountStatus } = useAccount()
+  const {
+    address,
+    isConnected: wagmiIsConnected,
+    isReconnecting: wagmiIsReconnecting
+  } = useAccount()
   const chainId = useChainId()
   const config = useConfig()
   const { data: balanceData } = useBalance({
@@ -66,7 +70,7 @@ export function useConnectController() {
     return config.chains.filter(chain => chain.name.toLowerCase().includes(keyword))
   }, [config.chains, networkSearch])
 
-  const isConnected = accountStatus === 'connected' && Boolean(address)
+  const isConnected = Boolean(address) && (wagmiIsConnected || wagmiIsReconnecting)
   const isConnecting = connectStatus === 'pending' || Boolean(pendingConnectorId)
   const isSwitching = switchStatus === 'pending'
 

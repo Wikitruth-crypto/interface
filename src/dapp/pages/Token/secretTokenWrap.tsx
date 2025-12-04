@@ -1,26 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Button, Input, Space, Typography, Select, Tabs, Row, Col, Alert } from 'antd';
-import { useWriteContract } from 'wagmi';
-import { useAccount } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
-import { TokenInfo } from './erc20Token';
-import { formatBalance } from '@dapp/utils/formatBalance';
-import { useAllContractConfigs, useSupportedTokens, ContractName } from '@/dapp/contractsConfig';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Card, Space, Typography, Select, Tabs, Row, Col, Alert } from 'antd';
+import { useAllContractConfigs, ContractName } from '@/dapp/contractsConfig';
+import { TokenInfo } from './types';
+import { useTokenPairs } from './hooks/useTokenPairs';
+import { useTokenOperations } from './hooks/useTokenOperations';
+import TokenWrapForm from './components/TokenWrapForm';
+import TokenUnwrapForm from './components/TokenUnwrapForm';
+import TokenDepositForm from './components/TokenDepositForm';
+import TokenWithdrawForm from './components/TokenWithdrawForm';
 
 const { Text } = Typography;
 const { Option } = Select;
 
-type ActiveButton = 'wrap' | 'unwrap' | 'deposit' | 'withdraw' | null;
-
 export interface SecretTokenWrapProps {
     tokens: TokenInfo[];
-}
-
-interface TokenPair {
-    erc20: TokenInfo;
-    secret: TokenInfo | null;
-    secretContractAddress: `0x${string}` | null;
-    isNativeROSE: boolean; // 是否为原生 ROSE -> wROSE.S
 }
 
 /**
@@ -35,96 +28,41 @@ interface TokenPair {
  * function withdraw(uint256 amount) external
  */
 const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
-    const { writeContract, status, isPending } = useWriteContract();
-    const { address } = useAccount();
     const allContracts = useAllContractConfigs();
-    const supportedTokens = useSupportedTokens();
-
-    const [activeButton, setActiveButton] = useState<ActiveButton>(null);
-    const [wrapAmount, setWrapAmount] = useState<string>('');
-    const [unwrapAmount, setUnwrapAmount] = useState<string>('');
-    const [depositAmount, setDepositAmount] = useState<string>('');
-    const [withdrawAmount, setWithdrawAmount] = useState<string>('');
-    const [selectedPairIndex, setSelectedPairIndex] = useState<number>(0);
     const [activeTab, setActiveTab] = useState<string>('wrap');
 
-    // 筛选出 ERC20 代币和对应的 Secret 代币对
-    const tokenPairs: TokenPair[] = useMemo(() => {
-        const pairs: TokenPair[] = [];
-        
-        // 获取所有代币（不包含 .S 结尾的），包括原生代币和 ERC20 代币
-        const erc20Tokens = tokens.filter(token => !token.symbol.endsWith('.S'));
-        
-        erc20Tokens.forEach(erc20Token => {
-            // 判断是否为原生代币（地址为零地址）
-            const isNativeToken = erc20Token.address === '0x0000000000000000000000000000000000000000';
-            
-            // 判断是否为原生 ROSE/TEST -> wROSE.S
-            // 原生代币的 symbol 是 ROSE 或 TEST，需要转换为 wROSE.S
-            const isNativeROSE = isNativeToken && (
-                erc20Token.symbol.toUpperCase() === 'ROSE' || 
-                erc20Token.symbol.toUpperCase() === 'TEST'
-            );
-            
-            let secretSymbol: string;
-            let secretToken: TokenInfo | null = null;
-            let secretContractAddress: `0x${string}` | null = null;
-            
-            if (isNativeROSE) {
-                // 原生 ROSE/TEST -> wROSE.S
-                secretSymbol = 'wROSE.S';
-                secretToken = tokens.find(t => t.symbol === secretSymbol) || null;
-                
-                // 从 supportedTokens 中查找 wROSE_Secret 合约地址
-                const secretTokenConfig = supportedTokens.find(
-                    t => t.symbol === secretSymbol && t.types === 'Secret'
-                );
-                secretContractAddress = secretTokenConfig 
-                    ? (secretTokenConfig.address as `0x${string}`)
-                    : null;
-            } else {
-                // 普通 ERC20 -> Secret Token
-                secretSymbol = `${erc20Token.symbol}.S`;
-                secretToken = tokens.find(t => t.symbol === secretSymbol) || null;
-                
-                // 从 supportedTokens 中查找 Secret 合约地址
-                const secretTokenConfig = supportedTokens.find(
-                    t => t.symbol === secretSymbol && t.types === 'Secret'
-                );
-                secretContractAddress = secretTokenConfig 
-                    ? (secretTokenConfig.address as `0x${string}`)
-                    : null;
-            }
-            
-            pairs.push({
-                erc20: erc20Token,
-                secret: secretToken || null,
-                secretContractAddress,
-                isNativeROSE,
-            });
-        });
-        
-        return pairs;
-    }, [tokens, supportedTokens]);
+    const {
+        tokenPairs,
+        selectedPair,
+        selectedPairIndex,
+        setSelectedPairIndex,
+        pairsWithSecretBalance,
+    } = useTokenPairs(tokens);
 
-    // 当 tokenPairs 变化时，重置 selectedPairIndex 和 activeTab
-    useEffect(() => {
-        if (tokenPairs.length > 0 && selectedPairIndex >= tokenPairs.length) {
-            setSelectedPairIndex(0);
-        }
-        // 根据选中的代币对类型设置默认 tab
-        const currentPair = tokenPairs[selectedPairIndex];
-        if (currentPair?.isNativeROSE) {
-            setActiveTab('deposit');
-        } else if (currentPair && !currentPair.isNativeROSE) {
-            setActiveTab('wrap');
-        }
-    }, [tokenPairs, selectedPairIndex]);
+    const {
+        wrap,
+        unwrap,
+        deposit,
+        withdraw,
+        approve,
+        isLoading,
+        status,
+        activeButton,
+    } = useTokenOperations();
 
-    // 当前选中的代币对
-    const selectedPair: TokenPair | null = useMemo(() => {
-        return tokenPairs[selectedPairIndex] || null;
-    }, [tokenPairs, selectedPairIndex]);
+    // 分别跟踪 wrap 和 approve 的状态
+    const getStatus = (button: 'wrap' | 'approve' | null): 'idle' | 'error' | 'loading' | 'success' => {
+        if (activeButton !== button) {
+            return 'idle';
+        }
+        if (status === 'pending') {
+            return 'loading';
+        }
+        return status as 'idle' | 'error' | 'loading' | 'success';
+    };
+
+    const wrapStatus = getStatus('wrap');
+    const approveStatus = getStatus('approve');
 
     // 当 selectedPair 变化时，更新 activeTab
     useEffect(() => {
@@ -139,13 +77,6 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
     const secretContract = useMemo(() => {
         if (!selectedPair) return null;
         
-        console.log('Finding secret contract for:', {
-            isNativeROSE: selectedPair.isNativeROSE,
-            secretContractAddress: selectedPair.secretContractAddress,
-            erc20Symbol: selectedPair.erc20.symbol,
-            allContractsKeys: Object.keys(allContracts),
-        });
-        
         // 如果是原生 ROSE，优先使用 wROSE_Secret 合约
         if (selectedPair.isNativeROSE) {
             // 首先尝试使用 secretContractAddress（从 supportedTokens 中获取）
@@ -154,7 +85,6 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
                     (c) => c && c.address && c.address.toLowerCase() === selectedPair.secretContractAddress!.toLowerCase()
                 );
                 if (contractByAddress) {
-                    console.log('Found wROSE_Secret contract by address:', contractByAddress.address);
                     return contractByAddress;
                 }
             }
@@ -162,10 +92,8 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
             // 如果没有找到，尝试根据合约名称查找
             const contract = allContracts[ContractName.WROSE_SECRET];
             if (contract) {
-                console.log('Found wROSE_Secret contract by name:', contract.address);
                 return contract;
             }
-            console.warn('wROSE_Secret contract not found in allContracts. Available contracts:', Object.keys(allContracts));
             return null;
         } else {
             // 普通 ERC20 -> Secret Token
@@ -175,7 +103,6 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
                     (c) => c && c.address && c.address.toLowerCase() === selectedPair.secretContractAddress!.toLowerCase()
                 );
                 if (contractByAddress) {
-                    console.log('Found Secret contract by address:', contractByAddress.address);
                     return contractByAddress;
                 }
             }
@@ -183,157 +110,81 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
             // 如果没有找到，尝试使用 OfficialTokenSecret
             const contract = allContracts.OfficialTokenSecret;
             if (contract) {
-                console.log('Found OfficialTokenSecret contract:', contract.address);
                 return contract;
             }
-            console.warn('OfficialTokenSecret contract not found in allContracts');
             return null;
         }
     }, [selectedPair, allContracts]);
 
-    useEffect(() => {
-        if (status === 'success' || status === 'error') {
-            setActiveButton(null);
-            // 成功后清空输入
-            if (status === 'success') {
-                setWrapAmount('');
-                setUnwrapAmount('');
-                setDepositAmount('');
-                setWithdrawAmount('');
-            }
-        }
-    }, [status]);
-
-    // 输入处理函数
-    const handleAmountInput = (
-        e: React.ChangeEvent<HTMLInputElement>,
-        setter: (value: string) => void
+    // 操作处理函数
+    const handleWrap = useCallback(async (
+        tokenAddress: `0x${string}`,
+        amount: string
     ) => {
-        const value = e.target.value;
-        // 只允许输入数字和小数点
-        const numberRegex = /^\d*\.?\d*$/;
-        if (value === '' || numberRegex.test(value)) {
-            setter(value);
-        }
-    };
-
-    const handleWrapAll = () => {
-        if (selectedPair?.erc20 && selectedPair.erc20.balance) {
-            setWrapAmount(formatBalance(selectedPair.erc20.balance));
-        }
-    };
-
-    const handleUnwrapAll = () => {
-        if (selectedPair?.secret && selectedPair.secret.balance) {
-            setUnwrapAmount(formatBalance(selectedPair.secret.balance));
-        }
-    };
-
-    const handleWithdrawAll = () => {
-        if (selectedPair?.secret && selectedPair.secret.balance) {
-            setWithdrawAmount(formatBalance(selectedPair.secret.balance));
-        }
-    };
-
-    // Wrap 操作：ERC20 -> Secret Token
-    const handleWrap = () => {
-        if (!wrapAmount || !address || !secretContract || !selectedPair) return;
-
+        if (!selectedPair) return;
         try {
-            const amount = parseUnits(wrapAmount, selectedPair.erc20.decimals);
-            setActiveButton('wrap');
-            writeContract({
-                ...secretContract,
-                functionName: 'wrap',
-                args: [amount],
-            });
+            await wrap(tokenAddress, amount, selectedPair.erc20.decimals);
         } catch (error) {
             console.error('Wrap error:', error);
         }
-    };
+    }, [wrap, selectedPair]);
 
-    // Unwrap 操作：Secret Token -> ERC20
-    const handleUnwrap = () => {
-        if (!unwrapAmount || !address || !secretContract || !selectedPair) return;
-
+    const handleUnwrap = useCallback(async (
+        tokenAddress: `0x${string}`,
+        amount: string
+    ) => {
+        if (!selectedPair) return;
         try {
-            const amount = parseUnits(unwrapAmount, selectedPair.erc20.decimals);
-            setActiveButton('unwrap');
-            writeContract({
-                ...secretContract,
-                functionName: 'unwrap',
-                args: [amount],
-            });
+            await unwrap(tokenAddress, amount, selectedPair.erc20.decimals);
         } catch (error) {
             console.error('Unwrap error:', error);
         }
-    };
+    }, [unwrap, selectedPair]);
 
-    // Deposit 操作：原生 ROSE -> wROSE.S
-    const handleDeposit = () => {
-        if (!depositAmount || !address || !secretContract || !selectedPair) {
-            console.error('Deposit validation failed:', {
-                depositAmount,
-                address,
-                secretContract: !!secretContract,
-                selectedPair: !!selectedPair,
-            });
-            return;
-        }
-
+    const handleDeposit = useCallback(async (amount: string) => {
+        if (!selectedPair || !selectedPair.secretContractAddress) return;
         try {
-            // deposit 函数接收 payable，需要发送原生代币
-            // deposit() external payable - 不需要参数，只需要 value
-            const amount = parseUnits(depositAmount, selectedPair.erc20.decimals);
-            setActiveButton('deposit');
-            writeContract({
-                address: secretContract.address,
-                abi: secretContract.abi,
-                functionName: 'deposit',
-                args: [], // deposit 函数不需要参数
-                value: amount,
-            });
+            await deposit(selectedPair.secretContractAddress, amount, selectedPair.erc20.decimals);
         } catch (error) {
             console.error('Deposit error:', error);
-            setActiveButton(null);
         }
-    };
+    }, [deposit, selectedPair]);
 
-    // Withdraw 操作：wROSE.S -> 原生 ROSE
-    const handleWithdraw = () => {
-        if (!withdrawAmount || !address || !secretContract || !selectedPair) {
-            console.error('Withdraw validation failed:', {
-                withdrawAmount,
-                address,
-                secretContract: !!secretContract,
-                selectedPair: !!selectedPair,
-            });
-            return;
-        }
-
+    const handleWithdraw = useCallback(async (
+        tokenAddress: `0x${string}`,
+        amount: string
+    ) => {
+        if (!selectedPair) return;
         try {
-            const amount = parseUnits(withdrawAmount, selectedPair.erc20.decimals);
-            setActiveButton('withdraw');
-            writeContract({
-                address: secretContract.address,
-                abi: secretContract.abi,
-                functionName: 'withdraw',
-                args: [amount],
-            });
+            await withdraw(tokenAddress, amount, selectedPair.erc20.decimals);
         } catch (error) {
             console.error('Withdraw error:', error);
-            setActiveButton(null);
         }
-    };
+    }, [withdraw, selectedPair]);
 
-    const isLoading = isPending || activeButton !== null;
+    const handleApprove = useCallback(async (
+        tokenAddress: `0x${string}`,
+        spender: `0x${string}`,
+        amount: string
+    ) => {
+        if (!selectedPair) return;
+        try {
+            await approve(tokenAddress, spender, amount, selectedPair.erc20.decimals);
+        } catch (error) {
+            console.error('Approve error:', error);
+        }
+    }, [approve, selectedPair]);
+
+    // 成功后清空输入（由子组件管理）
+    useEffect(() => {
+        if (status === 'success') {
+            // 输入清空由子组件管理
+        }
+    }, [status]);
 
     if (tokenPairs.length === 0) {
         return null;
     }
-
-    // 构建 Tab 项
-    const tabItems = [];
 
     // 如果没有选中的代币对，不显示 tabs
     if (!selectedPair) {
@@ -348,6 +199,9 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
         );
     }
 
+    // 构建 Tab 项
+    const tabItems = [];
+
     // 如果不是原生 ROSE，添加 Wrap/Unwrap Tab
     if (!selectedPair.isNativeROSE) {
         tabItems.push(
@@ -355,74 +209,39 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
                 key: 'wrap',
                 label: 'Wrap',
                 children: (
-                    <Space direction="vertical" size="middle">
-                        <Input
-                            placeholder="Amount"
-                            value={wrapAmount}
-                            onChange={(e) => handleAmountInput(e, setWrapAmount)}
-                            addonAfter={selectedPair?.erc20.symbol || ''}
-                            disabled={isLoading || !address || !selectedPair}
-                        />
-                        <Space.Compact style={{ width: '100%' }}>
-                            <Button
-                                onClick={handleWrapAll}
-                                disabled={!address || !selectedPair?.erc20.balance || isLoading || !selectedPair}
-                            >
-                                All
-                            </Button>
-                            <Button
-                                type="primary"
-                                onClick={handleWrap}
-                                loading={isLoading && activeButton === 'wrap'}
-                                disabled={!address || !wrapAmount || isLoading || !selectedPair || !secretContract}
-                                block
-                            >
-                                Wrap to {selectedPair?.secret?.symbol || 'Secret Token'}
-                            </Button>
-                        </Space.Compact>
-                        {selectedPair?.erc20 && (
-                            <Text type="secondary">
-                                Balance: {formatBalance(selectedPair.erc20.balance)} {selectedPair.erc20.symbol}
-                            </Text>
-                        )}
-                    </Space>
+                    <TokenWrapForm
+                        tokenPairs={tokenPairs}
+                        selectedPairIndex={selectedPairIndex}
+                        onPairChange={setSelectedPairIndex}
+                        isLoading={isLoading}
+                        wrapStatus={wrapStatus}
+                        approveStatus={approveStatus}
+                        wrapLoading={isLoading && activeButton === 'wrap'}
+                        approveLoading={isLoading && activeButton === 'approve'}
+                    />
                 ),
             },
             {
                 key: 'unwrap',
                 label: 'Unwrap',
                 children: (
-                    <Space direction="vertical" size="middle">
-                        <Input
-                            placeholder="Amount"
-                            value={unwrapAmount}
-                            onChange={(e) => handleAmountInput(e, setUnwrapAmount)}
-                            addonAfter={selectedPair?.secret?.symbol || ''}
-                            disabled={isLoading || !address || !selectedPair}
-                        />
-                        <Space.Compact style={{ width: '100%' }}>
-                            <Button
-                                onClick={handleUnwrapAll}
-                                disabled={!address || !selectedPair?.secret?.balance || isLoading || !selectedPair}
-                            >
-                                All
-                            </Button>
-                            <Button
-                                type="primary"
-                                onClick={handleUnwrap}
-                                loading={isLoading && activeButton === 'unwrap'}
-                                disabled={!address || !unwrapAmount || isLoading || !selectedPair || !secretContract}
-                                block
-                            >
-                                Unwrap to {selectedPair?.erc20.symbol}
-                            </Button>
-                        </Space.Compact>
-                        {selectedPair?.secret && (
-                            <Text type="secondary">
-                                Balance: {formatBalance(selectedPair.secret.balance)} {selectedPair.secret.symbol}
-                            </Text>
+                    <TokenUnwrapForm
+                        tokenPairs={pairsWithSecretBalance}
+                        selectedPairIndex={pairsWithSecretBalance.findIndex(p => 
+                            p.erc20.address === selectedPair.erc20.address
                         )}
-                    </Space>
+                        onPairChange={(index) => {
+                            const pair = pairsWithSecretBalance[index];
+                            const originalIndex = tokenPairs.findIndex(p => 
+                                p.erc20.address === pair.erc20.address
+                            );
+                            if (originalIndex >= 0) {
+                                setSelectedPairIndex(originalIndex);
+                            }
+                        }}
+                        onUnwrap={handleUnwrap}
+                        isLoading={isLoading}
+                    />
                 ),
             }
         );
@@ -433,66 +252,24 @@ const SecretTokenWrap: React.FC<SecretTokenWrapProps> = ({ tokens }) => {
                 key: 'deposit',
                 label: 'Deposit',
                 children: (
-                    <Space direction="vertical" size="middle">
-                        <Input
-                            placeholder="ROSE Amount"
-                            value={depositAmount}
-                            onChange={(e) => handleAmountInput(e, setDepositAmount)}
-                            addonAfter="ROSE"
-                            disabled={isLoading || !address || !selectedPair}
-                        />
-                        <Button
-                            type="primary"
-                            onClick={handleDeposit}
-                            loading={isLoading && activeButton === 'deposit'}
-                            disabled={!address || !depositAmount || isLoading || !selectedPair || !secretContract}
-                            block
-                        >
-                            Deposit ROSE to {selectedPair?.secret?.symbol || 'wROSE.S'}
-                        </Button>
-                        <Alert
-                            type="info"
-                            message="Deposit will convert native ROSE to wROSE.S"
-                            showIcon
-                        />
-                    </Space>
+                    <TokenDepositForm
+                        selectedPair={selectedPair}
+                        onDeposit={handleDeposit}
+                        isLoading={isLoading}
+                    />
                 ),
             },
             {
                 key: 'withdraw',
                 label: 'Withdraw',
                 children: (
-                    <Space direction="vertical" size="middle">
-                        <Input
-                            placeholder="Amount"
-                            value={withdrawAmount}
-                            onChange={(e) => handleAmountInput(e, setWithdrawAmount)}
-                            addonAfter={selectedPair?.secret?.symbol || ''}
-                            disabled={isLoading || !address || !selectedPair}
-                        />
-                        <Space.Compact style={{ width: '100%' }}>
-                            <Button
-                                onClick={handleWithdrawAll}
-                                disabled={!address || !selectedPair?.secret?.balance || isLoading || !selectedPair}
-                            >
-                                All
-                            </Button>
-                            <Button
-                                type="primary"
-                                onClick={handleWithdraw}
-                                loading={isLoading && activeButton === 'withdraw'}
-                                disabled={!address || !withdrawAmount || isLoading || !selectedPair || !secretContract}
-                                block
-                            >
-                                Withdraw to Native ROSE
-                            </Button>
-                        </Space.Compact>
-                        {selectedPair?.secret && (
-                            <Text type="secondary">
-                                Balance: {formatBalance(selectedPair.secret.balance)} {selectedPair.secret.symbol}
-                            </Text>
-                        )}
-                    </Space>
+                    <TokenWithdrawForm
+                        tokenPairs={pairsWithSecretBalance.filter(p => p.isNativeROSE)}
+                        selectedPairIndex={0}
+                        onPairChange={() => {}}
+                        onWithdraw={handleWithdraw}
+                        isLoading={isLoading}
+                    />
                 ),
             }
         );
