@@ -14,7 +14,7 @@ export const useAllowance_BoxDetail = () => {
         tokenAddress: `0x${string}`, 
         amount: number | string | bigint
     ) => {
-        if (!address) return { isEnough: false, allowanceAmount: 0 };
+        if (!address) return { isEnough: false, allowanceAmount: BigInt(0) };
 
         const owner = address;
         const spender = allConfigs.FundManager.address;
@@ -27,4 +27,3 @@ export const useAllowance_BoxDetail = () => {
 
     return { isEnough, checkAllowance_BoxDetail };
 }
-

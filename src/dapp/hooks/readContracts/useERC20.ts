@@ -14,7 +14,7 @@ export function useERC20() {
         tokenAddress: `0x${string}`,
         owner: string,
         spender: string
-    ): Promise<number> => {
+    ): Promise<bigint> => {
         try {
             const tx = await readContractERC20(
                 'erc20',
@@ -22,17 +22,26 @@ export function useERC20() {
                 'allowance', 
                 [owner, spender]
             );
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('allowance error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
     const balanceOf = async (
         tokenAddress: `0x${string}`,
         account: string
-    ): Promise<number> => {
+    ): Promise<bigint> => {
         try {
             const tx = await readContractERC20(
                 'erc20',
@@ -40,10 +49,19 @@ export function useERC20() {
                 'balanceOf', 
                 [account]
             );
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('balanceOf error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
@@ -78,13 +96,22 @@ export function useERC20() {
         }
     };
 
-    const totalSupply = async (tokenAddress: `0x${string}`): Promise<number> => {
+    const totalSupply = async (tokenAddress: `0x${string}`): Promise<bigint> => {
         try {
             const tx = await readContractERC20('erc20', tokenAddress, 'totalSupply', []);
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('totalSupply error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
@@ -102,24 +129,24 @@ export function useERC20() {
         }
     };
 
-    // 这个两个函数可以作为常量定义，不需要进行查询
-    const mintPeriod = async (): Promise<number> => {
-        try {
-            return 24*60*60;
-        } catch (error) {
-            console.error("mintPeriod error:", error);
-            return 0;
-        }
-    };
+    // // 这个两个函数可以作为常量定义，不需要进行查询
+    // const mintPeriod = async (): Promise<number> => {
+    //     try {
+    //         return 24*60*60;
+    //     } catch (error) {
+    //         console.error("mintPeriod error:", error);
+    //         return 0;
+    //     }
+    // };
 
-    const mintAmount = async (): Promise<number> => {
-        try {
-            return 1000;
-        } catch (error) {
-            console.error("mintAmount error:", error);
-            return 0;
-        }
-    };
+    // const mintAmount = async (): Promise<number> => {
+    //     try {
+    //         return 1000;
+    //     } catch (error) {
+    //         console.error("mintAmount error:", error);
+    //         return 0;
+    //     }
+    // };
 
     return {
         // 代币授权相关
@@ -132,8 +159,8 @@ export function useERC20() {
         totalSupply,
         // 铸造相关
         mintDate,
-        mintPeriod,
-        mintAmount,
+        // mintPeriod,
+        // mintAmount,
     };
 }
 

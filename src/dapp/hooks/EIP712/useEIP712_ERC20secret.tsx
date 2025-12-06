@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useSignTypedData} from 'wagmi';
 import { type Hex } from 'viem';
-import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 import { 
     SignPermitParams, 
     EIP712Permit, 
@@ -54,8 +53,10 @@ export interface UseEIP712SignatureResult {
  * });
  * ```
  */
-export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
-    const { chainId, address, isConnected } = useWalletContext();
+export const useEIP712_ERC20secret = ( 
+    chainId: number, 
+    address: string, 
+): UseEIP712SignatureResult => {
     const { signTypedDataAsync } = useSignTypedData();
     
     const [isLoading, setIsLoading] = useState(false);
@@ -125,7 +126,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
         try {
 
             // 在 signPermit 函数开始处添加
-            if (!isConnected || !address || !chainId) {
+            if ( !address || !chainId) {
                 throw new Error('Please connect your wallet first');
             }
 
@@ -216,7 +217,7 @@ export const useEIP712_ERC20secret = (): UseEIP712SignatureResult => {
         } finally {
             setIsLoading(false);
         }
-    }, [chainId, address, isConnected, signTypedDataAsync]);
+    }, [chainId, address, signTypedDataAsync]);
 
     /**
      * 重置状态

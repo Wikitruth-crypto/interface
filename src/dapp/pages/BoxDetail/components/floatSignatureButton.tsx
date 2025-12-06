@@ -4,7 +4,7 @@ import type { Eip712Requirement } from '@/dapp/components/secret/requestEip712';
 import { PermitType } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useEIP712Permit } from '@/dapp/hooks/EIP712';
+import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
 import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { useChainId } from 'wagmi';
@@ -71,16 +71,6 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
         }
 
         try {
-            // 先检查本地状态
-            // if (!session.isLoggedIn || !session.token) {
-            //     return false;
-            // }
-
-            // // 检查过期时间
-            // if (session.expiresAt && session.expiresAt < new Date()) {
-            //     return false;
-            // }
-
             // 验证会话（调用合约验证）
             const isValid = await validateSession();
             return isValid;

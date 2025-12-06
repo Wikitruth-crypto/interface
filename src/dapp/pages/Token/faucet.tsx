@@ -17,7 +17,7 @@ const Faucet: React.FC = () => {
     const { address } = useAccount();
     const allContracts = useAllContractConfigs();
     
-    const [balance, setBalance] = useState<number>(0);
+    const [balance, setBalance] = useState<bigint>(BigInt(0));
     const [mint_data, setMint_data] = useState<number>(0);
     const [mint_viable, setMint_viable] = useState(false);
     const [isMinting, setIsMinting] = useState(false);
@@ -66,7 +66,7 @@ const Faucet: React.FC = () => {
     };
 
     const isLoading = isPending || isMinting;
-    const formattedBalance = balance ? formatUnits(BigInt(balance), OFFICIAL_TOKEN_CONFIG.decimals) : '0';
+    const formattedBalance = balance ? formatUnits(balance, OFFICIAL_TOKEN_CONFIG.decimals) : '0';
 
     return (
         <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>

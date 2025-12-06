@@ -31,19 +31,19 @@ const HooksTest = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
 
-    // 测试：读取代币授权
-    const testReadAllowance = async () => {
-        if (!address) return;
-        const result = await readAllowance(
-            allConfigs.OfficialTokenSecret.address,
-            address,
-            allConfigs.FundManager.address,
-            1000,
-        )
-        setResult(result);
-    }
+    // 测试：读取代币授�?
+    // const testReadAllowance = async () => {
+    //     if (!address) return;
+    //     const result = await readAllowance(
+    //         allConfigs.OfficialTokenSecret.address,
+    //         address,
+    //         allConfigs.FundManager.address,
+    //         1000,
+    //     )
+    //     setResult(result);
+    // }
 
-    // 测试：读取合约数据
+    // 测试：读取合约数�?
     // useEffect(() => {
     //     const fetchData = async () => {
     //         if (!address) return;
@@ -52,13 +52,13 @@ const HooksTest = () => {
     //         //     functionName: 'getBasicData',
     //         //     args: [1],
     //         // });
-    //         // console.log('test!!! basicData：【1】', basicData);
+    //         // console.log('test!!! basicData：�?�?, basicData);
 
     //     };
     //     fetchData();
     // }, [address]);
 
-    // 测试：写入合约数据
+    // 测试：写入合约数�?
     const [resultWriteSapphire, setResultWriteSapphire] = useState<any>(null);
     const testWriteSapphire = async () => {
         if (!address) return;
@@ -73,18 +73,18 @@ const HooksTest = () => {
     return (
         <div className="w-2xl flex flex-col items-center justify-center">
             <UserIdAlert />
-            <Card title="HooksTest">
+            {/* <Card title="HooksTest">
                 <div className="flex flex-col items-center justify-center">
                     <Button onClick={testReadAllowance}>Test readAllowance</Button>
                     {result && (
                         <div className="mt-4 p-4 bg-gray-500 rounded">
-                            <h3>查询结果：</h3>
-                            <p>授权额度: {result.allowanceAmount}</p>
-                            <p>是否足够: {result.isEnough ? '✅ 是' : '❌ 否'}</p>
+                            <h3>查询结果</h3>
+                            <p>授权额度: {result.allowanceAmount?.toString?.() ?? String(result.allowanceAmount)}</p>
+                            <p>是否足够: {result.isEnough ? '是' : '否'}</p>
                         </div>
                     )}
                 </div>
-            </Card>
+            </Card> */}
             <Card title="RequestEip712">
                 <RequestEip712 requirement={
                         { 
@@ -102,7 +102,7 @@ const HooksTest = () => {
                 <Button onClick={testWriteSapphire}>Test writeSapphire</Button>
                 {resultWriteSapphire && (
                     <div className="mt-4 p-4 bg-gray-500 rounded">
-                        <h3>写入结果：</h3>
+                        <h3>写入结果</h3>
                         <p>交易哈希: {resultWriteSapphire}</p>
                     </div>
                 )}
@@ -112,4 +112,5 @@ const HooksTest = () => {
 };
 
 export default HooksTest;
+
 

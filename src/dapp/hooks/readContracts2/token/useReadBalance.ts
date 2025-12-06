@@ -1,11 +1,6 @@
 import { useState } from 'react';
-// import { useAllowanceBase, AllowanceERC20Params, AllowanceERC20SecretParams, AllowanceBaseResult } from './useAllowanceBase';
-// import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { PermitType } from '@/dapp/hooks/EIP712';
-// import { useSecretStore } from '@/dapp/store/secretStore';
-// import { TokenMetadata } from '@/dapp/contractsConfig';
 import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
-// import { useChainId } from 'wagmi';
 import { useSupportedTokens ,TokenMetadata} from '@/dapp/contractsConfig';
 import { 
     useERC20, 
@@ -14,13 +9,14 @@ import {
 
 export interface ReadBalanceResult {
     isEnough: boolean;
-    balance: number;
+    balance: bigint;
 }
 
 export const useReadBalance = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [balance, setBalance] = useState<number>(0);
-    const [isEnough, setIsEnough] = useState<boolean>(false);
+    const [balance, setBalance] = useState<bigint>(BigInt(0));
+    const [isEnough, setIsEnough] = useState<boolean>(true);
+    const [error, setError] = useState<Error | null>(null);
 
     const { balanceOf} = useERC20();
     const { balanceOfWithPermit } = useERC20Secret();
@@ -39,11 +35,10 @@ export const useReadBalance = () => {
     const readBalance = async (
         tokenAddress: `0x${string}`,
         owner: string,
-        // spender: string,
-        targetAmount: number | string | bigint
+        targetAmount?: bigint
     ): Promise<ReadBalanceResult> => {
         setIsLoading(true);
-
+        setError(null);
         try {
             // 1. 获取代币配置
             const tokenMetadata = supportedTokens.find(
@@ -55,7 +50,7 @@ export const useReadBalance = () => {
 
             // 2. 根据代币类型生成参数
             // let params: AllowanceERC20Params | AllowanceERC20SecretParams;
-            let balance = 0;
+            let balance = BigInt(0);
 
             if (tokenMetadata?.types === 'ERC20') {
                 balance = await balanceOf(tokenAddress, owner);
@@ -73,13 +68,15 @@ export const useReadBalance = () => {
             } else {
                 console.error(`Unsupported token type: ${tokenMetadata?.types}`);
                 setIsLoading(false);
-                return { isEnough: false, balance: 0 };
+                return { isEnough: false, balance: BigInt(0) };
             }
 
             // 判断授权是否足够
-            const isEnoughValue = balance >= Number(targetAmount);
-
-            setIsEnough(isEnoughValue);
+            let isEnoughValue = true;
+            if (targetAmount !== undefined) {
+                isEnoughValue = balance >= targetAmount;
+                setIsEnough(isEnoughValue);
+            }
             setBalance(balance);
             setIsLoading(false);
             return { isEnough: isEnoughValue, balance };
@@ -87,7 +84,8 @@ export const useReadBalance = () => {
         } catch (error) {
             console.error('[readBalance] Error:', error);
             setIsLoading(false);
-            return { isEnough: false, balance: 0 };
+            setError(error as Error);
+            return { isEnough: false, balance: BigInt(0) };
         }
     };
 
@@ -96,5 +94,6 @@ export const useReadBalance = () => {
         isLoading,
         balance,
         isEnough,
+        error,
     };
 };

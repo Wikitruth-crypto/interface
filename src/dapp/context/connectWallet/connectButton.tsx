@@ -31,6 +31,7 @@ export const ConnectButtonComponent = ({
     filteredChains,
     isConnected,
     isConnecting,
+    isReconnecting,
     isSwitching,
     connectError,
     switchError,
@@ -85,6 +86,11 @@ export const ConnectButtonComponent = ({
           </>
         ) : isConnecting ? (
           'Connecting...'
+        ) : isReconnecting ? (
+          <>
+            {chainIcon}
+            <span>Reconnecting...</span>
+          </>
         ) : (
           <>
             {chainIcon}

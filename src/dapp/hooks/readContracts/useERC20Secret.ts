@@ -2,19 +2,7 @@
 
 import { EIP712Permit, SignatureRSV } from '@/dapp/hooks/EIP712';
 import { useReadContractERC20 } from './useReadContractERC20';
-/**
- * ERC20Secret 隐私代币合约读取 Hook
- * 
- * 支持 ERC20Secret 和 WROSEsecret 合约
- * 
- * 注意：所有函数都需要传入 token 地址，因为会有多个 ERC20Secret 合约
- * 
- * 核心功能：
- * 1. 标准 ERC20 读取函数（有隐私限制）
- * 2. 基于 EIP-712 签名的授权读取函数
- * 3. EIP-712 域信息
- * 4. 签名管理功能
- */
+
 export function useERC20Secret() {
 
     const { readContractERC20 } = useReadContractERC20();
@@ -44,13 +32,22 @@ export function useERC20Secret() {
     const balanceOfWithPermit = async (
         tokenAddress: `0x${string}`,
         permit: EIP712Permit
-    ): Promise<number> => {
+    ): Promise<bigint> => {
         try {
             const tx = await readContractERC20('secret', tokenAddress, 'balanceOfWithPermit', [permit]);
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('balanceOfWithPermit error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
@@ -60,13 +57,22 @@ export function useERC20Secret() {
     const allowanceWithPermit = async (
         tokenAddress: `0x${string}`,
         permit: EIP712Permit
-    ): Promise<number> => {
+    ): Promise<bigint> => {
         try {
             const tx = await readContractERC20('secret', tokenAddress, 'allowanceWithPermit', [permit]);
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('allowanceWithPermit error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 

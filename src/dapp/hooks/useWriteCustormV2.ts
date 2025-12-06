@@ -19,11 +19,15 @@ interface WriteContractResult {
     writeCustormV2: (config: WriteContractConfig) => Promise<`0x${string}`>;
     hash: `0x${string}` | undefined;
     error: Error | null;
+    isError: boolean;
+    isSuccess: boolean;
     isPending: boolean;
     status: 'idle' | 'error' | 'pending' | 'success';
-    reset: () => void;
     isSuccessed: boolean;
+    isLoading: boolean;
+    reset: () => void;
 }
+
 /**
  * 
  * @param boxIds 单个或多个boxId
@@ -37,12 +41,12 @@ export const useWriteCustormV2 = (boxIds?: string| string[]): WriteContractResul
         error,             // 
         isPending,         // 交易是否加载中，等待钱包打包
         isError,           // 是否有错误 Boolean值
-        // isSuccess,         // 交易是否成功发送
-        // isConfirmed,       // 交易是否已确认
-        status,            // 交易状态：'idle' | 'error' | 'loading' | 'success'
+        isSuccess,         // 交易是否成功发送
+        status,            // 交易状态，与isPending、isError、isSuccess 对应
         reset             // 重置状态的函数
     } = useWriteContract();
 
+    // 表示交易已经成功，链上已成功确认
     const { isSuccess: isSuccessed } = useWaitForTransactionReceipt({
         hash,
     });
@@ -97,7 +101,10 @@ export const useWriteCustormV2 = (boxIds?: string| string[]): WriteContractResul
         hash,
         error,
         isPending,
+        isLoading: status !== 'idle' && status !== "error" && !isSuccessed,
+        isSuccess,
         status,
+        isError,
         reset,
         isSuccessed,
     };

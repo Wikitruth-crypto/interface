@@ -4,7 +4,7 @@ import ContentLeft from './containers/left';
 import ContentRight from './containers/right';
 import { Container } from '@/components/Container';
 import { BoxDetailProvider } from './contexts/BoxDetailContext';
-import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
+// import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
 import UserIdAlert from '@/dapp/components/userIdAlert';
 
 const BoxDetail: React.FC = () => {
@@ -12,7 +12,7 @@ const BoxDetail: React.FC = () => {
 
     return (
         <>
-            <FloatSignatureButtonBoxDetail />
+            {/* <FloatSignatureButtonBoxDetail /> */}
             <Container className="py-8 md:py-12 lg:py-16">
                 {/* Hero Section */}
                 <div className="text-center mb-8 md:mb-12">

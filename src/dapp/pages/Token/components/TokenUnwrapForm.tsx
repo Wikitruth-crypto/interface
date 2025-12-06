@@ -2,14 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { Button, Input, Space, Typography, Select, Alert } from 'antd';
 import { formatBalance } from '@dapp/utils/formatBalance';
 import { TokenPair } from '../types';
+import { useUnWrapSteps } from '../hooks/useUnWrapSteps';
 
 const { Text } = Typography;
 const { Option } = Select;
 
 export interface TokenUnwrapFormProps {
-    tokenPairs: TokenPair[]; // 已筛选：只包含 secret.balance > 0 的对
-    selectedPairIndex?: number;
-    onPairChange?: (index: number) => void;
+    selectedPair: TokenPair; 
     onUnwrap: (tokenAddress: `0x${string}`, amount: string) => void;
     isLoading: boolean;
 }
@@ -19,15 +18,13 @@ export interface TokenUnwrapFormProps {
  * Unwrap 操作表单（包含筛选）
  */
 const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
-    tokenPairs,
-    selectedPairIndex = 0,
-    onPairChange,
+    selectedPair,
     onUnwrap,
     isLoading,
 }) => {
-    const [unwrapAmount, setUnwrapAmount] = useState<string>('');
+    const { currentStep, handleEIP712Permit, isLoading: isReadBalanceLoading, balance, isEnough } = useUnWrapSteps(selectedPair);
 
-    const selectedPair = tokenPairs[selectedPairIndex] || tokenPairs[0];
+    const [unwrapAmount, setUnwrapAmount] = useState<string>('');
 
     const handleAmountInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -49,26 +46,8 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
         onUnwrap(selectedPair.secretContractAddress, unwrapAmount);
     }, [unwrapAmount, selectedPair, onUnwrap]);
 
-    if (!selectedPair) {
-        return <Alert type="info" message="No token pairs with Secret balance available" showIcon />;
-    }
-
     return (
         <Space direction="vertical" size="middle">
-            {tokenPairs.length > 1 && (
-                <Select
-                    value={selectedPairIndex}
-                    onChange={onPairChange}
-                    style={{ width: '100%' }}
-                    disabled={isLoading}
-                >
-                    {tokenPairs.map((pair, index) => (
-                        <Option key={index} value={index}>
-                            {pair.secret?.symbol || `${pair.erc20.symbol}.S`} ↔ {pair.erc20.symbol}
-                        </Option>
-                    ))}
-                </Select>
-            )}
             <Space.Compact style={{ width: '100%' }}>
                 <Input
                     placeholder="Amount"

@@ -15,9 +15,12 @@ interface WriteContractResult {
     hash: `0x${string}` | undefined;
     error: Error | null;
     isError: boolean;
+    isSuccess: boolean;
     isPending: boolean;
     status: 'idle' | 'error' | 'pending' | 'success';
     isSuccessed: boolean;
+    isLoading: boolean;
+    reset: () => void;
 }
 
 export const useWriteCustorm = (): WriteContractResult => {
@@ -26,12 +29,10 @@ export const useWriteCustorm = (): WriteContractResult => {
         data: hash,         // 
         error,             // 
         isPending,         // 交易是否待处理，等待钱包确认
-        // isLoading,         // 交易是否加载中，等待钱包打包
         isError,           // 是否有错误 Boolean值
-        // isSuccess,         // 交易是否成功发送
-        // isConfirmed,       // 交易是否已确认
-        status,            // 交易状态：'idle' | 'error' | 'loading' | 'success'
-        // reset             // 重置状态的函数
+        isSuccess,         // 交易是否成功发送
+        status,            // 交易状态，与isPending、isError、isSuccess 对应
+        reset             // 重置状态的函数
     } = useWriteContract();
 
     const { isSuccess: isSuccessed } = useWaitForTransactionReceipt({
@@ -58,9 +59,12 @@ export const useWriteCustorm = (): WriteContractResult => {
         hash,
         error,
         isPending,
+        isSuccess,
         isError,
         status,
         isSuccessed,
+        isLoading: status !== 'idle' && status !== "error" && !isSuccessed,
+        reset,
     };
 };
 

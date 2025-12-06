@@ -1,7 +1,6 @@
 import { useMemo, useCallback, useEffect } from 'react';
 import { Button, Typography, Alert, Space } from 'antd';
-import { useAccount, useChainId } from 'wagmi';
-import { useEIP712_ERC20secret } from '@/dapp/hooks/EIP712';
+import { useEIP712Permit } from '@/dapp/hooks/EIP712/useEIP712Permit';
 import { PermitType, type SignPermitParams } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { formatAddress } from '@/dapp/utils/formatAddress';
@@ -42,23 +41,22 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
     cardHint = 'To complete the subsequent operations, you need to complete the following EIP-712 authorization signature.',
     onComplete,
 }) => {
-    const { address: walletAddress } = useAccount();
-    const activeChainId = useChainId();
-
-    const targetAddress = walletAddress as `0x${string}` | undefined;
-    const targetChainId = activeChainId ?? undefined;
-
-    const { signPermit, isLoading, error } = useEIP712_ERC20secret();
-    const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);
-    const permitsByType = useSimpleSecretStore(
+    const { getValidPermit, isExpired, isLoading, error } = useEIP712Permit();
+    
+    // 使用 zustand selector 订阅 store 变化，确保响应式更新
+    // 底层会自动处理 chainId 和 address
+    const existingPermit = useSimpleSecretStore(
         useCallback(
             (state) => {
-                if (!targetAddress || targetChainId == null) {
-                    return undefined;
+                if (!requirement) {
+                    return null;
                 }
-                return state.getAccountPermits(targetChainId, targetAddress);
+                return state.getEip712Permit(
+                    requirement.label,
+                    requirement.spender
+                );
             },
-            [targetAddress, targetChainId]
+            [requirement]
         )
     );
 
@@ -67,53 +65,38 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
         if (!requirement) {
             return true;
         }
-        if (!permitsByType || !targetAddress || targetChainId === undefined || targetChainId === null) {
+
+        if (!existingPermit) {
             return false;
         }
 
-        const typePermits = permitsByType[requirement.label];
-        if (!typePermits) {
-            return false;
-        }
-
-        const spenderKey = requirement.spender.toLowerCase();
-        const existing = typePermits[spenderKey];
-        if (!existing) {
-            return false;
-        }
-
-        const deadline = typeof existing.deadline === 'string'
-            ? Number(existing.deadline)
-            : existing.deadline;
-        if (!deadline || Number.isNaN(deadline) || deadline <= Math.floor(Date.now() / 1000)) {
+        // 检查是否过期
+        if (isExpired(existingPermit)) {
             return false;
         }
 
         // 基于模式、授权对象以及金额进行匹配，避免误判
         return (
-            existing.label === requirement.label &&
-            existing.spender.toLowerCase() === requirement.spender.toLowerCase() &&
-            String(existing.amount) === String(requirement.amount)
+            existingPermit.label === requirement.label &&
+            existingPermit.spender.toLowerCase() === requirement.spender.toLowerCase() &&
+            String(existingPermit.amount) === String(requirement.amount)
         );
-    }, [requirement, permitsByType, targetAddress, targetChainId]);
+    }, [requirement, existingPermit, isExpired]);
 
     const handleSign = useCallback(async () => {
-        if (!requirement || !targetAddress || targetChainId === undefined || targetChainId === null) {
+        if (!requirement) {
             return;
         }
 
-        const permit = await signPermit(requirement);
-
-        if (permit) {
-            setEip712Permit(
-                requirement.label,
-                permit.spender,
-                permit,
-                targetChainId,
-                targetAddress
-            );
+        try {
+            // 使用 getValidPermit 自动处理获取/生成/保存
+            // 如果已存在且未过期，直接返回；否则生成新签名并保存
+            await getValidPermit(requirement);
+        } catch (err) {
+            // 错误已由 useEIP712Permit 处理，这里只记录日志
+            console.error('[RequestEip712] Failed to get valid permit:', err);
         }
-    }, [requirement, signPermit, setEip712Permit, targetChainId, targetAddress]);
+    }, [requirement, getValidPermit]);
 
     useEffect(() => {
         if (isSatisfied) {
@@ -178,7 +161,7 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
                         block
                         onClick={handleSign}
                         loading={isLoading}
-                        disabled={!targetAddress || targetChainId === undefined || targetChainId === null}
+                        disabled={!requirement}
                     >
                         Signature
                     </Button>

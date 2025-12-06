@@ -28,15 +28,15 @@ export const formatString = (value?: string) => {
 export function useConnectController() {
   const {
     address,
-    isConnected: wagmiIsConnected,
-    isReconnecting: wagmiIsReconnecting
+    status: accountStatus
   } = useAccount()
   const chainId = useChainId()
   const config = useConfig()
+  const connectedAddress = accountStatus === 'connected' ? address : undefined
   const { data: balanceData } = useBalance({
-    address,
+    address: connectedAddress,
     chainId,
-    query: { enabled: Boolean(address) }
+    query: { enabled: Boolean(connectedAddress) }
   })
 
   const {
@@ -70,8 +70,10 @@ export function useConnectController() {
     return config.chains.filter(chain => chain.name.toLowerCase().includes(keyword))
   }, [config.chains, networkSearch])
 
-  const isConnected = Boolean(address) && (wagmiIsConnected || wagmiIsReconnecting)
-  const isConnecting = connectStatus === 'pending' || Boolean(pendingConnectorId)
+  const isConnected = accountStatus === 'connected'
+  const isReconnecting = accountStatus === 'reconnecting'
+  const isConnecting =
+    connectStatus === 'pending' || accountStatus === 'connecting' || Boolean(pendingConnectorId)
   const isSwitching = switchStatus === 'pending'
 
   const openModal = (view: Exclude<ModalView, null>) => {
@@ -102,8 +104,10 @@ export function useConnectController() {
   }
 
   const handleDisconnect = async () => {
-    if (!address) return
-    const confirmed = window.confirm(`Are you sure you want to disconnect ${formatAddress(address)}?`)
+    if (!connectedAddress) return
+    const confirmed = window.confirm(
+      `Are you sure you want to disconnect ${formatAddress(connectedAddress)}?`
+    )
     if (!confirmed) return
     await disconnectAsync()
     closeModal()
@@ -126,7 +130,7 @@ export function useConnectController() {
   }
 
   return {
-    address,
+    address: connectedAddress,
     balanceData,
     chainId,
     currentChain,
@@ -136,6 +140,7 @@ export function useConnectController() {
     isConnected,
     isConnecting,
     isSwitching,
+    isReconnecting,
     connectError,
     switchError,
     modalView,

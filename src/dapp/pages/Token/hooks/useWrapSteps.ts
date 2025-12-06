@@ -1,5 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { writeStatus } from '../types';
+import { TokenPair } from '../types';
+import { useTokenOperations } from '../hooks/useTokenOperations';
+import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
+import { useAccount } from 'wagmi';
+import { formatUnits, parseUnits } from 'viem';
 
 export type StepStatus = 'wait' | 'process' | 'finish' | 'error';
 export type StepKey = 'allowance' | 'approve' | 'wrap';
@@ -9,7 +14,7 @@ interface StepConfig {
     descriptions: Record<writeStatus, string>;
 }
 
-interface StepItem {
+export interface StepItem {
     stepKey: StepKey;
     title: string;
     description: string;
@@ -27,7 +32,7 @@ const STEP_CONFIGS: Record<StepKey, StepConfig> = {
         },
     },
     approve: {
-        title: 'Approve (if needed)',
+        title: 'Approve',
         descriptions: {
             idle: 'Need to approve',
             pending: 'Approving...',
@@ -89,56 +94,144 @@ const createSteps = (requiresApprove: boolean): StepItem[] => {
     return steps;
 };
 
-export const useWrapSteps = () => {
-    const [steps, setSteps] = useState<StepItem[]>(createSteps(true));
-    const [currentStep, setCurrentStep] = useState<number>(1);
+type StepsState = {
+    steps: StepItem[];
+    currentIndex: number;
+};
+
+export const useWrapSteps = (tokenPair: TokenPair, amount: string) => {
+    const { address } = useAccount();
+    const { readAllowance, allowanceAmount } = useReadAllowance();
+    const { wrap, approve, status, isLoading, isPending, isSuccessed, activeButton } = useTokenOperations();
+
+    const [state, setState] = useState<StepsState>({
+        steps: createSteps(false),
+        currentIndex: 1, // allowance is done; start at first actionable step
+    });
 
     const initializeSteps = useCallback((isEnough: boolean) => {
-        const nextSteps = createSteps(!isEnough);
-        setSteps(nextSteps);
-        setCurrentStep(Math.min(1, nextSteps.length - 1));
+        const requiresApprove = !isEnough;
+        const nextSteps = createSteps(requiresApprove);
+        const nextCurrentIndex = 1; // always point to the first actionable step (approve or wrap)
+        setState({
+            steps: nextSteps,
+            currentIndex: nextCurrentIndex,
+        });
     }, []);
 
     const updateStepStatus = useCallback((stepKey: StepKey, status: writeStatus) => {
-        let targetIndex = -1;
-        let nextLength = 0;
-        setSteps(prev => {
-            nextLength = prev.length;
-            targetIndex = prev.findIndex(step => step.stepKey === stepKey);
+        if (import.meta.env.DEV) {
+            console.log('updateStepStatus:', stepKey, status);
+        }
+
+        setState(prev => {
+            const targetIndex = prev.steps.findIndex(step => step.stepKey === stepKey);
             if (targetIndex === -1) {
                 return prev;
             }
+
             const mappedStatus = mapWriteStatusToStepStatus(status);
             const description = STEP_CONFIGS[stepKey].descriptions[status];
-            const targetStep = prev[targetIndex];
-            if (targetStep.status === mappedStatus && targetStep.description === description) {
-                return prev;
-            }
-            return prev.map((step, index) => {
-                if (index !== targetIndex) return step;
-                return {
-                    ...step,
-                    description,
-                    status: mappedStatus,
-                };
-            });
-        });
 
-        if (status === 'success' && targetIndex !== -1) {
-            setCurrentStep(prev => {
-                if (targetIndex !== prev) {
-                    return prev;
-                }
-                const maxIndex = Math.max(0, nextLength - 1);
-                return Math.min(prev + 1, maxIndex);
-            });
-        }
+            const nextSteps = prev.steps.map((step, index) =>
+                index === targetIndex
+                    ? { ...step, status: mappedStatus, description }
+                    : step,
+            );
+
+            let nextCurrentIndex = prev.currentIndex;
+            const isCurrentStep = targetIndex === prev.currentIndex;
+            const hasNextStep = targetIndex < nextSteps.length - 1;
+
+            if (mappedStatus === 'finish' && isCurrentStep && hasNextStep) {
+                nextCurrentIndex = targetIndex + 1;
+            }
+
+            return {
+                steps: nextSteps,
+                currentIndex: nextCurrentIndex,
+            };
+        });
     }, []);
+
+    const { steps, currentIndex } = state;
+    const currentStepItem = steps[currentIndex] ?? steps[steps.length - 1];
+
+
+    // ---
+
+    
+    const checkAllowance = useCallback(async (checkType: 'init' | 'approve') => {
+        if (!address || !tokenPair.erc20.address || !amount || !tokenPair.secretContractAddress) {
+            return;
+        }
+
+        const amountInWei = parseUnits(amount, tokenPair.erc20.decimals);
+
+        try {
+            const result = await readAllowance(
+                tokenPair.erc20.address,
+                address,
+                tokenPair.secretContractAddress,
+                amountInWei,
+            );
+            if (checkType === 'init') {
+                initializeSteps(result.isEnough);
+                console.log('isEnough:', result.isEnough);
+            }
+        } catch (error) {
+            console.error('Check allowance error:', error);
+            updateStepStatus('allowance', 'error');
+        }
+    }, [tokenPair, amount, readAllowance, address, initializeSteps]);
+
+    useEffect(() => {
+        
+        if (activeButton === 'approve') {
+            if (status !== 'idle') {
+                updateStepStatus('approve', status);
+            }
+        } else if (activeButton === 'wrap') {
+            if (status !== 'idle') {
+                updateStepStatus('wrap', status);
+            }
+        } 
+    }, [activeButton, status]);
+
+    const handleApproveClick = useCallback(async () => {
+        if (!tokenPair || !amount || !tokenPair.secretContractAddress) return;
+        await approve(
+            tokenPair.erc20.address,
+            tokenPair.secretContractAddress,
+            amount,
+            tokenPair.erc20.decimals,
+        );
+    }, [tokenPair, amount, approve]);
+
+    const handleWrapClick = useCallback(async () => {
+        if (!tokenPair || !amount || !tokenPair.secretContractAddress) return;
+        await wrap(
+            tokenPair.secretContractAddress,
+            amount,
+            tokenPair.erc20.decimals,
+        );
+    }, [tokenPair, amount, wrap]);
+
 
     return {
         steps,
-        currentStep,
+        currentIndex,
+        currentStepItem,
         initializeSteps,
         updateStepStatus,
+        checkAllowance,
+        handleApproveClick,
+        handleWrapClick,
+        isPending,
+        isLoading,
+        isSuccessed,
+        status,
+        activeButton,
+        allowanceAmount,
     };
 };

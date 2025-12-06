@@ -23,7 +23,7 @@ const SecretTokenWrap: React.FC = () => {
         pairsWithSecretBalance,
     } = useTokenPageContext();
 
-    const { unwrap, deposit, withdraw, isLoading } = useTokenOperations();
+    const { deposit, isLoading } = useTokenOperations();
 
     useEffect(() => {
         if (selectedPair?.isNativeROSE) {
@@ -61,18 +61,6 @@ const SecretTokenWrap: React.FC = () => {
         }
     }, [selectedPair, allContracts]);
 
-    const handleUnwrap = useCallback(
-        async (tokenAddress: `0x${string}`, amount: string) => {
-            if (!selectedPair) return;
-            try {
-                await unwrap(tokenAddress, amount, selectedPair.erc20.decimals);
-            } catch (error) {
-                console.error('Unwrap error:', error);
-            }
-        },
-        [unwrap, selectedPair]
-    );
-
     const handleDeposit = useCallback(
         async (amount: string) => {
             if (!selectedPair || !selectedPair.secretContractAddress) return;
@@ -85,21 +73,9 @@ const SecretTokenWrap: React.FC = () => {
         [deposit, selectedPair]
     );
 
-    const handleWithdraw = useCallback(
+    const handleUnwrap = useCallback(
         async (tokenAddress: `0x${string}`, amount: string) => {
-            if (!selectedPair) return;
-            try {
-                await withdraw(tokenAddress, amount, selectedPair.erc20.decimals);
-            } catch (error) {
-                console.error('Withdraw error:', error);
-            }
-        },
-        [withdraw, selectedPair]
-    );
-
-    if (tokenPairs.length === 0) {
-        return null;
-    }
+        }, []);
 
     if (!selectedPair) {
         return (
@@ -130,18 +106,9 @@ const SecretTokenWrap: React.FC = () => {
                 label: 'Unwrap',
                 children: (
                     <TokenUnwrapForm
-                        tokenPairs={pairsWithSecretBalance}
-                        selectedPairIndex={pairsWithSecretBalance.findIndex((pair) =>
-                            pair.erc20.address === selectedPair.erc20.address
-                        )}
-                        onPairChange={(index) => {
-                            const pair = pairsWithSecretBalance[index];
-                            const originalIndex = tokenPairs.findIndex((item) => item.erc20.address === pair.erc20.address);
-                            if (originalIndex >= 0) {
-                                setSelectedPairIndex(originalIndex);
-                            }
-                        }}
-                        onUnwrap={handleUnwrap}
+                    selectedPair={selectedPair}
+                    onUnwrap={handleUnwrap}
+
                         isLoading={isLoading}
                     />
                 ),
@@ -165,10 +132,8 @@ const SecretTokenWrap: React.FC = () => {
                 label: 'Withdraw',
                 children: (
                     <TokenWithdrawForm
-                        tokenPairs={pairsWithSecretBalance.filter((pair) => pair.isNativeROSE)}
-                        selectedPairIndex={0}
-                        onPairChange={() => {}}
-                        onWithdraw={handleWithdraw}
+                        selectedPair={selectedPair}
+                        onWithdraw={handleUnwrap}
                         isLoading={isLoading}
                     />
                 ),

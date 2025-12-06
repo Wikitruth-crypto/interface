@@ -40,65 +40,101 @@ export function useFundManager() {
 
     // 金额查询
     // function orderAmounts(uint256 boxId_, bytes memory siweToken_) external view returns (uint256);
-    const orderAmounts = async (id: number | string, siweToken: string): Promise<number> => {
+    const orderAmounts = async (id: number | string, siweToken: string): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'orderAmounts',
                 args: [id, siweToken],
             });
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('orderAmounts error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
     // 获取铸造者奖励金额（带SIWE token）
     // function minterRewardAmounts(address token_, bytes memory siweToken_) external view returns (uint256);
-    const minterRewardAmounts = async (token: string, siweToken: string): Promise<number> => {
+    const minterRewardAmounts = async (token: string, siweToken: string): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'minterRewardAmounts',
                 args: [token, siweToken],
             });
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('minterRewardAmounts error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
     // 获取协助者奖励金额（带SIWE token）
     // function helperRewardAmounts(address token_, bytes memory siweToken_) external view returns (uint256);
-    const helperRewardAmounts = async (token: string, siweToken: string): Promise<number> => {
+    const helperRewardAmounts = async (token: string, siweToken: string): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'helperRewardAmounts',
                 args: [token, siweToken],
             });
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('helperRewardAmounts error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 
     // 获取总奖励金额
     // function totalRewardAmounts(address token_) external view returns (uint256);
-    const totalRewardAmounts = async (token: string): Promise<number> => {
+    const totalRewardAmounts = async (token: string): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'totalRewardAmounts',
                 args: [token],
             });
-            return tx ? Number(tx) : 0;
+            if (typeof tx === 'bigint') {
+                return tx;
+            }
+            if (typeof tx === 'number') {
+                return BigInt(tx);
+            }
+            if (typeof tx === 'string') {
+                return BigInt(tx);
+            }
+            return BigInt(0);
         } catch (error) {
             console.error('totalRewardAmounts error:', error);
-            return 0;
+            return BigInt(0);
         }
     };
 

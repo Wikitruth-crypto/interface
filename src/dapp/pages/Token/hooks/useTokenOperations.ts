@@ -9,7 +9,7 @@ import { useWriteToken } from '@/dapp/hooks/useWriteToken';
  * 统一管理代币操作
  */
 export const useTokenOperations = () => {
-    const { writeToken, status, isPending, isError, isSuccessed } = useWriteToken();
+    const { writeToken, status, isPending, isError, isSuccessed, isLoading } = useWriteToken();
     const { address } = useAccount();
     const [activeButton, setActiveButton] = useState<ActiveButton>(null);
     const [error, setError] = useState<Error | null>(null);
@@ -232,7 +232,8 @@ export const useTokenOperations = () => {
         deposit,
         withdraw,
         approve,
-        isLoading: isPending || activeButton !== null ,
+        isPending,
+        isLoading,
         activeButton,
         error,
         status,

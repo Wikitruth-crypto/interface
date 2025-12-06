@@ -1,8 +1,12 @@
 import { useState, useCallback } from 'react';
-import { useAccount, useChainId } from 'wagmi';
-import { useEIP712_ERC20secret, EIP712Permit, PermitType } from '@/dapp/hooks/EIP712';
-import { SignPermitParams } from './types_ERC20secret';
+import { useEIP712_ERC20secret,} from '@/dapp/hooks/EIP712';
+import { 
+    SignPermitParams , 
+    EIP712Permit, 
+    PermitType 
+} from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
+import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
 
 /**
  * 这个是适配当前前端的
@@ -19,20 +23,20 @@ export interface GetValidPermitOptions {
 
 
 export interface UseCheckEIP712PermitResult {
-    /** 检查并获取有效的 permit（如果过期则自动生成新签名） */
     getValidPermit: (
         params: EIP712Permit | SignPermitParams,
         options?: GetValidPermitOptions
     ) => Promise<EIP712Permit>;
+    signAndSavePermit: (params: SignPermitParams) => Promise<EIP712Permit>;
     isExpired: (permit: EIP712Permit) => boolean;
+    getCurrentEip712Permit: (label: PermitType, spender: string) => EIP712Permit | null;
     isLoading: boolean;
     error: Error | null;
 }
 
 export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
-    const { address } = useAccount();
-    const chainId = useChainId();
-    const { signPermit, isLoading: isSigningLoading } = useEIP712_ERC20secret();
+    const { address, chainId } = useWalletContext();
+    const { signPermit, isLoading: isSigningLoading, error: signError } = useEIP712_ERC20secret(chainId ?? 0, address ?? '');
     
     const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
     const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);
@@ -62,9 +66,138 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
         return expired;
     }, []);
 
+
     /**
-     * 检查并获取有效的 permit
-     * 如果过期或不存在，自动生成新签名
+     * 类型守卫：检查是否为 EIP712Permit
+     */
+    const isEIP712Permit = (p: EIP712Permit | SignPermitParams): p is EIP712Permit => {
+        return 'signature' in p && 'deadline' in p;
+    };
+
+    /**
+     * 解析传入的参数，返回 SignPermitParams
+     * 如果传入的是 EIP712Permit 且未过期，返回 null（表示可以直接使用）
+     */
+    const parseSignPermitParams = useCallback((
+        params: EIP712Permit | SignPermitParams,
+        options?: GetValidPermitOptions
+    ): SignPermitParams | null => {
+        // 如果传入的是 EIP712Permit 且未过期，返回 null
+        if (isEIP712Permit(params) && !isExpired(params)) {
+            return null;
+        }
+
+        let label: PermitType;
+        let spender: string;
+        let amount: bigint | string;
+        let contractAddress: string;
+        let domainName: string | undefined;
+        let domainVersion: string | undefined;
+        let customDeadline: number | undefined;
+
+        // 情况1: 传入的是已存在的 EIP712Permit（已过期）
+        if (isEIP712Permit(params)) {
+            // 从 permit 中提取参数
+            label = params.label;
+            spender = params.spender;
+            // 统一转换为 bigint 或 string
+            amount = typeof params.amount === 'bigint' 
+                ? params.amount 
+                : typeof params.amount === 'string' 
+                    ? params.amount 
+                    : BigInt(params.amount);
+            
+            // contractAddress 需要从 options 中获取
+            contractAddress = options?.contractAddress || '';
+            domainName = options?.domainName;
+            domainVersion = options?.domainVersion;
+            customDeadline = options?.customDeadline;
+        } else {
+            // 情况2: 传入的是 SignPermitParams
+            const signParams = params;
+            
+            label = signParams.label;
+            spender = signParams.spender;
+            // 统一类型：number 转换为 bigint
+            amount = typeof signParams.amount === 'number' 
+                ? BigInt(signParams.amount) 
+                : signParams.amount;
+            contractAddress = signParams.contractAddress;
+            domainName = signParams.domainName || options?.domainName;
+            domainVersion = signParams.domainVersion || options?.domainVersion;
+            customDeadline = signParams.customDeadline || options?.customDeadline;
+        }
+
+        // 验证必要参数
+        if (!spender) {
+            throw new Error('Missing spender parameter');
+        }
+
+        if (!contractAddress) {
+            throw new Error('Missing contractAddress parameter');
+        }
+
+        return {
+            label,
+            spender,
+            amount,
+            contractAddress,
+            domainName,
+            domainVersion,
+            customDeadline
+        };
+    }, [isExpired]);
+    
+    /**
+     * 生成新的 EIP712 签名并保存到 store
+     */
+    const signAndSavePermit = useCallback(async (
+        params: SignPermitParams,
+    ): Promise<EIP712Permit> => {
+        try {
+            // 生成新的 EIP712 签名
+            const newPermit = await signPermit(params);
+
+            if (!newPermit) {
+                throw new Error('Failed to generate signature');
+            }
+
+            // 保存到 store
+            setEip712Permit(params.label, params.spender, newPermit);
+
+            return newPermit;
+        } catch (signError) {
+            const error = signError instanceof Error 
+                ? signError 
+                : new Error('Failed to generate EIP712 signature');
+            console.error('[EIP712] Failed to generate permit:', error);
+            setError(error);
+            throw error;
+        }
+    }, [address, chainId, signPermit, setEip712Permit]);
+
+    const getCurrentEip712Permit = useCallback((
+        label: PermitType,
+        spender: string,
+    ): EIP712Permit | null => {
+            const existingPermit = getEip712Permit(label, spender);
+            if (
+                existingPermit && 
+                !isExpired(existingPermit) && 
+                existingPermit.label=== label && 
+                existingPermit.spender=== spender
+            ) {
+                return existingPermit;
+            } 
+            return null;
+    }, [getEip712Permit, isExpired]);
+
+    /**
+     * 获取有效的 permit
+     * 1. 如果传入的是 EIP712Permit 且未过期，直接返回
+     * 2. 如果传入的是 EIP712Permit 但已过期，需要重新生成
+     * 3. 如果传入的是 SignPermitParams，检查 store 中是否有有效的 permit
+     * 4. 如果没有或过期，生成新的 permit
      */
     const getValidPermit = useCallback(async (
         params: EIP712Permit | SignPermitParams,
@@ -74,134 +207,31 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
         setIsLoading(true);
 
         try {
-            // 类型守卫：检查是否为 EIP712Permit
-            const isEIP712Permit = (p: EIP712Permit | SignPermitParams): p is EIP712Permit => {
-                return 'signature' in p && 'deadline' in p;
-            };
-
-            // 验证钱包连接
-            if (!address) {
-                throw new Error('Please connect your wallet first');
+            if (isEIP712Permit(params) && !isExpired(params)) {
+                return params;
             }
-
-            let label: PermitType;
-            let spender: string;
-            let amount: bigint | string;
-            let contractAddress: string;
-            let domainName: string | undefined;
-            let domainVersion: string | undefined;
-            let customDeadline: number | undefined;
-
-            // 情况1: 传入的是已存在的 EIP712Permit
-            if (isEIP712Permit(params)) {
-                // 检查是否过期
-                if (!isExpired(params)) {
-                    // 未过期，直接返回
+            const signPermitParams = parseSignPermitParams(params, options);
+            if (!signPermitParams) {
+                if (isEIP712Permit(params)) {
                     return params;
                 }
-                
-                // 已过期，需要重新生成签名
-                if (import.meta.env.DEV) {
-                    console.log('[EIP712] Permit expired, regenerating signature...');
-                }
-                
-                // 从 permit 中提取参数
-                label = params.label;
-                spender = params.spender;
-                // 统一转换为 bigint 或 string
-                amount = typeof params.amount === 'bigint' 
-                    ? params.amount 
-                    : typeof params.amount === 'string' 
-                        ? params.amount 
-                        : BigInt(params.amount);
-                
-                // contractAddress 需要从 options 中获取
-                contractAddress = options?.contractAddress || '';
-                
-                if (!contractAddress) {
-                    throw new Error(
-                        'Permit expired, need contractAddress to regenerate signature.' +
-                        'Please provide contractAddress through options parameter: getValidPermit(permit, { contractAddress: "0x..." })'
-                    );
-                }
-                
-                // 从 options 中获取可选参数
-                domainName = options?.domainName;
-                domainVersion = options?.domainVersion;
-                customDeadline = options?.customDeadline;
-            } else {
-                // 情况2: 传入的是 SignPermitParams，需要获取或生成签名
-                const signParams = params;
-                
-                label = signParams.label;
-                spender = signParams.spender;
-                // 统一类型：number 转换为 bigint
-                amount = typeof signParams.amount === 'number' 
-                    ? BigInt(signParams.amount) 
-                    : signParams.amount;
-                contractAddress = signParams.contractAddress;
-                domainName = signParams.domainName || options?.domainName;
-                domainVersion = signParams.domainVersion || options?.domainVersion;
-                customDeadline = signParams.customDeadline || options?.customDeadline;
+                throw new Error('Unexpected error: failed to parse permit params');
             }
 
-            if (!spender) {
-                throw new Error('Missing spender parameter');
+            const { label, spender } = signPermitParams;
+            const currentPermit = getCurrentEip712Permit(label, spender);
+            if (currentPermit) {
+                return currentPermit;
             }
 
-            if (!contractAddress) {
-                throw new Error('Missing contractAddress parameter');
-            }
-
-            // 尝试从 store 获取已存在的 permit
-            let existingPermit = getEip712Permit(label, spender, chainId);
-
-            // 检查是否存在且未过期
-            if (existingPermit && !isExpired(existingPermit)) {
-
-                if (import.meta.env.DEV) {
-                    console.log('[EIP712] Using cached permit');
-                }
-                return existingPermit;
-            }
-
-            try {
-                // 生成新的 EIP712 签名
-                // signPermit 内部会使用当前连接的钱包地址作为 owner（通过 useAccount）
-                const newPermit = await signPermit({
-                    spender: spender as `0x${string}`,
-                    amount,
-                    label,
-                    contractAddress,
-                    domainName,
-                    domainVersion,
-                    customDeadline
-                });
-
-                if (!newPermit) {
-                    throw new Error('Failed to generate signature');
-                }
-
-                // 保存到 store
-                setEip712Permit(label, spender, newPermit, chainId);
-                
-                if (import.meta.env.DEV) {
-                    console.log('[EIP712] Permit generated and cached');
-                }
-                return newPermit;
-
-            } catch (signError) {
-                const error = signError instanceof Error 
-                    ? signError 
-                    : new Error('Failed to generate EIP712 signature');
-                console.error('[EIP712] Failed to generate permit:', error);
-                setError(error);
-                throw error;
-            }
+            const newPermit = await signAndSavePermit(signPermitParams);
+            return newPermit;
 
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to check permit');
-            console.error('[useIsPermitExpired] Error:', error);
+            const error = err instanceof Error 
+                ? err 
+                : new Error('Failed to get valid permit');
+            console.error('[useEIP712Permit] Error:', error);
             setError(error);
             throw error;
         } finally {
@@ -210,16 +240,18 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
     }, [
         address,
         chainId,
-        signPermit,
+        isExpired,
+        parseSignPermitParams,
         getEip712Permit,
-        setEip712Permit,
-        isExpired
+        signAndSavePermit
     ]);
 
     return {
         getValidPermit,
         isExpired,
+        signAndSavePermit,
+        getCurrentEip712Permit,
         isLoading: isLoading || isSigningLoading,
-        error
+        error: error || signError
     };
 };

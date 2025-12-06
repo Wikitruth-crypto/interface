@@ -97,11 +97,11 @@ export const useSiweAuthBase = (
 
             try {
                 if (typeof contractLogin !== 'function') {
-                    throw new Error('SIWE 登录接口未初始化，请检查合约上下文');
+                    throw new Error('SIWE login interface not initialized, please check the contract context');
                 }
 
                 if (!address || address === '0x0000000000000000000000000000000000000000') {
-                    throw new Error('钱包未连接，请先连接钱包');
+                    throw new Error('The wallet is not connected, please connect the wallet first');
                 }
 
                 const domain = params?.domain || DEFAULT_DOMAINS[0];
@@ -123,7 +123,7 @@ export const useSiweAuthBase = (
                 const token = await contractLogin(message, signature);
 
                 if (!token) {
-                    throw new Error('获取 token 失败');
+                    throw new Error('Failed to get token');
                 }
 
                 const expiresAt =
@@ -149,8 +149,8 @@ export const useSiweAuthBase = (
                     expiresAt,
                 };
             } catch (err) {
-                const authError = err instanceof Error ? err : new Error('登录失败');
-                console.error('SIWE 登录失败:', authError);
+                const authError = err instanceof Error ? err : new Error('Login failed');
+                console.error('SIWE login failed:', authError);
                 setError(authError);
                 return null;
             } finally {

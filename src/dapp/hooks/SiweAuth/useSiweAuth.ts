@@ -70,8 +70,8 @@ export const useSiweAuth = (): UseSiweAuthResult => {
   const login = useCallback(
     async (params?: Partial<SiweMessageParams>): Promise<LoginResult | null> => {
       if (!address) {
-        const error = new Error('钱包未连接，请先连接钱包');
-        console.error('SIWE 登录失败:', error);
+        const error = new Error('The wallet is not connected, please connect the wallet first');
+        console.error('SIWE login failed:', error);
         return null;
       }
 
@@ -101,7 +101,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
 
     try {
       if (typeof isSessionValid !== 'function') {
-        throw new Error('SIWE 会话校验接口未初始化');
+        throw new Error('SIWE session validation interface not initialized');
       }
 
       if (session.expiresAt && session.expiresAt < new Date()) {
@@ -118,7 +118,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
 
       return true;
     } catch (err) {
-      console.error('验证会话失败:', err);
+      console.error('Session validation failed:', err);
       clearSiweSession(chainId, session.address ?? undefined);
       return false;
     }
