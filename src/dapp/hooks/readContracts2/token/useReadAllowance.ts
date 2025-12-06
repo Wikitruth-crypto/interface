@@ -71,7 +71,7 @@ export const useReadAllowance = () => {
             } else if (tokenMetadata.types === 'Secret') {
                 const validPermit = await getValidPermit({
                     spender,
-                    amount: 0,
+                    amount: BigInt(0),
                     label: PermitType.VIEW,
                     contractAddress: tokenAddress,
                 });

@@ -30,9 +30,9 @@
  * EIP712 许可类型枚举
  */
 export enum PermitType {
-    VIEW = 0,
-    TRANSFER = 1,
-    APPROVE = 2
+    VIEW = 0, // balanceOfWithPermit, allowanceWithPermit
+    TRANSFER = 1, // transferWithPermit
+    APPROVE = 2, // approveWithPermit
 }
 
 
@@ -51,9 +51,9 @@ export interface SignatureRSV {
  */
 export interface EIP712Permit {
     label: PermitType;
-    owner: string;
-    spender: string;
-    amount: bigint | string;
+    owner: string; // owner of the token
+    spender: string; // allowance, transfer, approve
+    amount: bigint | string; // approve , transfer
     deadline: number;
     signature: SignatureRSV;
 }
@@ -74,7 +74,7 @@ export interface EIP712Domain {
  */
 export interface SignPermitParams {
     spender: string;
-    amount: bigint | number | string;
+    amount: bigint | string;
     label: PermitType;
     contractAddress: string;
     domainName?: string;

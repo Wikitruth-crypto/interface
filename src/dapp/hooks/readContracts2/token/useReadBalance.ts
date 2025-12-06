@@ -58,7 +58,7 @@ export const useReadBalance = () => {
             } else if (tokenMetadata?.types === 'Secret') {
                 const validPermit = await getValidPermit({
                     spender: owner,
-                    amount: 0,
+                    amount: BigInt(0),
                     label: PermitType.VIEW,
                     contractAddress: tokenAddress,
                 });

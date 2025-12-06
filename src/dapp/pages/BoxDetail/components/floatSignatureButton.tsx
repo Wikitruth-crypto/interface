@@ -147,7 +147,7 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
     const eip712Requirement: Eip712Requirement = {
         label: PermitType.VIEW,
         spender: allConfigs.FundManager.address,
-        amount: 0,
+        amount: BigInt(0),
         contractAddress: allConfigs.OfficialTokenSecret.address,
     };
 

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { formatUnits } from 'viem';
 import { 
     Button, 
     Card,
@@ -18,6 +19,7 @@ import { RequestEip712 } from '@/dapp/components/secret/requestEip712';
 import { RequestSiwe } from '@/dapp/components/secret/requestSiwe';
 import { PermitType } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import UserIdAlert from '@/dapp/components/userIdAlert';
+import { useReadBalance } from '@/dapp/hooks/readContracts2/token/useReadBalance';
 
 const HooksTest = () => {
 
@@ -27,21 +29,26 @@ const HooksTest = () => {
 
     const { readContract } = useReadContract();
     const { readAllowance } = useReadAllowance();
+    const { readBalance } = useReadBalance();
 
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
 
     // 测试：读取代币授�?
-    // const testReadAllowance = async () => {
-    //     if (!address) return;
-    //     const result = await readAllowance(
-    //         allConfigs.OfficialTokenSecret.address,
-    //         address,
-    //         allConfigs.FundManager.address,
-    //         1000,
-    //     )
-    //     setResult(result);
-    // }
+    const testRead = async () => {
+        if (!address) return;
+        // const result = await readAllowance(
+        //     allConfigs.OfficialTokenSecret.address,
+        //     address,
+        //     allConfigs.FundManager.address,
+        //     1000,
+        // )
+        const result = await readBalance(
+            allConfigs.OfficialTokenSecret.address,
+            address,
+        )
+        setResult(result);
+    }
 
     // 测试：读取合约数�?
     // useEffect(() => {
@@ -73,24 +80,23 @@ const HooksTest = () => {
     return (
         <div className="w-2xl flex flex-col items-center justify-center">
             <UserIdAlert />
-            {/* <Card title="HooksTest">
+            <Card title="HooksTest">
                 <div className="flex flex-col items-center justify-center">
-                    <Button onClick={testReadAllowance}>Test readAllowance</Button>
+                    <Button onClick={testRead}>Test readAllowance</Button>
                     {result && (
                         <div className="mt-4 p-4 bg-gray-500 rounded">
                             <h3>查询结果</h3>
-                            <p>授权额度: {result.allowanceAmount?.toString?.() ?? String(result.allowanceAmount)}</p>
-                            <p>是否足够: {result.isEnough ? '是' : '否'}</p>
+                            <p>余额: {formatUnits(result.balance, supportedTokens.find(token => token.address === allConfigs.OfficialTokenSecret.address)?.decimals ?? 18)}</p>
                         </div>
                     )}
                 </div>
-            </Card> */}
+            </Card>
             <Card title="RequestEip712">
                 <RequestEip712 requirement={
                         { 
                         label: PermitType.VIEW, 
                         spender: allConfigs.FundManager.address ,
-                        amount: 0,
+                        amount: BigInt(0),
                         contractAddress: allConfigs.OfficialTokenSecret.address,
                         }
                     } />

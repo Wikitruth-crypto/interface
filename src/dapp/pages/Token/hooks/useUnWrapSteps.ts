@@ -11,29 +11,39 @@ import { PermitType, SignPermitParams } from '@/dapp/hooks/EIP712/types_ERC20sec
 export const useUnWrapSteps = (tokenPair: TokenPair, amount?: string) => {
     const { address } = useAccount();
     const [currentStep, setCurrentStep] = useState<string>('EIP712Permit');
-    const { signAndSavePermit, getCurrentEip712Permit } = useEIP712Permit();
-    const { readBalance, balance, isLoading, isEnough } = useReadBalance();
+    const [signError, setSignError] = useState<Error | null>(null);
+    const { signAndSavePermit, getCurrentEip712Permit, isLoading: isEIP712Loading, error: eip712Error } = useEIP712Permit();
+    const { readBalance, balance, isLoading, isEnough, error: balanceError } = useReadBalance();
 
     const initSteps = useCallback(() => {
-        if (!tokenPair.secretContractAddress) return;
-        const permit = getCurrentEip712Permit(
-            PermitType.VIEW, 
-            tokenPair.secretContractAddress
-        )
-        if (permit) {
-            setCurrentStep('checkBalance');
+        const init = async () => {
+            if (!address || !tokenPair.secretContractAddress) {
+                setCurrentStep('EIP712Permit');
+                return;
+            }
+            const permit = getCurrentEip712Permit(
+                PermitType.VIEW,
+                address
+            )
+            if (permit) {
+                setCurrentStep('checkBalance');
+                await readBalance(tokenPair.secretContractAddress, address);
+            } else {
+                setCurrentStep('EIP712Permit');
+            }
         }
-    }, [getCurrentEip712Permit, tokenPair.secretContractAddress]);
+        init();
+    }, [getCurrentEip712Permit, address, tokenPair.secretContractAddress, readBalance]);
 
     const handleEIP712Permit = useCallback(async () => {
-
-        if (!address || !tokenPair.erc20.address|| !tokenPair.secretContractAddress) {
+        if (!address || !tokenPair.secretContractAddress) {
             return;
         }
+        setSignError(null);
         try {
             const signPermitParams: SignPermitParams = {
-                contractAddress: tokenPair.erc20.address,
-                amount: 0,
+                contractAddress: tokenPair.secretContractAddress,
+                amount: BigInt(0),
                 label: PermitType.VIEW,
                 spender: address,
             };
@@ -42,32 +52,25 @@ export const useUnWrapSteps = (tokenPair: TokenPair, amount?: string) => {
             );
             if (result) {
                 setCurrentStep('checkBalance');
+                setSignError(null);
+                const result = await readBalance(tokenPair.secretContractAddress, address);
+                // console.log('result.balance:', result.balance);
+                
             }
         } catch (error) {
             console.error('Check EIP712Permit error:', error);
+            setSignError(error instanceof Error ? error : new Error('Failed to sign EIP712 permit'));
         }
-    }, [tokenPair, signAndSavePermit, address]);
-
-    useEffect(() => {
-        const handleReadBalance = async () => {
-            if (currentStep !== 'checkBalance') return;
-            if (!tokenPair.erc20.address || !address ) {
-                return;
-            }
-            const amountInWei = amount ? parseUnits(amount, tokenPair.erc20.decimals) : BigInt(0);
-            await readBalance(tokenPair.erc20.address, address, amountInWei);
-        }
-        handleReadBalance();
-    }, [address, amount, readBalance, currentStep]);
-
+    }, [tokenPair, signAndSavePermit, address, readBalance]);
 
     return {
         initSteps,
         handleEIP712Permit,
         currentStep,
-        isLoading,
+        isLoading: isLoading || isEIP712Loading,
         balance,
         isEnough,
+        error: signError || eip712Error || balanceError,
     };
 };
 
