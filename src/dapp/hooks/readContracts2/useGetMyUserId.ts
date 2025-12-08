@@ -50,15 +50,14 @@ const resolveUserIdFromAccounts = (
  */
 export function useGetMyUserId(): string {
     const [userId, setUserId] = useState<string>('');
-    const fetchingRef = useRef(false); // 防止重复请求
+    const fetchingRef = useRef(false); // Prevent duplicate requests
 
-    // ==================== 依赖项 ====================
     const { setUserId: setUserIdToStore} = useAccountStore();
     const { myUserId } = useUserId();
     const { address, chainId } = useWalletContext();
     const currentSession = useSimpleSecretStore((state) => state.currentSession);
     
-    // 使用 selector 精确监听当前账户的 userId 变化
+    // Use selector to precisely listen for changes in the userId of the current account
     const currentUserIdFromStore = useAccountStore((state) => {
         const targetChainId = chainId || CHAIN_ID;
         const targetAddress = address || state.currentAccount;
@@ -66,29 +65,28 @@ export function useGetMyUserId(): string {
         return resolveUserIdFromAccounts(state, targetChainId, targetAddress);
     });
 
-    // ==================== 检查 SIWE token 是否有效 ====================
+    // ==================== Check if the SIWE token is valid ====================
     const isSiweTokenValid = useCallback((): boolean => {
         if (!currentSession.isLoggedIn || !currentSession.token) {
             return false;
         }
 
-        // 检查过期时间
+        // Check the expiration time
         if (currentSession.expiresAt) {
             const now = new Date();
             const expiresAt = new Date(currentSession.expiresAt);
             return now < expiresAt;
         }
 
-        // 如果没有过期时间，但 token 存在且 isLoggedIn 为 true，认为有效
+        // If there is no expiration time, but the token exists and isLoggedIn is true, consider it valid
         return true;
     }, [currentSession.isLoggedIn, currentSession.token, currentSession.expiresAt]);
 
-    // ==================== 获取当前账户的 userId ====================
-    // 使用 selector 获取的 userId，无需额外函数
+    // ==================== Get the current account's userId ====================
 
-    // ==================== 从合约获取 userId ====================
+    // ==================== Get the userId from the contract ====================
     const fetchUserIdFromContract = useCallback(async (): Promise<void> => {
-        // 防止重复请求
+        // Prevent duplicate requests
         if (fetchingRef.current) {
             if (import.meta.env.DEV) {
                 console.log('[useMyUserId] Already fetching, skipping...');
@@ -96,7 +94,7 @@ export function useGetMyUserId(): string {
             return;
         }
 
-        // 检查必要条件
+        // Check the necessary conditions
         if (!currentSession.token || !isSiweTokenValid()) {
             if (import.meta.env.DEV) {
             console.log('[useMyUserId] SIWE token is not valid, skipping fetch');
@@ -112,7 +110,7 @@ export function useGetMyUserId(): string {
             return;
         }
 
-        // 再次检查是否已经有 userId（使用最新的值）
+        // Check if there is already a userId (using the latest value)
         const targetChainId = chainId || CHAIN_ID || 0;
         const latestUserId = resolveUserIdFromAccounts(
             useAccountStore.getState(),
@@ -128,18 +126,18 @@ export function useGetMyUserId(): string {
             return;
         }
 
-        // 标记为正在获取
+        // Mark as fetching
         fetchingRef.current = true;
 
         try {
             
-            // 调用合约获取 userId
+            // Call the contract to get the userId
             const fetchedUserId = await myUserId(currentSession.token);
 
             if (fetchedUserId && fetchedUserId > 0) {
                 const userIdString = fetchedUserId.toString();
                 
-                // 保存到 accountStore
+                // Save to accountStore
                 setUserIdToStore(userIdString);
                 setUserId(userIdString);
                 if (import.meta.env.DEV) {
@@ -152,9 +150,9 @@ export function useGetMyUserId(): string {
         } catch (error) {
             console.error('[useMyUserId] Failed to fetch userId:', error);
         } finally {
-            // 立即重置 fetching 状态
-            // 注意：这里不延迟，因为我们已经保存了 userId，store 更新会触发 currentUserIdFromStore 变化
-            // 而 currentUserIdFromStore 变化会触发同步 useEffect，从而阻止重复请求
+            // Immediately reset the fetching state
+            // Note: Here is no delay, because we have saved the userId, the store update will trigger the currentUserIdFromStore change,
+            // and the currentUserIdFromStore change will trigger the synchronous useEffect, thus preventing duplicate requests
             fetchingRef.current = false;
         }
     }, [
@@ -163,16 +161,16 @@ export function useGetMyUserId(): string {
         chainId,
     ]);
 
-    // ==================== 同步 store 中的 userId 到本地状态 ====================
+    // ==================== Synchronize the userId in the store to the local state ====================
     useEffect(() => {
         if (currentUserIdFromStore && currentUserIdFromStore !== userId) {
             setUserId(currentUserIdFromStore);
         }
     }, [currentUserIdFromStore, userId]);
 
-    // ==================== 监听变化并自动获取 ====================
+    // ==================== Listen for changes and automatically get ====================
     useEffect(() => {
-        // 如果 userId 不存在且 SIWE token 有效，且没有正在获取，则获取
+        // If the userId does not exist and the SIWE token is valid, and there is no fetching, then get
         if (!currentUserIdFromStore && isSiweTokenValid() && !fetchingRef.current) {
             fetchUserIdFromContract();
         }

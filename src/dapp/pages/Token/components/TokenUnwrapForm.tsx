@@ -24,7 +24,6 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
     isLoading,
 }) => {
     const { 
-        initSteps,
         handleEIP712Permit, 
         currentStep, 
         isLoading: isReadBalanceLoading, 
@@ -33,27 +32,20 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
         error: signError,
     } = useUnWrapSteps(selectedPair);
 
-    // 初始化检查，当 selectedPair 变化时重新初始化
     useEffect(() => {
-        if (selectedPair?.secretContractAddress) {
-            initSteps();
-        }
-    }, [selectedPair?.secretContractAddress, initSteps]);
-
-    useEffect(() => {
-        console.log('balance:', balance, 'type:', typeof balance, 'selectedPair:', selectedPair);
+        console.log('TokenUnwrapForm - balance:', balance, 'type:', typeof balance, 'currentStep:', currentStep, 'isReadBalanceLoading:', isReadBalanceLoading);
         if (balance && balance > BigInt(0)) {
             const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
-            console.log('formatted balance:', formatBalance(formatUnits(balance, decimals)));
+            console.log('TokenUnwrapForm - formatted balance:', formatBalance(formatUnits(balance, decimals)));
         }
-    }, [balance, selectedPair]);
+    }, [balance, currentStep, isReadBalanceLoading, selectedPair]);
 
     const [unwrapAmount, setUnwrapAmount] = useState<string>('');
 
     // 当切换代币对时，重置输入金额
     useEffect(() => {
         setUnwrapAmount('');
-    }, [selectedPair?.secretContractAddress]);
+    }, [selectedPair?.secret?.address]);
 
     const handleAmountInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -81,29 +73,25 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
     }, [balance, selectedPair]);
 
     const handleUnwrap = useCallback(() => {
-        if (!unwrapAmount || !selectedPair || !selectedPair.secretContractAddress) return;
-        onUnwrap(selectedPair.secretContractAddress, unwrapAmount);
+        if (!unwrapAmount || !selectedPair || !selectedPair.secret?.address) return;
+        onUnwrap(selectedPair.secret?.address, unwrapAmount);
     }, [unwrapAmount, selectedPair, onUnwrap]);
 
     // 如果当前步骤是 EIP712Permit，显示签名 UI
     if (currentStep === 'EIP712Permit') {
         return (
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Space direction="vertical" size="middle">
                 <Alert
                     type="warning"
                     showIcon
                     message="EIP-712 Signature Required"
                     description={
-                        <Space direction="vertical" size="middle" style={{ width: '100%', marginTop: 8 }}>
-                            <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: 13 }}>
-                                To complete the unwrap operation, you need to complete the EIP-712 authorization signature.
-                            </Paragraph>
-
+                        <Space direction="vertical" size="middle" style={{marginTop: 8 }}>
                             <div>
                                 <Text strong>Type: View Permission</Text>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>
-                                        Contract: {selectedPair?.secretContractAddress ? formatAddress(selectedPair.secretContractAddress) : 'N/A'}
+                                        Contract: {selectedPair?.secret?.address ? formatAddress(selectedPair.secret?.address) : 'N/A'}
                                     </Text>
                                 </div>
                             </div>
@@ -123,7 +111,7 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
                                 block
                                 onClick={handleEIP712Permit}
                                 loading={isReadBalanceLoading}
-                                disabled={!selectedPair?.secretContractAddress || !selectedPair?.erc20.address}
+                                disabled={!selectedPair?.secret?.address || !selectedPair?.erc20.address}
                             >
                                 Sign EIP-712 Permit
                             </Button>
@@ -192,7 +180,7 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
                         type="primary"
                         onClick={handleUnwrap}
                         loading={isLoading}
-                        disabled={!unwrapAmount || isLoading || !selectedPair || !selectedPair.secretContractAddress}
+                        disabled={!unwrapAmount || isLoading || !selectedPair || !selectedPair.secret?.address}
                         block
                     >
                         Unwrap to {selectedPair?.erc20.symbol}

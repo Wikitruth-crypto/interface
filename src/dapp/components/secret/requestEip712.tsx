@@ -53,7 +53,8 @@ export const RequestEip712: React.FC<RequestEip712Props> = ({
                 }
                 return state.getEip712Permit(
                     requirement.label,
-                    requirement.spender
+                    requirement.spender,
+                    requirement.contractAddress
                 );
             },
             [requirement]

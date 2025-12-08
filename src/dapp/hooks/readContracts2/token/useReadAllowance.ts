@@ -49,7 +49,8 @@ export const useReadAllowance = () => {
         tokenAddress: `0x${string}`,
         owner: string,
         spender: string,
-        targetAmount: number | string | bigint
+        targetAmount: number | string | bigint,
+        force: boolean = false
     ): Promise<ReadAllowanceResult> => {
         setIsLoading(true);
 
@@ -64,10 +65,7 @@ export const useReadAllowance = () => {
             let currentAllowance: bigint = BigInt(0);
 
             if (tokenMetadata.types === 'ERC20') {
-                currentAllowance = await allowance(tokenAddress, owner, spender);
-                if (import.meta.env.DEV) {
-                    console.log(`[ERC20] Allowance: ${tokenMetadata.symbol}, ${spender}`);
-                }
+                currentAllowance = await allowance(tokenAddress, owner, spender, force);
             } else if (tokenMetadata.types === 'Secret') {
                 const validPermit = await getValidPermit({
                     spender,
@@ -75,10 +73,7 @@ export const useReadAllowance = () => {
                     label: PermitType.VIEW,
                     contractAddress: tokenAddress,
                 });
-                currentAllowance = await allowanceWithPermit(tokenAddress, validPermit);
-                if (import.meta.env.DEV) {
-                    console.log(`[Secret] Allowance with permit: ${currentAllowance}`);
-                }
+                currentAllowance = await allowanceWithPermit(tokenAddress, validPermit, force);
             } else {
                 console.error(`Unsupported token type: ${tokenMetadata.types}`);
                 setIsLoading(false);

@@ -14,11 +14,8 @@ import {
  * Hook 返回值（包含状态管理功能）
  */
 export interface UseSiweAuthResult extends UseSiweAuthBaseResult {
-  /** 登出（清除会话） */
   logout: () => void;
-  /** 验证会话有效性 */
   validateSession: () => Promise<boolean>;
-  /** 当前会话信息 */
   session: SessionInfo;
 }
 
@@ -109,7 +106,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
         return false;
       }
 
-      const isValid = await isSessionValid(session.token);
+      const isValid = await isSessionValid(session.token, true);
 
       if (!isValid) {
         clearSiweSession(chainId, session.address ?? undefined);

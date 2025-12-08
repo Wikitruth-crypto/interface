@@ -1,8 +1,9 @@
 import React from 'react';
-import { Card, Alert, Spin } from 'antd';
+import { Card, Alert, Spin, Space } from 'antd';
 import TokenBalanceList from './components/TokenBalanceList';
-import ERC20Write from './erc20Write';
+// import ERC20Write from './erc20Write';
 import SecretTokenWrap from './secretTokenWrap';
+import SecretTokenUnWrap from './secretTokenUnWrap';
 import { TokenPageProvider, useTokenPageContext } from './context/TokenPageContext';
 export type { TokenInfo } from './types';
 
@@ -61,8 +62,12 @@ const TokenContent: React.FC = () => {
                 erc20Tokens={erc20Tokens}
                 scope={scope}
             />
-            {erc20Tokens.length > 0 && <ERC20Write />}
-            <SecretTokenWrap />
+            {/* {erc20Tokens.length > 0 && <ERC20Write />} */}
+
+            <Space direction="horizontal" size="large" style={{ width: '100%' }}>
+                <SecretTokenWrap />
+                <SecretTokenUnWrap />
+            </Space>
         </div>
     );
 };

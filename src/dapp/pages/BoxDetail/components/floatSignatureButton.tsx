@@ -46,6 +46,7 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
             const permit = getEip712Permit(
                 PermitType.VIEW,
                 allConfigs.FundManager.address,
+                allConfigs.OfficialTokenSecret.address,
                 chainId,
                 address
             );
@@ -60,7 +61,7 @@ const FloatSignatureButtonBoxDetail: React.FC = () => {
             console.error('[FloatSignatureButton] 检查 EIP712 permit 失败:', error);
             return false;
         }
-    }, [address, chainId, allConfigs.FundManager.address, getEip712Permit, isExpired]);
+    }, [address, chainId, allConfigs.FundManager.address, allConfigs.OfficialTokenSecret.address, getEip712Permit, isExpired]);
 
     /**
      * 检查 SIWE Session 是否有效

@@ -9,15 +9,15 @@
 
   "Contracts_2": "-------------------------------------------------",
   "SiweAuth": "0x6547F0a925BD522F029D0aFEC3A239aCDcE0122a",
-  "wROSE": "0x8Bc2B030b299964eEfb5e1e0b36991352E56D2D3",
-  "WROSESecret": "0xDf698806B03C54e9CafE81caCaE54Ce1727DD134",
+  "wROSE": "0xB759a0fbc1dA517aF257D5Cf039aB4D86dFB3b94",
+  "WROSESecret": "0x4e30337908E19917f3F74adB45966114A55205c2",
   "OfficialToken": "0x990DE401CD0103a0107D27F82283db60F4844203",
   "OfficialToken_ERC20Secret": "0x449e2CD61F0328Ae68f4A530170C892B45b4B269",
   "ERC20Secret": "",
 
   "Implementation_Current": "------------------ Now we use the implementation -------------------------------",
   "AddressManager_Implementation": "0xd16b46d33e24464454c9D900B65E3b2f02de045c",
-  "Exchange_Implementation": "0xf963A9afD6F4463D662B56D8A0fa304d68Dcc403",
+  "Exchange_Implementation": "0x1B6769C54C3D0EfA64c94237b623b06fD4D52D23",
   "FundManager_Implementation": "0x69CAe2422Cb8CF00663Bf1C53869e1340b19B272",
   "TruthBox_Implementation": "0x4058F87ac5703c4929D43901FAA464bC139bB9D5",
   "TruthNFT_Implementation": "0xa67C79a3016CCd8522B51e90aE7C0AaD39748E62",

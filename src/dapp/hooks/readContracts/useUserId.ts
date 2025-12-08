@@ -3,9 +3,7 @@
 import { useReadContract } from './useReadContract';
 import { ContractName } from '@dapp/contractsConfig';
 
-/**
- * UserId 合约读取 Hook
- */
+
 export function useUserId() {
     const { readContract } = useReadContract();
 
@@ -25,12 +23,13 @@ export function useUserId() {
     };
 
     // function isBlacklisted(address user_) external view returns (bool);
-    const isBlacklisted = async (user: string): Promise<boolean> => {
+    const isBlacklisted = async (user: string, force: boolean = false): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.USER_ID,
                 functionName: 'isBlacklisted',
                 args: [user],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {

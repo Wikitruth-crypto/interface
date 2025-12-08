@@ -34,7 +34,7 @@ export const useGetPrivateKey = () => {
         if (import.meta.env.DEV) {
             console.log('Has no private key, checking siweToken...');
         }
-        // 检查siweToken是否有效
+        // Check if the siweToken is valid
         const isValid = await validateSession();
         let siweToken: string | null = null;
         if (!isValid) {

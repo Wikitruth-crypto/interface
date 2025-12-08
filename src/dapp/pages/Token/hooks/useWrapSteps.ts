@@ -4,7 +4,7 @@ import { TokenPair } from '../types';
 import { useTokenOperations } from '../hooks/useTokenOperations';
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useAccount } from 'wagmi';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits, parseUnits, maxUint256 } from 'viem';
 
 export type StepStatus = 'wait' | 'process' | 'finish' | 'error';
 export type StepKey = 'allowance' | 'approve' | 'wrap';
@@ -162,7 +162,7 @@ export const useWrapSteps = (tokenPair: TokenPair, amount: string) => {
 
     
     const checkAllowance = useCallback(async (checkType: 'init' | 'approve') => {
-        if (!address || !tokenPair.erc20.address || !amount || !tokenPair.secretContractAddress) {
+        if (!address || !tokenPair.erc20.address || !amount || !tokenPair.secret?.address) {
             return;
         }
 
@@ -172,7 +172,7 @@ export const useWrapSteps = (tokenPair: TokenPair, amount: string) => {
             const result = await readAllowance(
                 tokenPair.erc20.address,
                 address,
-                tokenPair.secretContractAddress,
+                tokenPair.secret?.address,
                 amountInWei,
             );
             if (checkType === 'init') {
@@ -199,19 +199,29 @@ export const useWrapSteps = (tokenPair: TokenPair, amount: string) => {
     }, [activeButton, status]);
 
     const handleApproveClick = useCallback(async () => {
-        if (!tokenPair || !amount || !tokenPair.secretContractAddress) return;
+        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
         await approve(
             tokenPair.erc20.address,
-            tokenPair.secretContractAddress,
+            tokenPair.secret?.address,
             amount,
             tokenPair.erc20.decimals,
         );
     }, [tokenPair, amount, approve]);
 
+    const handleApproveMaxClick = useCallback(async () => {
+        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
+        await approve(
+            tokenPair.erc20.address,
+            tokenPair.secret?.address,
+            maxUint256.toString(),
+            tokenPair.erc20.decimals,
+        );
+    }, [tokenPair, amount, approve]);
+
     const handleWrapClick = useCallback(async () => {
-        if (!tokenPair || !amount || !tokenPair.secretContractAddress) return;
+        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
         await wrap(
-            tokenPair.secretContractAddress,
+            tokenPair.secret?.address,
             amount,
             tokenPair.erc20.decimals,
         );
@@ -226,6 +236,7 @@ export const useWrapSteps = (tokenPair: TokenPair, amount: string) => {
         updateStepStatus,
         checkAllowance,
         handleApproveClick,
+        handleApproveMaxClick,
         handleWrapClick,
         isPending,
         isLoading,

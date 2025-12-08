@@ -20,7 +20,7 @@ export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     precision: 3,
     decimals: 18,
     address: '0x990DE401CD0103a0107D27F82283db60F4844203',
-    secretAddress: '0x449e2CD61F0328Ae68f4A530170C892B45b4B269',
+    mappingAddress: '0x449e2CD61F0328Ae68f4A530170C892B45b4B269',
     types: 'ERC20',
     contractName: ContractName.OFFICIAL_TOKEN,
     abi: ABIS[ContractName.OFFICIAL_TOKEN],

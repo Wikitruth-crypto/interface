@@ -11,48 +11,14 @@ import {
 // 使用ethers.js验证地址
 import { ethers } from 'ethers';
 
-/**
- * Hook 返回值
- */
 export interface UseEIP712SignatureResult {
-    /** 生成 EIP712 签名 */
     signPermit: (params: SignPermitParams) => Promise<EIP712Permit | null>;
-    /** 签名是否正在进行中 */
     isLoading: boolean;
-    /** 签名错误信息 */
     error: Error | null;
-    /** 最新生成的许可数据 */
     permit: EIP712Permit | null;
-    /** 重置状态 */
     reset: () => void;
 }
 
-/**
- * EIP712 签名 Hook
- * 用于为隐私代币生成 EIP712 签名授权
- * 
- * @example
- * ```tsx
- * const { signPermit, isLoading, permit } = useEIP712Signature();
- * 
- * // 生成VIEW签名
- * const viewPermit = await signPermit({
- *   spender: userAddress,
- *   amount: 0,
- *   label: PermitType.VIEW,
- *   contractAddress: tokenAddress,
- *   domainName: 'Secret ERC20 Token'
- * });
- * 
- * // 生成转账授权签名
- * const transferPermit = await signPermit({
- *   spender: recipientAddress,
- *   amount: 1000n,
- *   label: PermitType.TRANSFER,
- *   contractAddress: tokenAddress
- * });
- * ```
- */
 export const useEIP712_ERC20secret = ( 
     chainId: number, 
     address: string, 
@@ -92,11 +58,11 @@ export const useEIP712_ERC20secret = (
     const createDomain = (
         chainId: number,
         contractAddress: string,
-        domainName?: string,
+        domainName: string,
         domainVersion?: string
     ): EIP712Domain => {
         return {
-            name: domainName || 'Secret ERC20 Token',
+            name: domainName,
             version: domainVersion || '1',
             chainId: chainId,
             verifyingContract: contractAddress as `0x${string}`
@@ -133,8 +99,8 @@ export const useEIP712_ERC20secret = (
             validateAddress(contractAddress, 'token');
             validateAddress(spender, 'spender');
 
-            if (!address) {
-                throw new Error('The owner address is not the current wallet address');
+            if (!domainName) {
+                throw new Error('The domain name is not valid');
             }
 
             // 验证金额
@@ -202,10 +168,7 @@ export const useEIP712_ERC20secret = (
                 deadline,
                 signature: sig
             };
-            // if (import.meta.env.DEV) {
-            //     console.log('✅ EIP712 signature successful:', permitData);
-            // }
-            
+
             setPermit(permitData);
             return permitData;
 

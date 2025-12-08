@@ -41,7 +41,7 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
     }, [selectedPair]);
 
     const handleWrapClick = useCallback(() => {
-        if (!wrapAmount || !selectedPair || !selectedPair.secretContractAddress) return;
+        if (!wrapAmount || !selectedPair || !selectedPair.secret?.address) return;
         setModalOpen(true);
     }, [wrapAmount, selectedPair]);
 
@@ -92,7 +92,7 @@ const TokenWrapForm: React.FC<TokenWrapFormProps> = ({
                             !wrapAmount ||
                             isLoading ||
                             !selectedPair ||
-                            !selectedPair.secretContractAddress
+                            !selectedPair.secret?.address
                         }
                         block
                     >

@@ -5,9 +5,10 @@ import { useAccountStore } from './accountStore';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 
 type PermitBySpender = Record<string, EIP712Permit>;
+type PermitByContract = Record<string, Record<PermitType, PermitBySpender>>;
 
 interface EphemeralSecretState {
-  eip712Permits: Record<number, Record<string, Record<PermitType, PermitBySpender>>>;
+  eip712Permits: Record<number, Record<string, PermitByContract>>;
   siweSessions: Record<number, Record<string, SessionInfo>>;
   truthBoxKeys: Record<number, Record<string, Record<string, string>>>;
   currentSession: SessionInfo;
@@ -17,6 +18,7 @@ interface EphemeralSecretActions {
   setEip712Permit: (
     permitType: PermitType,
     spender: string,
+    contractAddress: string, // 新增
     permit: EIP712Permit | null,
     chainId?: number,
     address?: string
@@ -24,13 +26,14 @@ interface EphemeralSecretActions {
   getEip712Permit: (
     permitType: PermitType,
     spender: string,
+    contractAddress: string, // 新增
     chainId?: number,
     address?: string
   ) => EIP712Permit | null;
   getAccountPermits: (
     chainId?: number,
     address?: string
-  ) => Record<PermitType, PermitBySpender> | undefined;
+  ) => PermitByContract | undefined;
   clearEip712Permits: (chainId?: number, address?: string) => void;
 
   setSiweSession: (session: SessionInfo, chainId?: number, address?: string) => void;
@@ -82,8 +85,8 @@ const resolveContext = (chainId?: number, address?: string) => {
   };
 };
 
-const createPermitBucket = (): Record<PermitType, PermitBySpender> =>
-  Object.create(null) as Record<PermitType, PermitBySpender>;
+const createPermitBucket = (): PermitByContract =>
+  Object.create(null) as PermitByContract;
 
 const createPrivateKeyBucket = (): Record<string, string> =>
   Object.create(null) as Record<string, string>;
@@ -146,20 +149,29 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
   truthBoxKeys: {},
   currentSession: createEmptySession(),
 
-  setEip712Permit: (permitType, spender, permit, chainId, address) => {
+  setEip712Permit: (
+    permitType, 
+    spender, 
+    contractAddress,
+    permit, 
+    chainId, 
+    address
+  ) => {
     const context = resolveContext(chainId, address);
-    if (!context) {
+    if (!context || !contractAddress) {
       return;
     }
 
     const normalizedSpender = spender.toLowerCase();
+    const normalizedContract = contractAddress.toLowerCase();
 
     set((state) => {
       const { rootClone: chainClone, entry: accountEntry } = ensureNestedRecord<
-        Record<PermitType, PermitBySpender>
+        PermitByContract
       >(state.eip712Permits, context.chainId, context.address, createPermitBucket);
 
-      const typeEntry = { ...(accountEntry[permitType] ?? {}) };
+      const contractEntry = { ...(accountEntry[normalizedContract] ?? {}) };
+      const typeEntry = { ...(contractEntry[permitType] ?? {}) };
 
       if (permit) {
         typeEntry[normalizedSpender] = permit;
@@ -168,9 +180,15 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
       }
 
       if (Object.keys(typeEntry).length > 0) {
-        accountEntry[permitType] = typeEntry;
+        contractEntry[permitType] = typeEntry;
       } else {
-        delete accountEntry[permitType];
+        delete contractEntry[permitType];
+      }
+
+      if (Object.keys(contractEntry).length > 0) {
+        accountEntry[normalizedContract] = contractEntry;
+      } else {
+        delete accountEntry[normalizedContract];
       }
 
       cleanupNestedRecord(chainClone, context.chainId, context.address, accountEntry);
@@ -181,16 +199,26 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
     });
   },
 
-  getEip712Permit: (permitType, spender, chainId, address) => {
+  getEip712Permit: (
+    permitType, 
+    spender, 
+    contractAddress,
+    chainId, 
+    address
+  ) => {
     const context = resolveContext(chainId, address);
-    if (!context) {
+    if (!context || !contractAddress) {
       return null;
     }
 
+    const normalizedContract = contractAddress.toLowerCase();
+    const normalizedSpender = spender.toLowerCase();
+
     const chainEntry = get().eip712Permits[context.chainId];
     const accountEntry = chainEntry?.[context.address];
-    const typeEntry = accountEntry?.[permitType];
-    return typeEntry?.[spender.toLowerCase()] ?? null;
+    const contractEntry = accountEntry?.[normalizedContract];
+    const typeEntry = contractEntry?.[permitType];
+    return typeEntry?.[normalizedSpender] ?? null;
   },
 
   getAccountPermits: (chainId, address) => {
@@ -198,6 +226,8 @@ export const useSimpleSecretStore = create<EphemeralSecretStore>((set, get) => (
     if (!context) {
       return undefined;
     }
+    // 返回所有合约的 permits，保持向后兼容
+    // 注意：返回类型已改变，现在包含 contractAddress 层级
     return get().eip712Permits[context.chainId]?.[context.address];
   },
 

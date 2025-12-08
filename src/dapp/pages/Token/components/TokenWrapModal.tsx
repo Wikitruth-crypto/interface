@@ -24,6 +24,7 @@ const TokenWrapModal: React.FC<TokenWrapModalProps> = ({
         steps,
         checkAllowance,
         handleApproveClick,
+        handleApproveMaxClick,
         handleWrapClick,
         // isPending,
         isLoading,
@@ -113,6 +114,15 @@ const TokenWrapModal: React.FC<TokenWrapModalProps> = ({
                             block
                         >
                             Approve {amount} {tokenPair.erc20.symbol}
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={handleApproveMaxClick}
+                            loading={isLoading}
+                            disabled={!canApprove}
+                            block
+                        >
+                            Approve Max(uint256)
                         </Button>
                     </Space>
                 )}

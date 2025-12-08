@@ -4,18 +4,18 @@ import { useReadContract } from './useReadContract';
 import { ContractName } from '@dapp/contractsConfig';
 
 /**
- * TruthBox 合约读取 Hook
  */
 export function useTruthBox() {
     const { readContract } = useReadContract();
 
     // function getStatus(uint256 boxId_) external view returns(Status);
-    const getStatus = async (id: number | string): Promise<number> => {
+    const getStatus = async (id: number | string, force: boolean = false): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getStatus',
                 args: [id],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -42,12 +42,13 @@ export function useTruthBox() {
         }
     };
 
-    const getDeadline = async (id: number | string): Promise<number> => {
+    const getDeadline = async (id: number | string, force: boolean = false): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getDeadline',
                 args: [id],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -71,12 +72,13 @@ export function useTruthBox() {
         }
     };
 
-    const getPrice = async (id: number | string): Promise<number> => {
+    const getPrice = async (id: number | string, force: boolean = false): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'getPrice',
                 args: [id],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -85,12 +87,13 @@ export function useTruthBox() {
         }
     };
 
-    const blacklistSupply = async (): Promise<number> => {
+    const blacklistSupply = async (force: boolean = false): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'blacklistSupply',
                 args: [],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -99,12 +102,13 @@ export function useTruthBox() {
         }
     };
 
-    const completeCounts = async (): Promise<number> => {
+    const completeCounts = async (force: boolean = false): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'completeCounts',
                 args: [],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -113,13 +117,13 @@ export function useTruthBox() {
         }
     };
 
-    // 状态查询
-    const isInBlacklist = async (id: number | string): Promise<boolean> => {
+    const isInBlacklist = async (id: number | string, force: boolean = false): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.TRUTH_BOX,
                 functionName: 'isInBlacklist',
                 args: [id],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -129,17 +133,13 @@ export function useTruthBox() {
     };
 
     return {
-        // NFT信息
         getBasicData,
         getStatus,
         getDeadline,
         getPrice,
-        // 所有权相关
         getPrivateData,
-        // 统计相关
         blacklistSupply,
         completeCounts,
-        // 状态查询
         isInBlacklist,
     };
 }

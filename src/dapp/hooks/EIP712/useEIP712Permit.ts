@@ -7,11 +7,13 @@ import {
 } from '@/dapp/hooks/EIP712/types_ERC20secret';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { useWalletContext } from '@dapp/context/useAccount/WalletContext';
+import { TokenMetadata, useSupportedTokens } from '@/dapp/contractsConfig';
 
 /**
  * 这个是适配当前前端的
- * 检查并获取有效的 permit（如果过期则自动生成新签名）
- * 
+ * 1. 检查并获取有效的 permit（如果无效则自动生成新签名）
+ * 2. 生成新的 EIP712 签名并保存到 store
+ * 3. 获取当前有效的 permit
  */
 
 export interface GetValidPermitOptions {
@@ -29,7 +31,7 @@ export interface UseCheckEIP712PermitResult {
     ) => Promise<EIP712Permit>;
     signAndSavePermit: (params: SignPermitParams) => Promise<EIP712Permit>;
     isExpired: (permit: EIP712Permit) => boolean;
-    getCurrentEip712Permit: (label: PermitType, spender: string) => EIP712Permit | null;
+    getCurrentEip712Permit: (label: PermitType, spender: string, contractAddress: string) => EIP712Permit | null;
     isLoading: boolean;
     error: Error | null;
 }
@@ -37,7 +39,8 @@ export interface UseCheckEIP712PermitResult {
 export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
     const { address, chainId } = useWalletContext();
     const { signPermit, isLoading: isSigningLoading, error: signError } = useEIP712_ERC20secret(chainId ?? 0, address ?? '');
-    
+    const supportedTokens = useSupportedTokens();
+
     const getEip712Permit = useSimpleSecretStore((state) => state.getEip712Permit);
     const setEip712Permit = useSimpleSecretStore((state) => state.setEip712Permit);
     
@@ -87,11 +90,33 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
             return null;
         }
 
+        // 获取合约地址
+        let contractAddress: string;
+        if (isEIP712Permit(params)) {
+            contractAddress = options?.contractAddress || '';
+        } else {
+            contractAddress = params.contractAddress;
+            
+        }
+
+        // 获取 token 元数据
+        const tokenMetadata = supportedTokens.find(
+            (token: TokenMetadata) => token.address.toLowerCase() === contractAddress.toLowerCase()
+        );
+        if (!tokenMetadata) {
+            throw new Error('Token metadata not found');
+        }
+        // 获取域名
+        const domainName = tokenMetadata.domainName;
+        if (!domainName) {
+            throw new Error('Token domain name not found');
+        }
+
         let label: PermitType;
         let spender: string;
         let amount: bigint | string;
-        let contractAddress: string;
-        let domainName: string | undefined;
+        
+        // let domainName: string | undefined;
         let domainVersion: string | undefined;
         let customDeadline: number | undefined;
 
@@ -107,9 +132,8 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
                     ? params.amount 
                     : BigInt(params.amount);
             
-            // contractAddress 需要从 options 中获取
-            contractAddress = options?.contractAddress || '';
-            domainName = options?.domainName;
+            // contractAddress = options?.contractAddress || '';
+            // domainName = options?.domainName;
             domainVersion = options?.domainVersion;
             customDeadline = options?.customDeadline;
         } else {
@@ -122,8 +146,8 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
             amount = typeof signParams.amount === 'number' 
                 ? BigInt(signParams.amount) 
                 : signParams.amount;
-            contractAddress = signParams.contractAddress;
-            domainName = signParams.domainName || options?.domainName;
+            // contractAddress = signParams.contractAddress;
+            // domainName = signParams.domainName || options?.domainName;
             domainVersion = signParams.domainVersion || options?.domainVersion;
             customDeadline = signParams.customDeadline || options?.customDeadline;
         }
@@ -155,15 +179,21 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
         params: SignPermitParams,
     ): Promise<EIP712Permit> => {
         try {
+            // 先解析参数，补充 domainName
+            const enrichedParams = parseSignPermitParams(params);
+            if (!enrichedParams) {
+                throw new Error('Failed to parse permit params');
+            }
+        
             // 生成新的 EIP712 签名
-            const newPermit = await signPermit(params);
+            const newPermit = await signPermit(enrichedParams);
 
             if (!newPermit) {
                 throw new Error('Failed to generate signature');
             }
 
             // 保存到 store
-            setEip712Permit(params.label, params.spender, newPermit);
+            setEip712Permit(params.label, params.spender, params.contractAddress, newPermit);
 
             return newPermit;
         } catch (signError) {
@@ -174,13 +204,14 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
             setError(error);
             throw error;
         }
-    }, [address, chainId, signPermit, setEip712Permit]);
+    }, [address, chainId, signPermit, setEip712Permit, parseSignPermitParams]);
 
     const getCurrentEip712Permit = useCallback((
         label: PermitType,
         spender: string,
+        contractAddress: string,
     ): EIP712Permit | null => {
-            const existingPermit = getEip712Permit(label, spender);
+            const existingPermit = getEip712Permit(label, spender, contractAddress);
             if (
                 existingPermit && 
                 !isExpired(existingPermit) && 
@@ -218,8 +249,8 @@ export const useEIP712Permit = (): UseCheckEIP712PermitResult => {
                 throw new Error('Unexpected error: failed to parse permit params');
             }
 
-            const { label, spender } = signPermitParams;
-            const currentPermit = getCurrentEip712Permit(label, spender);
+            const { label, spender, contractAddress } = signPermitParams;
+            const currentPermit = getCurrentEip712Permit(label, spender, contractAddress);
             if (currentPermit) {
                 return currentPermit;
             }

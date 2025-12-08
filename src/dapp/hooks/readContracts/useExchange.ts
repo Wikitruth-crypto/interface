@@ -4,19 +4,22 @@ import { useReadContract } from './useReadContract';
 import { ContractName } from '@dapp/contractsConfig';
 
 /**
- * Exchange 合约读取 Hook
  */
 export function useExchange() {
     const { readContract } = useReadContract();
 
-    // 支付相关
     // function calcPayMoney(uint256 boxId_) external view returns (uint256);
-    const calcPayMoney = async (id: number | string, address: string): Promise<number> => {
+    const calcPayMoney = async (
+        id: number | string, 
+        address: string, 
+        force: boolean = false
+    ): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'calcPayMoney',
                 args: [id, address],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -25,12 +28,16 @@ export function useExchange() {
         }
     };
 
-    const refundPermit = async (id: number | string): Promise<boolean> => {
+    const refundPermit = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundPermit',
                 args: [id],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -39,12 +46,16 @@ export function useExchange() {
         }
     };
 
-    const acceptedToken = async (id: number | string): Promise<string> => {
+    const acceptedToken = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<string> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'acceptedToken',
                 args: [id],
+                force
             });
             return tx ? String(tx) : '';
         } catch (error) {
@@ -53,14 +64,17 @@ export function useExchange() {
         }
     };
 
-    // 时间戳查询
     // function refundReviewDeadline(uint256 boxId_) external view returns (uint256);
-    const refundReviewDeadline = async (id: number | string): Promise<number> => {
+    const refundReviewDeadline = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundReviewDeadline',
                 args: [id],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -70,12 +84,16 @@ export function useExchange() {
     };
 
     // function refundRequestDeadline(uint256 boxId_) external view returns (uint256);
-    const refundRequestDeadline = async (id: number | string): Promise<number> => {
+    const refundRequestDeadline = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'refundRequestDeadline',
                 args: [id],
+                force
             });
             return tx ? Number(tx) : 0;
         } catch (error) {
@@ -84,14 +102,17 @@ export function useExchange() {
         }
     };
 
-    // 状态查询
     // function isInRequestRefundDeadline(uint256 boxId_) external view returns (bool);
-    const isInRequestRefundDeadline = async (id: number | string): Promise<boolean> => {
+    const isInRequestRefundDeadline = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'inRequestRefundDeadline',
                 args: [id],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -101,12 +122,16 @@ export function useExchange() {
     };
 
     // function isInReviewDeadline(uint256 boxId_) external view returns (bool);
-    const isInReviewDeadline = async (id: number | string): Promise<boolean> => {
+    const isInReviewDeadline = async (
+        id: number | string, 
+        force: boolean = false
+    ): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'inReviewDeadline',
                 args: [id],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -116,16 +141,13 @@ export function useExchange() {
     };
 
     return {
+        calcPayMoney,
         refundPermit,
         acceptedToken,
-        // 时间戳
         refundReviewDeadline,
         refundRequestDeadline,
-        // 状态查询
         isInRequestRefundDeadline,
         isInReviewDeadline,
-        // 支付相关
-        calcPayMoney,
     };
 }
 

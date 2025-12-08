@@ -3,9 +3,7 @@ import { Card, Space, Typography, Select, Tabs, Row, Col, Alert } from 'antd';
 import { useAllContractConfigs, ContractName } from '@/dapp/contractsConfig';
 import { useTokenPageContext } from './context/TokenPageContext';
 import TokenWrapForm from './components/TokenWrapForm';
-import TokenUnwrapForm from './components/TokenUnwrapForm';
 import TokenDepositForm from './components/TokenDepositForm';
-import TokenWithdrawForm from './components/TokenWithdrawForm';
 import { useTokenOperations } from './hooks/useTokenOperations';
 
 const { Text } = Typography;
@@ -37,9 +35,9 @@ const SecretTokenWrap: React.FC = () => {
         if (!selectedPair) return null;
 
         if (selectedPair.isNativeROSE) {
-            if (selectedPair.secretContractAddress) {
+            if (selectedPair.secret?.address) {
                 const contractByAddress = Object.values(allContracts).find(
-                    (c) => c && c.address && c.address.toLowerCase() === selectedPair.secretContractAddress!.toLowerCase()
+                    (c) => c && c.address && c.address.toLowerCase() === selectedPair.secret?.address!.toLowerCase()
                 );
                 if (contractByAddress) {
                     return contractByAddress;
@@ -48,9 +46,9 @@ const SecretTokenWrap: React.FC = () => {
 
             return allContracts[ContractName.WROSE_SECRET] || null;
         } else {
-            if (selectedPair.secretContractAddress) {
+            if (selectedPair.secret?.address) {
                 const contractByAddress = Object.values(allContracts).find(
-                    (c) => c && c.address && c.address.toLowerCase() === selectedPair.secretContractAddress!.toLowerCase()
+                    (c) => c && c.address && c.address.toLowerCase() === selectedPair.secret?.address!.toLowerCase()
                 );
                 if (contractByAddress) {
                     return contractByAddress;
@@ -63,19 +61,15 @@ const SecretTokenWrap: React.FC = () => {
 
     const handleDeposit = useCallback(
         async (amount: string) => {
-            if (!selectedPair || !selectedPair.secretContractAddress) return;
+            if (!selectedPair || !selectedPair.secret?.address) return;
             try {
-                await deposit(selectedPair.secretContractAddress, amount, selectedPair.erc20.decimals);
+                await deposit(selectedPair.secret?.address, amount, selectedPair.erc20.decimals);
             } catch (error) {
                 console.error('Deposit error:', error);
             }
         },
         [deposit, selectedPair]
     );
-
-    const handleUnwrap = useCallback(
-        async (tokenAddress: `0x${string}`, amount: string) => {
-        }, []);
 
     if (!selectedPair) {
         return (
@@ -101,18 +95,6 @@ const SecretTokenWrap: React.FC = () => {
                     />
                 ),
             },
-            {
-                key: 'unwrap',
-                label: 'Unwrap',
-                children: (
-                    <TokenUnwrapForm
-                    selectedPair={selectedPair}
-                    onUnwrap={handleUnwrap}
-
-                        isLoading={isLoading}
-                    />
-                ),
-            }
         );
     } else {
         tabItems.push(
@@ -123,17 +105,6 @@ const SecretTokenWrap: React.FC = () => {
                     <TokenDepositForm
                         selectedPair={selectedPair}
                         onDeposit={handleDeposit}
-                        isLoading={isLoading}
-                    />
-                ),
-            },
-            {
-                key: 'withdraw',
-                label: 'Withdraw',
-                children: (
-                    <TokenWithdrawForm
-                        selectedPair={selectedPair}
-                        onWithdraw={handleUnwrap}
                         isLoading={isLoading}
                     />
                 ),
@@ -166,9 +137,9 @@ const SecretTokenWrap: React.FC = () => {
                             {selectedPair.erc20.name} ({selectedPair.erc20.symbol})
                             {selectedPair.secret && ` -> ${selectedPair.secret.name} (${selectedPair.secret.symbol})`}
                         </Text>
-                        {selectedPair.secretContractAddress && (
+                        {selectedPair.secret?.address && (
                             <Text type="secondary" copyable>
-                                Secret Contract: {selectedPair.secretContractAddress}
+                                Secret Contract: {selectedPair.secret?.address}
                             </Text>
                         )}
                     </Space>

@@ -7,7 +7,7 @@ export const TESTNET_ADDRESSES: ContractAddresses = {
   [ContractName.OFFICIAL_TOKEN_SECRET]: deployedAddresses['OfficialToken_ERC20Secret'] as `0x${string}`,
   [ContractName.WROSE_SECRET]: deployedAddresses['WROSESecret'] as `0x${string}`,
   [ContractName.ERC20_SECRET]: deployedAddresses['ERC20Secret'] as `0x${string}`,
-  [ContractName.WROSE]: '0x8Bc2B030b299964eEfb5e1e0b36991352E56D2D3',
+  [ContractName.WROSE]: deployedAddresses['wROSE'] as `0x${string}`,
   // [ContractName.USDC_SECRET]: deployedAddresses['ERC20Secret'] as `0x${string}`,
   // [ContractName.WBTC_SECRET]: deployedAddresses['ERC20Secret'] as `0x${string}`,
   // [ContractName.WETH_SECRET]: deployedAddresses['ERC20Secret'] as `0x${string}`,

@@ -2,9 +2,6 @@
 import { useReadContractERC20 } from './useReadContractERC20';
 
 /**
- * ERC20 代币合约读取 Hook
- * 
- * 注意：所有函数都需要传入 token 地址，因为会有多个 ERC20 合约
  */
 export function useERC20() {
     const { readContractERC20 } = useReadContractERC20();
@@ -13,14 +10,16 @@ export function useERC20() {
     const allowance = async (
         tokenAddress: `0x${string}`,
         owner: string,
-        spender: string
+        spender: string,
+        force: boolean = false
     ): Promise<bigint> => {
         try {
             const tx = await readContractERC20(
                 'erc20',
                 tokenAddress, 
                 'allowance', 
-                [owner, spender]
+                [owner, spender],
+                force
             );
             if (typeof tx === 'bigint') {
                 return tx;
@@ -40,14 +39,16 @@ export function useERC20() {
 
     const balanceOf = async (
         tokenAddress: `0x${string}`,
-        account: string
+        account: string,
+        force: boolean = false
     ): Promise<bigint> => {
         try {
             const tx = await readContractERC20(
                 'erc20',
                 tokenAddress, 
                 'balanceOf', 
-                [account]
+                [account],
+                force
             );
             if (typeof tx === 'bigint') {
                 return tx;
@@ -96,9 +97,18 @@ export function useERC20() {
         }
     };
 
-    const totalSupply = async (tokenAddress: `0x${string}`): Promise<bigint> => {
+    const totalSupply = async (
+        tokenAddress: `0x${string}`, 
+        force: boolean = false
+    ): Promise<bigint> => {
         try {
-            const tx = await readContractERC20('erc20', tokenAddress, 'totalSupply', []);
+            const tx = await readContractERC20(
+                'erc20', 
+                tokenAddress, 
+                'totalSupply', 
+                [], 
+                force
+            );
             if (typeof tx === 'bigint') {
                 return tx;
             }
@@ -115,13 +125,19 @@ export function useERC20() {
         }
     };
 
-    // 铸造相关，这个函数只有特殊的合约才有，所以需要进行判断
     const mintDate = async (
         tokenAddress: `0x${string}`,
-        address: string
+        address: string,
+        force: boolean = false
     ): Promise<number> => {
         try {
-            const tx = await readContractERC20('erc20', tokenAddress, 'mintDate', [address]);
+            const tx = await readContractERC20(
+                'erc20', 
+                tokenAddress, 
+                'mintDate', 
+                [address], 
+                force
+            );
             return tx ? Number(tx) : 0;
         } catch (error) {
             console.error('mintDate error:', error);
@@ -129,38 +145,14 @@ export function useERC20() {
         }
     };
 
-    // // 这个两个函数可以作为常量定义，不需要进行查询
-    // const mintPeriod = async (): Promise<number> => {
-    //     try {
-    //         return 24*60*60;
-    //     } catch (error) {
-    //         console.error("mintPeriod error:", error);
-    //         return 0;
-    //     }
-    // };
-
-    // const mintAmount = async (): Promise<number> => {
-    //     try {
-    //         return 1000;
-    //     } catch (error) {
-    //         console.error("mintAmount error:", error);
-    //         return 0;
-    //     }
-    // };
-
     return {
-        // 代币授权相关
         allowance,
         balanceOf,
-        // 代币基本信息
         decimals,
         name,
         symbol,
         totalSupply,
-        // 铸造相关
-        mintDate,
-        // mintPeriod,
-        // mintAmount,
+        mintDate
     };
 }
 

@@ -13,7 +13,6 @@ export interface TokenInfo {
 export interface TokenPair {
     erc20: TokenInfo;
     secret: TokenInfo | null;
-    secretContractAddress: `0x${string}` | null;
     isNativeROSE: boolean; // 是否为原�?ROSE -> wROSE.S
 }
 

@@ -4,8 +4,7 @@ import { SearchScope } from '@/dapp/oasisQuery/types/searchScope';
 import { RuntimeSdkBalance } from '@/dapp/oasisQuery/oasis-nexus/api';
 import { useTokenBalances } from '../hooks/useTokenBalances';
 import { useTokenPairs } from '../hooks/useTokenPairs';
-// import { useTokenOperations } from '../hooks/useTokenOperations';
-import { TokenInfo, TokenPair, ActiveButton, } from '../types';
+import { TokenInfo, TokenPair,} from '../types';
 
 interface TokenPageContextValue {
     address?: `0x${string}`;
@@ -20,11 +19,6 @@ interface TokenPageContextValue {
     selectedPairIndex: number;
     setSelectedPairIndex: (index: number) => void;
     pairsWithSecretBalance: TokenPair[];
-    // operations: ReturnType<typeof useTokenOperations>;
-    // getOperationStatus: (button: ActiveButton) => OperationStatus;
-    // wrapStatus: OperationStatus;
-    // approveStatus: OperationStatus;
-    // getButtonLoading: (button: ActiveButton) => boolean;
 }
 
 const TokenPageContext = createContext<TokenPageContextValue | null>(null);
@@ -33,36 +27,6 @@ export const TokenPageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { address } = useAccount();
     const balances = useTokenBalances();
     const tokenPairState = useTokenPairs(balances.allTokens);
-    // const operations = useTokenOperations();
-
-    // const getOperationStatus = useCallback(
-    //     (button: ActiveButton): OperationStatus => {
-    //         if (operations.activeButton !== button) {
-    //             return 'idle';
-    //         }
-
-    //         if (operations.status === 'pending') {
-    //             return 'loading';
-    //         }
-
-    //         if (operations.status === 'success') {
-    //             return 'success';
-    //         }
-
-    //         if (operations.status === 'error') {
-    //             return 'error';
-    //         }
-
-    //         return 'idle';
-    //     },
-    //     [operations.activeButton, operations.status]
-    // );
-
-    // const getButtonLoading = useCallback(
-    //     (button: ActiveButton) => operations.activeButton === button && operations.isLoading,
-    //     [operations.activeButton, operations.isLoading]
-    // );
-
     const value = useMemo<TokenPageContextValue>(() => ({
         address,
         nativeBalances: balances.nativeBalances,
@@ -76,11 +40,6 @@ export const TokenPageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         selectedPairIndex: tokenPairState.selectedPairIndex,
         setSelectedPairIndex: tokenPairState.setSelectedPairIndex,
         pairsWithSecretBalance: tokenPairState.pairsWithSecretBalance,
-        // operations,
-        // getOperationStatus,
-        // wrapStatus: getOperationStatus('wrap'),
-        // approveStatus: getOperationStatus('approve'),
-        // getButtonLoading,
     }), [
         address,
         balances.nativeBalances,
@@ -94,9 +53,6 @@ export const TokenPageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         tokenPairState.selectedPairIndex,
         tokenPairState.setSelectedPairIndex,
         tokenPairState.pairsWithSecretBalance,
-            // operations,
-            // getOperationStatus,
-            // getButtonLoading,
     ]);
 
     return (

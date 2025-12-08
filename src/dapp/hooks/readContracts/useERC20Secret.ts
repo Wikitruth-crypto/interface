@@ -7,11 +7,9 @@ export function useERC20Secret() {
 
     const { readContractERC20 } = useReadContractERC20();
 
-    // ==================== 标准 ERC20 读取函数 ====================
-    // 注意：这些函数受隐私保护，只能查看自己的数据
 
     /**
-     * 查询底层代币地址
+     * The underlying token address
      */
     const underlyingToken = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
@@ -23,18 +21,19 @@ export function useERC20Secret() {
         }
     };
 
-    // ==================== EIP-712 签名授权读取函数 ====================
-    
-    /**
-     * 通过 EIP-712 签名查询余额
-     * 这个函数可以查询任何地址的余额，只要有该地址的签名授权
-     */
     const balanceOfWithPermit = async (
         tokenAddress: `0x${string}`,
-        permit: EIP712Permit
+        permit: EIP712Permit,
+        force: boolean = false
     ): Promise<bigint> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'balanceOfWithPermit', [permit]);
+            const tx = await readContractERC20(
+                'secret', 
+                tokenAddress, 
+                'balanceOfWithPermit', 
+                [permit],
+                force
+            );
             if (typeof tx === 'bigint') {
                 return tx;
             }
@@ -51,15 +50,19 @@ export function useERC20Secret() {
         }
     };
 
-    /**
-     * 通过 EIP-712 签名查询授权额度
-     */
     const allowanceWithPermit = async (
         tokenAddress: `0x${string}`,
-        permit: EIP712Permit
+        permit: EIP712Permit,
+        force: boolean = false
     ): Promise<bigint> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'allowanceWithPermit', [permit]);
+            const tx = await readContractERC20(
+                'secret', 
+                tokenAddress, 
+                'allowanceWithPermit', 
+                [permit],
+                force
+            );
             if (typeof tx === 'bigint') {
                 return tx;
             }
@@ -76,10 +79,10 @@ export function useERC20Secret() {
         }
     };
 
-    // ==================== EIP-712 域信息 ====================
+    // ==================== EIP-712 Domain Separator ====================
     
     /**
-     * 获取 EIP-712 域分隔符
+     * Get the EIP-712 domain separator
      */
     const DOMAIN_SEPARATOR = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
@@ -92,7 +95,7 @@ export function useERC20Secret() {
     };
 
     /**
-     * 获取 EIP-712 Permit 类型哈希
+     * Get the EIP-712 Permit type hash
      */
     const EIP_PERMIT_TYPEHASH = async (tokenAddress: `0x${string}`): Promise<string> => {
         try {
@@ -104,17 +107,24 @@ export function useERC20Secret() {
         }
     };
 
-    // ==================== 签名管理 ====================
+    // ==================== Signature Management ====================
     
     /**
-     * 检查签名是否已被使用
+     * Check if the signature has been used
      */
     const isSignatureUsed = async (
         tokenAddress: `0x${string}`,
-        signature: SignatureRSV
+        signature: SignatureRSV,
+        force: boolean = false
     ): Promise<boolean> => {
         try {
-            const tx = await readContractERC20('secret', tokenAddress, 'isSignatureUsed', [signature]);
+            const tx = await readContractERC20(
+                'secret', 
+                tokenAddress, 
+                'isSignatureUsed', 
+                [signature],
+                force
+            );
             return tx ? Boolean(tx) : false;
         } catch (error) {
             console.error('isSignatureUsed error:', error);
@@ -124,13 +134,10 @@ export function useERC20Secret() {
 
     return {
         underlyingToken,
-        // ==================== EIP-712 签名授权读取 ====================
         balanceOfWithPermit,
         allowanceWithPermit,
-        // ==================== EIP-712 域信息 ====================
         DOMAIN_SEPARATOR,
         EIP_PERMIT_TYPEHASH,
-        // ==================== 签名管理 ====================
         isSignatureUsed,
     };
 }

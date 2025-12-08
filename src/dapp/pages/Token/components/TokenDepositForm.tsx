@@ -53,7 +53,7 @@ const TokenDepositForm: React.FC<TokenDepositFormProps> = ({
                 type="primary"
                 onClick={handleDeposit}
                 loading={isLoading}
-                disabled={!depositAmount || isLoading || !selectedPair || !selectedPair.secretContractAddress}
+                disabled={!depositAmount || isLoading || !selectedPair || !selectedPair.secret?.address}
                 block
             >
                 Deposit ROSE to {selectedPair?.secret?.symbol || 'wROSE.S'}

@@ -9,43 +9,48 @@ import { ContractName } from '@dapp/contractsConfig';
 export function useFundManager() {
     const { readContract } = useReadContract();
 
-    // 费率查询
-    const otherRewardRate = async (): Promise<number> => {
-        try {
-            const tx = await readContract({
-                contractName: ContractName.FUND_MANAGER,
-                functionName: 'otherRewardRate',
-                args: [],
-            });
-            return tx ? Number(tx) : 0;
-        } catch (error) {
-            console.error('otherRewardRate error:', error);
-            return 0;
-        }
-    };
+    // // 费率查询
+    // const otherRewardRate = async (): Promise<number> => {
+    //     try {
+    //         const tx = await readContract({
+    //             contractName: ContractName.FUND_MANAGER,
+    //             functionName: 'otherRewardRate',
+    //             args: [],
+    //         });
+    //         return tx ? Number(tx) : 0;
+    //     } catch (error) {
+    //         console.error('otherRewardRate error:', error);
+    //         return 0;
+    //     }
+    // };
 
-    const serviceFeeRate = async (): Promise<number> => {
-        try {
-            const tx = await readContract({
-                contractName: ContractName.FUND_MANAGER,
-                functionName: 'serviceFeeRate',
-                args: [],
-            });
-            return tx ? Number(tx) : 0;
-        } catch (error) {
-            console.error('serviceFeeRate error:', error);
-            return 0;
-        }
-    };
+    // const serviceFeeRate = async (): Promise<number> => {
+    //     try {
+    //         const tx = await readContract({
+    //             contractName: ContractName.FUND_MANAGER,
+    //             functionName: 'serviceFeeRate',
+    //             args: [],
+    //         });
+    //         return tx ? Number(tx) : 0;
+    //     } catch (error) {
+    //         console.error('serviceFeeRate error:', error);
+    //         return 0;
+    //     }
+    // };
 
     // 金额查询
     // function orderAmounts(uint256 boxId_, bytes memory siweToken_) external view returns (uint256);
-    const orderAmounts = async (id: number | string, siweToken: string): Promise<bigint> => {
+    const orderAmounts = async (
+        id: number | string, 
+        siweToken: string, 
+        force: boolean = false
+    ): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'orderAmounts',
                 args: [id, siweToken],
+                force
             });
             if (typeof tx === 'bigint') {
                 return tx;
@@ -65,12 +70,17 @@ export function useFundManager() {
 
     // 获取铸造者奖励金额（带SIWE token）
     // function minterRewardAmounts(address token_, bytes memory siweToken_) external view returns (uint256);
-    const minterRewardAmounts = async (token: string, siweToken: string): Promise<bigint> => {
+    const minterRewardAmounts = async (
+        token: string, 
+        siweToken: string, 
+        force: boolean = false
+    ): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'minterRewardAmounts',
                 args: [token, siweToken],
+                force
             });
             if (typeof tx === 'bigint') {
                 return tx;
@@ -90,12 +100,17 @@ export function useFundManager() {
 
     // 获取协助者奖励金额（带SIWE token）
     // function helperRewardAmounts(address token_, bytes memory siweToken_) external view returns (uint256);
-    const helperRewardAmounts = async (token: string, siweToken: string): Promise<bigint> => {
+    const helperRewardAmounts = async (
+        token: string, siweToken: 
+        string, force: 
+        boolean = false
+    ): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'helperRewardAmounts',
                 args: [token, siweToken],
+                force
             });
             if (typeof tx === 'bigint') {
                 return tx;
@@ -115,12 +130,16 @@ export function useFundManager() {
 
     // 获取总奖励金额
     // function totalRewardAmounts(address token_) external view returns (uint256);
-    const totalRewardAmounts = async (token: string): Promise<bigint> => {
+    const totalRewardAmounts = async (
+        token: string, 
+        force: boolean = false
+    ): Promise<bigint> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.FUND_MANAGER,
                 functionName: 'totalRewardAmounts',
                 args: [token],
+                force
             });
             if (typeof tx === 'bigint') {
                 return tx;
@@ -169,16 +188,12 @@ export function useFundManager() {
     };
 
     return {
-        // 费率查询
-        otherRewardRate,
-        serviceFeeRate,
-        // 金额查询
+        // otherRewardRate,
+        // serviceFeeRate,
         orderAmounts,
         minterRewardAmounts,
         helperRewardAmounts,
-        // 资金池查询
         totalRewardAmounts,
-        // 状态查询
         isWithdrawPaused,
         slippageProtection,
     };

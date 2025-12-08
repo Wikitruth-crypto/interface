@@ -5,7 +5,6 @@ import { ContractName } from '@dapp/contractsConfig';
 import { SignatureRSV } from '@/dapp/hooks/SiweAuth/types';
 
 /**
- * SiweAuth 合约读取 Hook
  */
 export function useReadSiweAuth() {
     const { readContract } = useReadContract();
@@ -71,12 +70,13 @@ export function useReadSiweAuth() {
     };
 
     // function isSessionValid(bytes memory token) external view returns (bool)
-    const isSessionValid = async (token: string): Promise<boolean> => {
+    const isSessionValid = async (token: string, force: boolean = false): Promise<boolean> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.SIWE_AUTH,
                 functionName: 'isSessionValid',
                 args: [token],
+                force
             });
             return tx ? Boolean(tx) : false;
         } catch (error) {
@@ -85,7 +85,6 @@ export function useReadSiweAuth() {
         }
     };
 
-    // 获取声明
     // function getStatement(bytes memory token) external view returns (string memory);
     const getStatement = async (token: string): Promise<string> => {
         try {
@@ -101,7 +100,6 @@ export function useReadSiweAuth() {
         }
     };
 
-    // 获取资源
     // function getResources(bytes memory token) external view returns (string[] memory);
     const getResources = async (token: string): Promise<string[]> => {
         try {

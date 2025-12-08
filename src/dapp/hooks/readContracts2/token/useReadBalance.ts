@@ -7,15 +7,14 @@ import {
     useERC20Secret 
 } from '../../readContracts/index';
 
-export interface ReadBalanceResult {
-    isEnough: boolean;
-    balance: bigint;
-}
+// export interface ReadBalanceResult {
+//     isEnough: boolean;
+//     balance: bigint;
+// }
 
 export const useReadBalance = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [balance, setBalance] = useState<bigint>(BigInt(0));
-    const [isEnough, setIsEnough] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
 
     const { balanceOf} = useERC20();
@@ -35,12 +34,12 @@ export const useReadBalance = () => {
     const readBalance = async (
         tokenAddress: `0x${string}`,
         owner: string,
-        targetAmount?: bigint
-    ): Promise<ReadBalanceResult> => {
+        force: boolean = false
+    ): Promise<bigint> => {
         setIsLoading(true);
         setError(null);
         try {
-            // 1. 获取代币配置
+            // 1. Get the token configuration
             const tokenMetadata = supportedTokens.find(
                 (token: TokenMetadata) => token.address.toLowerCase() === tokenAddress.toLowerCase()
             );
@@ -48,12 +47,12 @@ export const useReadBalance = () => {
                 throw new Error('Token metadata not found');
             }
 
-            // 2. 根据代币类型生成参数
+            // 2. Generate parameters based on the token type
             // let params: AllowanceERC20Params | AllowanceERC20SecretParams;
             let balance = BigInt(0);
 
             if (tokenMetadata?.types === 'ERC20') {
-                balance = await balanceOf(tokenAddress, owner);
+                balance = await balanceOf(tokenAddress, owner, force);
 
             } else if (tokenMetadata?.types === 'Secret') {
                 const validPermit = await getValidPermit({
@@ -63,29 +62,23 @@ export const useReadBalance = () => {
                     contractAddress: tokenAddress,
                 });
 
-                balance = await balanceOfWithPermit(tokenAddress, validPermit);
+                balance = await balanceOfWithPermit(tokenAddress, validPermit, force);
 
             } else {
                 console.error(`Unsupported token type: ${tokenMetadata?.types}`);
                 setIsLoading(false);
-                return { isEnough: false, balance: BigInt(0) };
+                return BigInt(0);
             }
 
-            // 判断授权是否足够
-            let isEnoughValue = true;
-            if (targetAmount !== undefined) {
-                isEnoughValue = balance >= targetAmount;
-                setIsEnough(isEnoughValue);
-            }
             setBalance(balance);
             setIsLoading(false);
-            return { isEnough: isEnoughValue, balance };
+            return balance;
 
         } catch (error) {
             console.error('[readBalance] Error:', error);
             setIsLoading(false);
             setError(error as Error);
-            return { isEnough: false, balance: BigInt(0) };
+            return BigInt(0);
         }
     };
 
@@ -93,7 +86,6 @@ export const useReadBalance = () => {
         readBalance,
         isLoading,
         balance,
-        isEnough,
         error,
     };
 };

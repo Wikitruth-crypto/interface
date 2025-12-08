@@ -23,7 +23,7 @@ const CompleteButton: React.FC<Props> = ({ onClick, className }) => {
       <div className={cn('flex flex-col items-start')}>
         {roles.includes('Buyer') && (
           <Typography.Paragraph className="text-muted-foreground text-sm">
-            Complete the transaction.
+            Complete the order.
           </Typography.Paragraph>
         )}
         {!roles.includes('Buyer') && (

@@ -5,7 +5,12 @@ import { getContractConfig, ContractName } from '@dapp/contractsConfig';
 import { useRef, useCallback } from 'react';
 
 /**
+ * ERC20 合约读取 Hook
+ * 
  * 在组件中使用，返回可以在普通函数中调用的服务对象
+ * 支持标准 ERC20 和隐私 ERC20 (Secret) 代币合约读取
+ * 
+ * @returns 包含 readContractERC20 函数的对象
  */
 export function useReadContractERC20() {
     const queryClient = useQueryClient();
@@ -18,13 +23,14 @@ export function useReadContractERC20() {
     const readContractERC20 = useCallback(async(
         type: 'erc20' | 'secret',
         tokenAddress: `0x${string}`,
-        functionName: string ,
-        args?: readonly unknown[]
+        functionName: string,
+        args?: readonly unknown[],
+        force: boolean = false
     ) => {
         // 使用可选链，如果 publicClient 不存在，尝试从 core 获取
         let client = publicClientRef.current || publicClient;
         
-        // 如果还是不存在，等待初始化（最多 3 秒，因为通常很快）
+        // 等待初始化（最多 3 秒，因为通常很快）
         if (!client) {
             const maxWait = 3000;
             const start = Date.now();
@@ -35,7 +41,6 @@ export function useReadContractERC20() {
             }
         }
         
-        // 如果还是没有，抛出错误
         if (!client) {
             throw new Error(
                 'Public client not available. ' +
@@ -77,10 +82,28 @@ export function useReadContractERC20() {
             };
         }
 
-        // 先检查缓存
-        const cached = queryClient.getQueryData(queryKey);
-        if (cached) {
-            return cached;
+        const FORCE_CACHE_TIME = 10 * 1000; // 10秒缓存时间
+
+        if (force) {
+            // force 模式下：检查10秒内的缓存
+            const queryState = queryClient.getQueryState(queryKey);
+            if (queryState?.dataUpdatedAt) {
+                const cacheAge = Date.now() - queryState.dataUpdatedAt;
+                if (cacheAge < FORCE_CACHE_TIME) {
+                    if (import.meta.env.DEV) {
+                        console.log('force 模式下：检查10秒内的缓存', queryState.data);
+                    }
+                    return queryState.data as any;
+                }
+            }
+            // 超过10秒，清除缓存并重新查询
+            queryClient.removeQueries({ queryKey });
+        } else {
+            // 非 force 模式：正常检查缓存（5分钟缓存）
+            const cached = queryClient.getQueryData(queryKey);
+            if (cached) {
+                return cached;
+            }
         }
 
         // 执行查询并缓存
