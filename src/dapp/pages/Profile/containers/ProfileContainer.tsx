@@ -19,11 +19,6 @@ const ProfileContainer: React.FC<ProfileContainerProps> = ({ className }) => {
 
     return (
         <Container className={cn('space-y-6 py-6', className)}>
-            {/* <div className="space-y-2">
-            TODO: Don't need to show address anymore
-                <h3 className="text-xl font-semibold">Your Account:</h3>
-                <p className="text-foreground/70 font-mono text-sm break-all">{address}</p>
-            </div> */}
 
             <ProfileViewTabs active={activeView} onChange={setActiveView} />
 

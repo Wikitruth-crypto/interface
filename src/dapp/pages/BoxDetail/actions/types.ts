@@ -45,6 +45,7 @@ export interface BoxActionController {
   description?: string;
   isLoading: boolean;
   isDisabled: boolean;
+  isSuccessed: boolean;
   showApprove: boolean;
   error: Error | null;
   execute: (options?: { onClick?: () => void; customArgs?: any }) => Promise<void>;

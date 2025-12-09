@@ -126,8 +126,8 @@ const SecretTokenWrap: React.FC = () => {
                         >
                             {tokenPairs.map((pair, index) => (
                                 <Option key={index} value={index}>
-                                    {pair.erc20.symbol} - {pair.secret?.symbol || `${pair.erc20.symbol}.S`}
-                                    {pair.isNativeROSE && ' (Native ROSE)'}
+                                    {pair.erc20.symbol}{pair.isNativeROSE && ' (Native ROSE)'} - {pair.secret?.symbol || `${pair.erc20.symbol}.S`}
+                                    
                                 </Option>
                             ))}
                         </Select>
@@ -137,9 +137,14 @@ const SecretTokenWrap: React.FC = () => {
                             {selectedPair.erc20.name} ({selectedPair.erc20.symbol})
                             {selectedPair.secret && ` -> ${selectedPair.secret.name} (${selectedPair.secret.symbol})`}
                         </Text>
+                        {selectedPair.erc20?.address && (
+                            <Text type="secondary" copyable>
+                                ERC20: {selectedPair.erc20?.address}
+                            </Text>
+                        )}
                         {selectedPair.secret?.address && (
                             <Text type="secondary" copyable>
-                                Secret Contract: {selectedPair.secret?.address}
+                                Secret: {selectedPair.secret?.address}
                             </Text>
                         )}
                     </Space>

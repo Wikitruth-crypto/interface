@@ -102,6 +102,8 @@ export interface TokenMetadata {
   mappingAddress?: `0x${string}`; // erc20 -> secret, secret -> erc20
   logo?: string;
   types: 'ERC20' | 'Secret';
+  usdPrice?: number;
+  canAcceptToken: boolean; // sell and auction can accept other token
   domainName?: string;
   mintPeriod?: number; // seconds only official token
   contractName: ContractName;

@@ -1,6 +1,6 @@
 ﻿"use client"
-import { Modal, InputNumber, message } from 'antd';
-import { parseUnits } from 'viem';
+import { Modal, InputNumber, message, Typography, Divider } from 'antd';
+import { parseUnits,} from 'viem';
 import { useState, useEffect, useMemo } from 'react';
 import { useSupportedTokens } from '@/dapp/contractsConfig';
 import { useBoxDetailStore } from '../store/boxDetailStore';
@@ -8,7 +8,7 @@ import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
-import Paragraph from '@/components/base/paragraph';
+// import Paragraph from '@/components/base/paragraph';
 import type { BoxActionController } from '../actions/types';
 
 interface Props {
@@ -42,19 +42,14 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
         if (!box) return;
 
         let tokenAddress = accpetTokenAddress as `0x${string}`;
-        let priceBigInt: bigint;
+        let priceBigInt: bigint = BigInt(0);
 
         if (roles.includes('Minter')) {
             if (!accpetTokenAddress) {
                 message.error('Token is required');
                 return;
             }
-            // 确保 price 是字符串，parseUnits 需要字符串参数
-            const priceStr = String(price || '');
-            priceBigInt = priceStr && Number(priceStr) > 0 ? parseUnits(priceStr, decimals) : BigInt(0);
-        } else {
-            tokenAddress = box.acceptedToken as `0x${string}`;
-            priceBigInt = BigInt(box.price || 0);
+            priceBigInt = price && Number(price) > 0 ? parseUnits(String(price), decimals) : BigInt(0);
         }
 
         await controller.execute({
@@ -63,7 +58,6 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
                 price: priceBigInt,
             },
         });
-        onClose();
     };
 
     const handleToken = (token: CommonSelectOption | null) => {
@@ -102,7 +96,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
             onCancel={handleClose}
             okButtonProps={{ disabled: controller.isLoading }}
             cancelButtonProps={{ disabled: controller.isLoading }}
-            okText={controller.isLoading ? 'Processing...' : 'Submit'}
+            okText={controller.isLoading ? 'Processing...' : controller.isSuccessed ? 'Success' : 'Submit'}
             cancelText="Close"
             width={450}
         >
@@ -110,28 +104,28 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
 
                 <div className='flex flex-col gap-2 text-foreground'>
                     <div className='flex flex-row gap-2 items-baseline'>
-                        <Paragraph color='muted-foreground'>tokenId:</Paragraph>
-                        <Paragraph >{boxId}</Paragraph>
+                        <Typography.Paragraph color='muted-foreground'>boxId:</Typography.Paragraph>
+                        <Typography.Paragraph >{boxId}</Typography.Paragraph>
                     </div>
                     <div className='flex flex-row gap-2 items-baseline'>
-                        <Paragraph color='muted-foreground'>Current Price:</Paragraph>
+                        <Typography.Paragraph color='muted-foreground'>Current Price:</Typography.Paragraph>
                         <PriceLabel
                             price={box.price}
                             symbol={officeToken?.symbol}
                             decimals={officeToken?.decimals}
                         />
                     </div>
-                    <div className='w-full h-[1px]  border-t border-gray-500 my-2'></div>
+                    <Divider />
                     {isMinter ? (
                         <div className='flex flex-col gap-2'>
                             <div className='flex flex-col gap-2 items-start'>
-                                <Paragraph color='muted-foreground'>Accpet Token:</Paragraph>
+                                <Typography.Paragraph color='muted-foreground'>Accpet Token:</Typography.Paragraph>
                                 <div className='flex w=full flex-row items-center '>
                                     <TokenSelector onChange={handleToken} />
                                 </div>
                             </div>
                             <div className='flex flex-col gap-2 items-baseline'>
-                                <Paragraph color='muted-foreground'>Price:</Paragraph>
+                                <Typography.Paragraph color='muted-foreground'>Price:</Typography.Paragraph>
                                 <div className='flex flex-row items-center '>
                                     <InputNumber
                                         onChange={(value) => handlePriceChange(value)}
@@ -140,13 +134,13 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
                                     />
                                 </div>
                             </div>
-                            <Paragraph color='muted-foreground'>If you don't enter the price, the default price will be used.</Paragraph>
+                            <Typography.Paragraph color='muted-foreground'>If you don't enter the price, the default price will be used.</Typography.Paragraph>
                         </div>
                     ) : (
-                        <Paragraph color='muted-foreground'>Only Minter can set price!</Paragraph>
+                        <Typography.Paragraph color='muted-foreground'>Only Minter can set price!</Typography.Paragraph>
                     )}
                 </div>
-                <div className='w-full h-[1px]  border-t border-gray-500 my-2'></div>
+                <Divider />
             </div>
         </Modal>
 

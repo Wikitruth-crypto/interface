@@ -2,7 +2,7 @@
 "use client"
 
 import React, { useState, useCallback } from 'react';
-import { Input, Tag } from 'antd';
+import { Input, Tag, Typography } from 'antd';
 import { cn } from "@/lib/utils";
 
 export interface InputLabelProps {
@@ -234,9 +234,9 @@ const InputLabel: React.FC<InputLabelProps> = ({
 
             {/* 错误消息 */}
             {error && (
-                <p className="text-sm text-destructive font-medium">
+                <Typography.Text type="danger">
                     {error}
-                </p>
+                </Typography.Text>
             )}
 
             {/* 标签列表 */}
@@ -260,10 +260,10 @@ const InputLabel: React.FC<InputLabelProps> = ({
             )}
 
             {/* 提示信息 */}
-            <p className="text-xs text-muted-foreground">
+            <Typography.Text type="secondary">
                 Separate multiple labels with commas. Press Enter or blur to add.
                 {value.length === 0 && " (e.g., fraud, corruption, insider trading)"}
-            </p>
+            </Typography.Text>
         </div>
     );
 };

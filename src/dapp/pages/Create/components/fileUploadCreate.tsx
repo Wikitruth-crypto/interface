@@ -1,6 +1,6 @@
 import React from 'react';
 import { InboxOutlined } from '@ant-design/icons';
-import { Upload, Space } from 'antd';
+import { Upload, Space, Typography } from 'antd';
 import { useAddFile } from '@dapp/pages/Create/hooks/Input/useAddFile';
 import { cn } from '@/lib/utils';
 
@@ -30,23 +30,24 @@ const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
                         showDownloadIcon: false
                     }}
                     accept="application/pdf"
-                    // error={error}
+                // error={error}
                 // {...props}
                 >
                     <p className="ant-upload-drag-icon">
                         <InboxOutlined />
                     </p>
-                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                    <p className="ant-upload-hint">
+                    <Typography.Text type="secondary">
+                        Click or drag file to this area to upload
+                        <br />
                         Support for a single or bulk upload.
                         Strictly prohibited from uploading company data or other banned files.
                         <br />
                         The total size of the files must be less than 5MB.
-                    </p>
+                    </Typography.Text>
                 </Dragger>
             </Space>
             {error && typeof error === 'string' && (
-                <p className={cn("text-sm text-error", "px-1 leading-tight")}>{error}</p>
+                <Typography.Text type="danger">{error}</Typography.Text>
             )}
         </div>
     );

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Typography, Divider } from 'antd';
+import { Typography, Divider, Alert } from 'antd';
 import Storing from '@BoxDetail/statusContainer/Storing';
 import Selling from '@BoxDetail/statusContainer/Selling';
 import Auction from '@BoxDetail/statusContainer/Auction';
@@ -13,17 +13,17 @@ import CountdownTimer from '@/dapp/components/countdownTimer';
 import RoleContainer from '../components/roleLabel';
 import PriceLabel from '@BoxDetail/components/priceLabel';
 import { BoxStatus } from '@/dapp/types/contracts/truthBox';
-// import { useBoxDetailStore } from '../store/boxDetailStore';
+// import StatusLabel from '@/dapp/components/base/statusLabel';
 import ShareSocial from '@/dapp/components/shareSoical';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
 interface Props {
-    tokenId: number|string;
+    tokenId: number | string;
     args?: boolean;
 }
 
 const ContentRight: React.FC<Props> = ({ tokenId }) => {
-    const { box, metadataBox ,isLoading} = useBoxDetailContext();
+    const { box, metadataBox, isLoading } = useBoxDetailContext();
 
 
     const [price, setPrice] = useState('');
@@ -72,7 +72,9 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
     return (
         <div className="w-full space-y-6 md:space-y-8">
 
-            <Typography.Title level={4} className="text-white font-semibold">{status}</Typography.Title>
+            <Typography.Title level={4} style={{ marginBottom: 2 }}>
+                Status:
+            </Typography.Title>
             <StatusStep
                 status={status}
                 listedMode={box?.listedMode ?? ''}
@@ -80,57 +82,42 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
                 enableHorizontalScroll={true}
             />
 
-            <Divider />
-
-            {box?.isInBlacklist && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
-                    <span className="font-medium">Warning:</span> The NFT is in blacklist, can't do anything!
-                </div>
-            )}
-
-
             {status !== 'Published' && (
                 <>
-                    <div className="w-full">
-                        <CountdownTimer targetTime={deadline} size='sm' />
-                    </div>
-                    <div className="w-full h-px bg-border/50"></div>
+                    <CountdownTimer targetTime={deadline} size='sm' />
+                    <Divider />
                 </>
             )}
 
-                <PriceLabel status={status} price={price} token={token} />
+            {box?.isInBlacklist && (
+                <Alert message="Warning" description="The NFT is in blacklist, can't do anything!" type="warning" />
+            )}
 
-            <div className="w-full">
-                <RoleContainer />
-            </div>
+            <PriceLabel status={status} price={price} token={token} />
 
-            <Divider />
+            <RoleContainer />
 
             {/* Status Action Buttons */}
-            <div className="w-full">
-                {renderStatusButton()}
-            </div>
+            {renderStatusButton()}
 
             <Divider />
 
             {/* Additional Features Section */}
-            <div className="w-full space-y-4">
-            
 
-                {/* Admin Functions - Commented out for now */}
-                {/* 
-                <div className="admin-functions">
-                    {accountRole === 'Admin' && <AdminFunction />}
-                </div> 
-                */}
-                {/* Social Share - Commented out for now */}
-            <ShareSocial 
+
+            {/* Admin Functions - Commented out for now */}
+            {/* 
+            <div className="admin-functions">
+                {accountRole === 'Admin' && <AdminFunction />}
+            </div> 
+            */}
+            {/* Social Share - Commented out for now */}
+            <ShareSocial
                 title={metadataBox?.title ?? ''}
                 description={metadataBox?.description ?? ''}
                 image={metadataBox?.nftImage ?? ''}
                 url={typeof window !== 'undefined' ? window.location.href : ''}
             />
-            </div>
         </div>
     );
 }

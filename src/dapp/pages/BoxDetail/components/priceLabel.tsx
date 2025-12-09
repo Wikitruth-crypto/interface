@@ -36,18 +36,16 @@ const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
                     <Paragraph color="gray-3" size="sm" className="mr-2">Price:</Paragraph>
                     <PriceLabel
                         price={price}
+                        variant="large"
                         symbol={tokenMetadata?.symbol}
                         decimals={tokenMetadata?.decimals}
-                        fontSize={22}
-                        fontSizeSuffix={14}
                     />
                     {priceUSD > 0 && (
                         <PriceLabel
+                            variant="large"
                             prefix={`≈`}
                             price={priceUSD}
                             symbol="USD"
-                            fontSize={22}
-                            fontSizeSuffix={14}
                         />)}
                 </div>
             )}

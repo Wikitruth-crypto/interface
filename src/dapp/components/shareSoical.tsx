@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaTwitter, FaFacebook, FaTelegram } from 'react-icons/fa';
 
-// Discord 邀请链接（如需自定义请替换）
 // const DISCORD_INVITE_URL = 'https://discord.com/invite/your-invite-code';
 
 interface ShareSocialProps {
@@ -49,7 +48,6 @@ export const ShareSocial: React.FC<ShareSocialProps> = ({
     url = '',
     className = ''
 }) => {
-    // 优先用 title，没有就用 description
     const shareTitle = title || description || '';
     const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
     // const shareImage = image || '';
@@ -65,7 +63,7 @@ export const ShareSocial: React.FC<ShareSocialProps> = ({
                     aria-label={`Share to ${platform.name}`}
                     className={`rounded-full p-1 md:p-2 bg-background border border-border shadow-sm transition-colors duration-150 ${platform.color} hover:text-primary hover:scale-105`}
                 >
-                    <div className='w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-gray-400 hover:text-primary '>
+                    <div className='w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-card-foreground hover:text-primary '>
                         {platform.icon}
                     </div>
                 </a>

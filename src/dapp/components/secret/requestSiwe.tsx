@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button, Typography, Alert, Space } from 'antd';
 import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 
@@ -21,30 +21,17 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
     expiredText = 'Login has expired, you need to sign again.',
     onComplete,
 }) => {
-    const { session, login, logout, validateSession, isLoading, error, reset } = useSiweAuth();
+    const { session, login, logout, isValidateSession, isLoading, error, reset } = useSiweAuth();
 
-    const isExpired = useMemo(() => {
-        if (!session.expiresAt) {
-            return false;
-        }
-        return session.expiresAt.getTime() <= Date.now();
-    }, [session.expiresAt]);
-
-    const needsLogin = !session.isLoggedIn || !session.token || isExpired;
-
+    // 当会话变为有效时，触发完成回调
     useEffect(() => {
-        if (!needsLogin) {
+        if (isValidateSession) {
             onComplete?.();
         }
-    }, [needsLogin, onComplete]);
+    }, [isValidateSession, onComplete]);
 
-    useEffect(() => {
-        if (session.isLoggedIn) {
-            void validateSession();
-        }
-    }, [session.isLoggedIn, validateSession]);
-
-    if (!needsLogin) {
+    // 如果会话有效，不显示组件
+    if (isValidateSession) {
         return null;
     }
 
@@ -59,7 +46,7 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
                         {hint}
                     </Paragraph>
 
-                    {session.isLoggedIn && isExpired && (
+                    {session.isLoggedIn && session.expiresAt && session.expiresAt.getTime() <= Date.now() && (
                         <Alert type="warning" showIcon message={expiredText} />
                     )}
 
@@ -67,7 +54,7 @@ export const RequestSiwe: React.FC<RequestSiweProps> = ({
                         <Alert
                             type="error"
                             showIcon
-                            message="登录失败"
+                            message="Login failed"
                             description={error.message}
                             action={
                                 <Button type="link" size="small" onClick={reset}>

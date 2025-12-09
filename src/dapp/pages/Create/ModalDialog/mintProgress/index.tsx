@@ -179,7 +179,7 @@ const ModalDialogMintProgress: React.FC<ModalProps> = ({ onClose, onNext }) => {
                             Next
                         </Button>
                     ]}
-                width={600}
+                width={520}
             >
                 < div style={{ marginBottom: 20 }
                 }>

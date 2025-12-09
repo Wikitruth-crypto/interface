@@ -64,7 +64,7 @@ const TokenContent: React.FC = () => {
             />
             {/* {erc20Tokens.length > 0 && <ERC20Write />} */}
 
-            <Space direction="horizontal" size="large" style={{ width: '100%' }}>
+            <Space direction="horizontal" size="large" align="start" style={{ width: '100%' }}>
                 <SecretTokenWrap />
                 <SecretTokenUnWrap />
             </Space>

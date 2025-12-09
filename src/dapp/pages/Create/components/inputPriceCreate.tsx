@@ -9,16 +9,7 @@ interface InputPriceCreateProps {
     className?: string;
 }
 
-/**
- * 价格输入组件 (重构版 v2)
- * 使用 React Hook Form 进行验证
- * 
- * 关键修复：
- * - 统一的验证逻辑，无冲突
- * - 更好的 UI 反馈
- * - 正确绑定 onBlur 事件
- * - 根据 mintMethod 动态显示是否必填
- */
+
 export const InputPriceCreate: React.FC<InputPriceCreateProps> = ({className}) => {
     const { inputValue, handlePriceChange, handleBlur, error } = usePriceInput();
     const supportedTokens = useSupportedTokens();
@@ -28,8 +19,20 @@ export const InputPriceCreate: React.FC<InputPriceCreateProps> = ({className}) =
     // 判断 price 是否必填
     const isRequired = mintMethod === 'create';
 
+    const handleInputChange = (value: string | number | null | undefined) => {
+        let stringValue: string;
+        if (value === null || value === undefined) {
+            stringValue = '';
+        } else if (typeof value === 'number') {
+            stringValue = String(value);
+        } else {
+            stringValue = value;
+        }
+        handlePriceChange(stringValue);
+    };
+
     return (
-        <div className={cn("flex w-full lg:max-w-md space-y-2", className)}>
+        <div className={cn("flex w-full lg:max-w-lg space-y-2", className)}>
             <div className="flex flex-col w-full gap-2">
                 <div className="flex items-center gap-2">
                     <span className="font-mono text-sm">Price:</span>
@@ -38,11 +41,14 @@ export const InputPriceCreate: React.FC<InputPriceCreateProps> = ({className}) =
                 </div>
                 <div className="flex items-center w-full">
                     <InputNumber
-                        onChange={(value) => handlePriceChange(value || '')}
-                        onBlur={handleBlur} // ✅ 绑定失焦事件
-                        value={inputValue}
+                        onChange={(value) => {
+                            handleInputChange(value);
+                        }}
+                        onBlur={handleBlur}
+                        value={inputValue ? (isNaN(Number(inputValue)) ? undefined : Number(inputValue)) : undefined}
                         controls={false}
-                        min="0.001"
+                        min={0.001}
+                        precision={3}
                         placeholder={
                             isRequired 
                                 ? "Please enter the price (min: 0.001)" 

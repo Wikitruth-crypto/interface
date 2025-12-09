@@ -6,11 +6,12 @@ import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { AccountModal, ConnectModal, NetworkModal } from './modals';
-import { useConnectController, formatAddress, formatString } from './controller';
+import { useConnectController} from './controller';
 
 interface ConnectButtonProps {
   size?: 'sm' | 'md' | 'lg';
   shape?: 'pill' | 'rounded';
+  style?: React.CSSProperties;
   className?: string;
   prefixIcon?: ReactNode;
 }
@@ -18,6 +19,7 @@ interface ConnectButtonProps {
 export const ConnectButtonComponent = ({
   size = 'md',
   shape = 'pill',
+  style,
   className,
   prefixIcon
 }: ConnectButtonProps) => {
@@ -49,6 +51,14 @@ export const ConnectButtonComponent = ({
     handleSwitchChain
   } = useConnectController();
 
+  const formatAddress = (addr?: string | null) =>
+    addr ? `${addr.slice(0, 0)}...${addr.slice(-4)}` : ''
+  
+  const formatString = (value?: string) => {
+    if (!value) return ''
+    return value.slice(0, 0) + '...' + value.slice(-7)
+  }
+
   const networkAppearance = (() => {
     if (!currentChain) return { label: 'Unknown Network', theme: '' };
     if (currentChain.testnet) {
@@ -75,6 +85,7 @@ export const ConnectButtonComponent = ({
         className={buttonClass}
         onClick={() => (isConnected ? openModal('account') : openModal('connect'))}
         disabled={isConnecting}
+        style={style}
       >
         {isConnected ? (
           <>

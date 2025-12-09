@@ -17,9 +17,7 @@ import BoxDetailPage from '@/dapp/pages/BoxDetail';
 import TestsPage from '@/dapp/pages/Tests';
 
 function DappRoutes() {
-    // 初始化账户管理（使用更安全的 useSecureAccount）
     useSecureAccount();
-    // 设置当前链配置
     useSetCurrentChainConfig();
 
     return (

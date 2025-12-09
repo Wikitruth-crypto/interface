@@ -1,16 +1,12 @@
 import React from 'react';
 import { useFormInputDirectWithLimit } from '../hooks/Input/useFormInputDirect';
 import { cn } from '@/lib/utils';
-import { Input } from 'antd';
+import { Input, Typography } from 'antd';
 
 interface InputTitleCreateProps {
     className?: string;
 }
 
-/**
- * 标题输入组件 (简化版)
- * 使用通用 useFormInputWithLimit Hook
- */
 export const InputTitleCreate: React.FC<InputTitleCreateProps> = ({ className }) => {
     const { inputValue, handleChange, handleBlur, error, charCount, maxLength } = useFormInputDirectWithLimit('title', 150);
 
@@ -24,10 +20,10 @@ export const InputTitleCreate: React.FC<InputTitleCreateProps> = ({ className })
                 value={inputValue}
                 maxLength={maxLength}
                 placeholder="Please enter the title (40-150 characters)"
-                status={error ? 'error' : undefined}
+                // status={error ? 'error' : undefined}
                 showCount
             />
-            {error && <p className="text-sm text-destructive font-light">{error}</p>}
+            {error && <Typography.Text type="danger">{error}</Typography.Text>}
         </div>
     );
 };

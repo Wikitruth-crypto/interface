@@ -28,17 +28,15 @@ const TokenWithdrawForm: React.FC<TokenWithdrawFormProps> = ({
         currentStep, 
         isLoading: isReadBalanceLoading, 
         balance, 
-        isEnough,
         error: signError,
     } = useUnWrapSteps(selectedPair);
 
-    useEffect(() => {
-        console.log('TokenWithdrawForm - balance:', balance, 'type:', typeof balance, 'currentStep:', currentStep, 'isReadBalanceLoading:', isReadBalanceLoading);
-        if (balance && balance > BigInt(0)) {
-            const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
-            console.log('TokenWithdrawForm - formatted balance:', formatBalance(formatUnits(balance, decimals)));
-        }
-    }, [balance, currentStep, isReadBalanceLoading, selectedPair]);
+    // useEffect(() => {
+    //     if (balance && balance > BigInt(0)) {
+    //         const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
+    //         console.log('TokenUnwrapForm - formatted balance:', formatBalance(formatUnits(balance, decimals)));
+    //     }
+    // }, [balance, currentStep, isReadBalanceLoading, selectedPair]);
 
     const [withdrawAmount, setWithdrawAmount] = useState<string>('');
 
@@ -57,12 +55,10 @@ const TokenWithdrawForm: React.FC<TokenWithdrawFormProps> = ({
     }, []);
 
     const handleWithdrawAll = useCallback(() => {
-        console.log('handleWithdrawAll called, balance:', balance, 'selectedPair?.secret:', selectedPair?.secret);
         if (balance && balance > BigInt(0)) {
             // 使用 secret 的 decimals，如果没有则使用 erc20 的 decimals
             const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
             const formatted = formatBalance(formatUnits(balance, decimals));
-            console.log('Setting withdrawAmount to:', formatted);
             setWithdrawAmount(formatted);
         } else {
             console.log('handleWithdrawAll: conditions not met', {

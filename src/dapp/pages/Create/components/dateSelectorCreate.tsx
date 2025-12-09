@@ -3,6 +3,7 @@ import React, { useCallback } from 'react';
 import { useCreateForm } from '../context/CreateFormContext';
 import { DateSelector, DateDataType } from '@/dapp/components/dateSelector';
 import { cn } from '@/lib/utils';
+import { Typography } from 'antd';
 
 interface DateSelectorCreateProps {
     className?: string;
@@ -42,12 +43,9 @@ const DateSelectorCreate: React.FC<DateSelectorCreateProps> = ({
             
             {/* 错误提示 */}
             {error && (
-                <p className={cn(
-                    "text-sm font-light text-error",
-                    "px-1 leading-tight"
-                )}>
+                <Typography.Text type="danger">
                     {error}
-                </p>
+                </Typography.Text>
             )}
         </div>
     );

@@ -10,7 +10,7 @@ import { timeToDate } from '@/dapp/utils/time';
 export function createCreateNFTImageStep(): WorkflowStep<WorkflowPayload, CreateNFTImageOutput> {
   return {
     name: 'createNFTImage',
-    description: '生成 NFT 图片',
+    description: 'Create NFT Image',
 
     validate: (input) => {
       const { boxInfo, boxImages } = input;

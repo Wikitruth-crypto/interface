@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { useReadSiweAuth } from '@/dapp/hooks/readContracts/useSiweAuth';
 import { useSiweAuthBase } from './useSiweAuthBase';
@@ -16,7 +16,9 @@ import {
 export interface UseSiweAuthResult extends UseSiweAuthBaseResult {
   logout: () => void;
   validateSession: () => Promise<boolean>;
+  isSessionValidLocal: () => boolean;
   session: SessionInfo;
+  isValidateSession: boolean;
 }
 
 
@@ -36,7 +38,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
     address || '0x0000000000000000000000000000000000000000'
   );
   
-  const { isSessionValid } = useReadSiweAuth();
+  const { isSessionValid: isSessionValidContract } = useReadSiweAuth();
 
   const session = useSimpleSecretStore((state) => state.currentSession);
   const setSiweSession = useSimpleSecretStore((state) => state.setSiweSession);
@@ -61,8 +63,6 @@ export const useSiweAuth = (): UseSiweAuthResult => {
       clearSiweSession(chainId, session.address);
     }
   }, [address, session.isLoggedIn, session.address, chainId, clearSiweSession]);
-
-
 
   const login = useCallback(
     async (params?: Partial<SiweMessageParams>): Promise<LoginResult | null> => {
@@ -89,24 +89,94 @@ export const useSiweAuth = (): UseSiweAuthResult => {
   );
 
   /**
-   * 检查当前的会话是否有效
+   * 本地检查会话是否有效（不调用合约）
+   * 适用于频繁检查场景，避免网络压力
+   * 
+   * @returns 如果会话在本地状态中有效则返回 true，否则返回 false
    */
-  const validateSession = useCallback(async (): Promise<boolean> => {
+  const isSessionValidLocal = useCallback((): boolean => {
+    // 检查基本登录状态
+    if (!session.isLoggedIn) {
+      return false;
+    }
+
+    // 检查 token 是否存在
     if (!session.token) {
       return false;
     }
 
-    try {
-      if (typeof isSessionValid !== 'function') {
-        throw new Error('SIWE session validation interface not initialized');
+    // 检查地址是否匹配（如果提供了当前地址）
+    if (address && session.address) {
+      if (session.address.toLowerCase() !== address.toLowerCase()) {
+        return false;
       }
+    }
 
-      if (session.expiresAt && session.expiresAt < new Date()) {
+    // 检查是否过期
+    if (session.expiresAt) {
+      const now = new Date();
+      if (session.expiresAt < now) {
+        // 如果过期，自动清理会话
         clearSiweSession(chainId, session.address ?? undefined);
         return false;
       }
+    }
 
-      const isValid = await isSessionValid(session.token, true);
+    return true;
+  }, [session, address, chainId, clearSiweSession]);
+
+  // 计算当前会话是否有效（响应式状态）
+  // 当 session 相关属性变化时，立即重新计算
+  const isValidateSession = useMemo(() => {
+    return isSessionValidLocal();
+  }, [
+    session.isLoggedIn,
+    session.token,
+    session.address,
+    session.expiresAt,
+    address,
+    isSessionValidLocal,
+  ]);
+
+  // 如果 session 有过期时间，设置定时器在过期时自动清理
+  useEffect(() => {
+    if (!session.expiresAt || !session.isLoggedIn) {
+      return;
+    }
+
+    const now = Date.now();
+    const expiresAt = session.expiresAt.getTime();
+    const timeUntilExpiry = expiresAt - now;
+
+    // 如果已经过期，立即清理
+    if (timeUntilExpiry <= 0) {
+      clearSiweSession(chainId, session.address ?? undefined);
+      return;
+    }
+
+    // 设置定时器在过期时清理
+    const timeout = setTimeout(() => {
+      clearSiweSession(chainId, session.address ?? undefined);
+    }, timeUntilExpiry);
+
+    return () => clearTimeout(timeout);
+  }, [session.expiresAt, session.isLoggedIn, session.address, chainId, clearSiweSession]);
+
+  /**
+   * 检查当前的会话是否有效（调用合约验证）
+   * 用于需要与链上状态同步的验证场景
+   */
+  const validateSession = useCallback(async (): Promise<boolean> => {
+    if (!isSessionValidLocal()) {
+      return false;
+    }
+
+    try {
+      if (typeof isSessionValidContract !== 'function') {
+        throw new Error('SIWE session validation interface not initialized');
+      }
+
+      const isValid = await isSessionValidContract(session.token!);
 
       if (!isValid) {
         clearSiweSession(chainId, session.address ?? undefined);
@@ -119,7 +189,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
       clearSiweSession(chainId, session.address ?? undefined);
       return false;
     }
-  }, [session, isSessionValid, clearSiweSession, chainId]);
+  }, [session, isSessionValidContract, clearSiweSession, chainId, isSessionValidLocal]);
 
   const logout = useCallback(() => {
     clearSiweSession(chainId, session.address ?? address ?? undefined);
@@ -132,7 +202,9 @@ export const useSiweAuth = (): UseSiweAuthResult => {
     login,
     logout,
     validateSession,
+    isSessionValidLocal,
     session,
+    isValidateSession,
     isLoading: baseAuth.isLoading,
     error: baseAuth.error,
     reset: baseAuth.reset,

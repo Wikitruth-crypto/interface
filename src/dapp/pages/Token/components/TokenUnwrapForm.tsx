@@ -28,17 +28,16 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
         currentStep, 
         isLoading: isReadBalanceLoading, 
         balance, 
-        isEnough,
         error: signError,
     } = useUnWrapSteps(selectedPair);
 
-    useEffect(() => {
-        console.log('TokenUnwrapForm - balance:', balance, 'type:', typeof balance, 'currentStep:', currentStep, 'isReadBalanceLoading:', isReadBalanceLoading);
-        if (balance && balance > BigInt(0)) {
-            const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
-            console.log('TokenUnwrapForm - formatted balance:', formatBalance(formatUnits(balance, decimals)));
-        }
-    }, [balance, currentStep, isReadBalanceLoading, selectedPair]);
+    // useEffect(() => {
+    //     console.log('TokenUnwrapForm - balance:', balance, 'type:', typeof balance, 'currentStep:', currentStep, 'isReadBalanceLoading:', isReadBalanceLoading);
+    //     if (balance && balance > BigInt(0)) {
+    //         const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
+    //         console.log('TokenUnwrapForm - formatted balance:', formatBalance(formatUnits(balance, decimals)));
+    //     }
+    // }, [balance, currentStep, isReadBalanceLoading, selectedPair]);
 
     const [unwrapAmount, setUnwrapAmount] = useState<string>('');
 

@@ -52,7 +52,7 @@ export default function Header() {
                         style={{ color: 'black' }}
                         type="primary"
                         onClick={handleLaunchApp}>
-                            launchApp
+                            Beta App
                         </Button>
                     </div>
                     <div className="md:hidden relative">
@@ -62,7 +62,7 @@ export default function Header() {
                             style={{ color: 'black' }}
                             onClick={handleLaunchApp}
                         >
-                            app
+                            App
                         </Button>
                     </div>
                 </nav>

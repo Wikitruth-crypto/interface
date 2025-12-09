@@ -5,7 +5,7 @@ import { CryptionService } from '@/dapp/services/cryption';
 export function createEncryptDataStep(): WorkflowStep<WorkflowPayload, EncryptDataOutput> {
   return {
     name: 'encryptData',
-    description: '加密数据',
+    description: 'Encrypt Data',
 
     canSkip: (input) => input.boxInfo.mintMethod === 'createAndPublish',
 

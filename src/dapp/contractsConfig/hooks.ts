@@ -21,7 +21,7 @@ import {
 } from './config';
 import { getChainConfig} from './chains';
 import { getSupportedTokens_WithChainId } from './tokens';
-import { CHAIN_ID } from './current';
+import { CHAIN_ID, getTokenMetadata } from './current';
 
 
 export function useAllContractAddresses(): ContractAddresses {
@@ -29,6 +29,12 @@ export function useAllContractAddresses(): ContractAddresses {
   return useMemo(() => {
     return getContractAddresses_WithChainId(CHAIN_ID);
   }, [CHAIN_ID]);
+}
+
+export function useTokenMetadata(tokenAddress: string): TokenMetadata {
+  return useMemo(() => {
+    return getTokenMetadata(tokenAddress);
+  }, [tokenAddress]);
 }
 
 export function useContractConfig(contractName: ContractName): ContractConfig {

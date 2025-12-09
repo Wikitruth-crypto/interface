@@ -62,7 +62,7 @@ export default function StatusLabel({
         <Tag
             color={getStatusColor()}
             className={cn(
-                'font-mono font-medium truncate whitespace-nowrap',
+                'font-mono font-medium whitespace-nowrap',
                 responsive && 'text-xs sm:text-sm',
                 className
             )}

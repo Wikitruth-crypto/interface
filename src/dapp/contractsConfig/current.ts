@@ -22,6 +22,7 @@ export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     address: '0x990DE401CD0103a0107D27F82283db60F4844203',
     mappingAddress: '0x449e2CD61F0328Ae68f4A530170C892B45b4B269',
     types: 'ERC20',
+    canAcceptToken: false,
     contractName: ContractName.OFFICIAL_TOKEN,
     abi: ABIS[ContractName.OFFICIAL_TOKEN],
 }
@@ -54,3 +55,6 @@ export function useSetCurrentChainConfig() {
 
 }
 
+export function getTokenMetadata(tokenAddress: string): TokenMetadata {
+    return SUPPORTED_TOKENS.find(token => token.address === tokenAddress) || OFFICIAL_TOKEN_CONFIG;
+}

@@ -22,15 +22,15 @@ export default function DappHeader() {
     const location = useLocation();
 
     useEffect(() => {
-        // DApp路由的激活逻辑
+        // DApp route activation logic
         const currentMenu = dappMenu.find(item => {
-            // 精确匹配 /app
+            // Exact match /app
             if (item.href === '/app' && location.pathname === '/app') return true;
-            // 匹配其他路径（如 /app/create, /app/boxDetail/1 等）
+            // Match other paths (e.g., /app/create, /app/boxDetail/1)
             if (item.href !== '/app' && location.pathname.startsWith(item.href)) return true;
-            // 特殊处理：boxDetail 路径应该高亮 Marketplace 或其他合适的菜单项
+            // Special handling: boxDetail path should highlight Marketplace or other appropriate menu items
             if (location.pathname.startsWith('/app/boxDetail')) {
-                // 可以设置为不激活任何项，或者激活 Marketplace
+                // Can be set to not activate any item, or activate Marketplace
                 return false;
             }
             return false;
@@ -38,7 +38,7 @@ export default function DappHeader() {
         if (currentMenu) {
             setActiveKey(currentMenu.name);
         } else if (location.pathname.startsWith('/app/boxDetail')) {
-            // BoxDetail 页面可以保持当前激活项，或者设置为 Marketplace
+            // BoxDetail page can keep the current activated item, or set to Marketplace
             setActiveKey('Marketplace');
         }
     }, [location.pathname]);

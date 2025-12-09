@@ -61,7 +61,7 @@ const toInteger = (value: string | null): number | undefined => {
 const Filter: React.FC<FilterProps> = ({ className, totalItems = 0 }) => {
     const {
         filters,
-        paginationConfig,
+        // paginationConfig,
         setStatus,
         setSort,
         setPriceRange,
@@ -150,6 +150,7 @@ const Filter: React.FC<FilterProps> = ({ className, totalItems = 0 }) => {
                             initialTerm={filters.search || ''}
                             onSearch={handleSearchChange}
                             onSubmit={handleSearchChange}
+                            disabled={true}
                             className="w-full"
                         />
                     </div>

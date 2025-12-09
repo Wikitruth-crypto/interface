@@ -10,7 +10,7 @@ import { mintDataUpload } from '../utils/commonUpload';
 export function createMetadataBoxStep(): WorkflowStep<WorkflowPayload, MetadataBoxOutput> {
   return {
     name: 'metadataBox',
-    description: '处理盒子元数据文件',
+    description: 'Create Metadata Box',
 
     validate: (input) => {
       const outputs = input.allStepOutputs;

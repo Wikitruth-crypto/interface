@@ -33,17 +33,13 @@ const TokenDepositForm: React.FC<TokenDepositFormProps> = ({
         onDeposit(depositAmount);
     }, [depositAmount, onDeposit]);
 
-    if (!selectedPair.isNativeROSE) {
-        return <Alert type="error" message="This form is only for native ROSE deposit" showIcon />;
-    }
-
     return (
         <Space direction="vertical" size="middle">
             <Space.Compact style={{ width: '100%' }}>
                 <Input
-                    placeholder="ROSE Amount"
+                    placeholder="Amount"
                     value={depositAmount}
-                    suffix="ROSE"
+                    suffix={selectedPair.erc20.symbol}
                     onChange={handleAmountInput}
                     disabled={isLoading || !selectedPair}
                     style={{ flex: 1 }}
@@ -56,11 +52,11 @@ const TokenDepositForm: React.FC<TokenDepositFormProps> = ({
                 disabled={!depositAmount || isLoading || !selectedPair || !selectedPair.secret?.address}
                 block
             >
-                Deposit ROSE to {selectedPair?.secret?.symbol || 'wROSE.S'}
+                Deposit {selectedPair.erc20.symbol} to {selectedPair?.secret?.symbol}
             </Button>
             <Alert
                 type="info"
-                message="Deposit will convert native ROSE to wROSE.S"
+                message={`Deposit will convert ${selectedPair.erc20.symbol} to ${selectedPair?.secret?.symbol}`}
                 showIcon
             />
         </Space>

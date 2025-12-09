@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
-import { Button, Alert, Card, Typography, Space, Row, Col, Statistic, Divider } from 'antd';
-import { CheckCircleOutlined, ReloadOutlined, LockOutlined, LoadingOutlined } from '@ant-design/icons';
-// import { formatAmount } from '../utils/formatAmount';
+import React from 'react';
+import { Button, Alert, Typography, Space} from 'antd';
+import { CheckCircleOutlined, ReloadOutlined, LoadingOutlined } from '@ant-design/icons';
 
-const { Text } = Typography;
+const { Paragraph } = Typography;
 
 export interface WithdrawCardProps {
     disabled?: boolean;
@@ -19,21 +18,6 @@ export interface WithdrawCardProps {
     error?: string;
 }
 
-/**
- * WithdrawCard - 提现卡片组件
- * 
- * 功能：
- * - 支持多种状态：正常、加载、成功、错误、禁用
- * - 显示金额
- * - 响应式设计：宽屏横向布局，移动端纵向布局
- * - 使用 Ant Design 组件构建
- * 
- * 设计原则：
- * - 纯UI组件，状态由外部管理
- * - 丰富的视觉反馈
- * - 清晰的状态指示
- * - 良好的可访问性
- */
 const WithdrawCard: React.FC<WithdrawCardProps> = ({
     disabled = false,
     isLoading = false,
@@ -80,101 +64,68 @@ const WithdrawCard: React.FC<WithdrawCardProps> = ({
 
     const buttonProps = getButtonProps();
 
-    // 状态消息
-    const statusAlert = useMemo(() => {
-        if (isSuccess) {
-            return (
-                <Alert
-                    message="Successfully withdrawn!"
-                    type="success"
-                    showIcon
-                    icon={<CheckCircleOutlined />}
-                />
-            );
-        }
-        if (error) {
-            return (
-                <Alert
-                    message="Withdrawal failed"
-                    description={error}
-                    type="error"
-                    showIcon
-                />
-            );
-        }
-        if (isLoading) {
-            return (
-                <Alert
-                    message="Processing transaction..."
-                    description="Please wait and don't close this page"
-                    type="info"
-                    showIcon
-                    icon={<LoadingOutlined spin />}
-                />
-            );
-        }
-        return null;
-    }, [isSuccess, error, disabled, isLoading]);
+    // 确定 Alert 的类型和消息
+    const getAlertType = (): 'success' | 'error' | 'info' | 'warning' => {
+        if (isSuccess) return 'success';
+        if (error) return 'error';
+        if (isLoading) return 'info';
+        return 'info';
+    };
+
+    const getAlertMessage = (): string => {
+        if (isSuccess) return 'Successfully withdrawn!';
+        if (error) return 'Withdrawal failed';
+        if (isLoading) return 'Processing transaction...';
+        return `Withdrawal: ${formattedAmount} ${tokenSymbol}`;
+    };
+
+    const getAlertIcon = () => {
+        if (isSuccess) return <CheckCircleOutlined />;
+        if (isLoading) return <LoadingOutlined spin />;
+        return undefined;
+    };
 
     return (
-        <Card className={className}>
-            <Row gutter={[16, 16]} align="middle">
-                {/* 数据展示区域 */}
-                <Col xs={24} md={16}>
-                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        {/* 金额显示 */}
-                        {formattedAmount && (
-                            <Statistic
-                                title="Total Amount"
-                                value={formattedAmount}
-                                suffix={tokenSymbol}
-                                valueStyle={{ 
-                                    fontFamily: 'monospace',
-                                    fontSize: '24px',
-                                    fontWeight: 'bold',
-                                }}
-                                prefix="💰"
-                            />
-                        )}
+        <Alert
+            type={getAlertType()}
+            showIcon
+            icon={getAlertIcon()}
+            message={getAlertMessage()}
+            description={
+                <Space direction="horizontal" size="small" style={{ width: '100%'}}>
+                <Space direction="vertical" size="small" >
+                    {/* 消息文本 */}
+                    {message && (
+                        <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: '12px' }}>
+                            {message}
+                        </Paragraph>
+                    )}
 
-                        {message && (
-                            <div>
-                                <Text type="secondary">
-                                    {message}
-                                </Text>
-                            </div>
-                        )}
-
-                        {/* 状态消息 */}
-                        {statusAlert}
+                    {/* 错误详情 */}
+                    {error && (
+                        <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: '12px' }}>
+                            {error}
+                        </Paragraph>
+                    )}
                     </Space>
-                </Col>
 
-                {/* 按钮区域 */}
-                <Col xs={24} md={8}>
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                    }}>
+                    {/* 按钮区域 */}
+                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
                         <Button
                             {...buttonProps}
                             disabled={disabled || isSuccess}
                             onClick={onClick}
                             loading={isLoading}
-                            size="large"
+                            size="middle"
                             block
-                            style={{
-                                minWidth: '120px',
-                            }}
                         >
                             {getButtonText()}
                         </Button>
-                    </div>
-                </Col>
-            </Row>
-        </Card>
+                    </Space>
+                </Space>
+            }
+            className={className}
+        />
     );
 };
 

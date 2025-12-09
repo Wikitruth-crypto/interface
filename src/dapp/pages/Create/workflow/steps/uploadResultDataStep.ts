@@ -10,7 +10,7 @@ import { resultDataUpload } from '../utils/commonUpload';
 export function createUploadResultDataStep(): WorkflowStep<WorkflowPayload, UploadResultDataOutput> {
   return {
     name: 'uploadResultData',
-    description: '上传执行结果数据',
+    description: 'Upload Result Data',
 
     execute: async (input, context) => {
       context.throwIfCancelled();

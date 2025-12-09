@@ -15,7 +15,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   const roles = useBoxDetailStore((state) => state.userState.roles);
   const { checkAllowance_BoxDetail, isEnough } = useAllowance_BoxDetail();
   const { functionWriting} = useButtonInteractionStore();
-  const { writeCustormV2, error } = useWriteCustormV2(boxId);
+  const { writeCustormV2, error, isLoading , isSuccessed} = useWriteCustormV2(boxId);
   const isActiveByHook = config.activeKey ? useButtonActive(config.activeKey) : true;
 
   const [isCheckingAllowance, setIsCheckingAllowance] = useState(false);
@@ -72,10 +72,6 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   const showApprove = shouldCheckAllowance && allowanceChecked && config.needAllowance && !isEnough;
 
   const execute: BoxActionController['execute'] = async (options) => {
-    if (!box) return;
-    if (isDisabled) {
-      return;
-    }
 
     const writeParams = buildWrite(options?.customArgs);
     if (!writeParams) {
@@ -110,8 +106,9 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   return {
     label: config.label,
     description: config.description,
-    isLoading: isCheckingAllowance || isActionPending,
+    isLoading: isCheckingAllowance || isActionPending || isLoading,
     isDisabled,
+    isSuccessed,
     showApprove: showApprove ?? false,
     error,
     execute,

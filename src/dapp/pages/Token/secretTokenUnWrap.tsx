@@ -152,12 +152,12 @@ const SecretTokenUnWrap: React.FC = () => {
                         </Text>
                         {selectedPair.secret?.address && (
                             <Text type="secondary" copyable>
-                                Secret Contract: {selectedPair.secret.address}
+                                Secret: {selectedPair.secret.address}
                             </Text>
                         )}
                         {selectedPair.erc20?.address && (
                             <Text type="secondary" copyable>
-                                ERC20 Contract: {selectedPair.erc20.address}
+                                ERC20: {selectedPair.erc20.address}
                             </Text>
                         )}
                     </Space>

@@ -169,6 +169,7 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
                             status={data.status}
                             size="sm"
                             responsive={true}
+                            className="shrink-0"
                         />
                     </div>
                 </div>

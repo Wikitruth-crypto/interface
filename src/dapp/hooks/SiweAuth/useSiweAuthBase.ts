@@ -18,13 +18,13 @@ const NETWORK_CONFIGS: Record<number, SiweNetworkConfig> = {
         chainId: 23294,
         version: '1',
         defaultStatement: 'I accept the WikiTruth Terms of Service',
-        defaultExpirationHours: 24,
+        defaultExpirationHours: 1,
     },
     23295: {
         chainId: 23295,
         version: '1',
         defaultStatement: 'I accept the WikiTruth Terms of Service',
-        defaultExpirationHours: 24,
+        defaultExpirationHours: 1,
     },
 };
 

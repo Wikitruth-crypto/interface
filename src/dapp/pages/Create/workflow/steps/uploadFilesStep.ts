@@ -7,7 +7,7 @@ import { evidenceCommonUpload } from '../utils/commonUpload';
 export function createUploadFilesStep(): WorkflowStep<WorkflowPayload, UploadFilesOutput> {
   return {
     name: 'uploadFiles',
-    description: '上传压缩文件到 IPFS',
+    description: 'Upload zip files to IPFS',
 
     validate: (input) => {
       const fileChunks = input.allStepOutputs.fileChunks;

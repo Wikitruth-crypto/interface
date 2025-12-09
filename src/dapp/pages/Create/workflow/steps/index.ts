@@ -5,8 +5,6 @@ export { createEncryptDataStep } from './encryptDataStep';
 export { createUploadBoxImageStep } from './uploadBoxImageStep';
 export { createCreateNFTImageStep } from './createNFTImageStep';
 export { createUploadNFTImageStep } from './uploadNFTImageStep';
-// export { createCreateMetadataStep } from './createMetadataStep';
-// export { createUploadMetadataStep } from './uploadMetadataStep';
 export { createMetadataBoxStep } from './metadataBoxStep';
 export { createMetadataNFTStep } from './metadataNFTStep';
 export { createMintStep } from './mintStep';

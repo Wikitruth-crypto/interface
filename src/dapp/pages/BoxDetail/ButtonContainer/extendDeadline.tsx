@@ -19,6 +19,9 @@ const ExtendDeadline: React.FC<Props> = ({ onClick, className }) => {
 
   const handleExtendDeadline = () => {
     onClick?.();
+    if (controller.isDisabled) {
+      return;
+    }
     setModalOpen(true);
   };
   

@@ -22,7 +22,7 @@ export interface CustomThemeConfig {
 // 默认紫色主题配置
 export const purpleTheme: CustomThemeConfig = {
   name: 'purple',
-  displayName: '紫色主题',
+  displayName: 'Purple Theme',
   token: {
     colorPrimary: "#c6a9fc",
     colorInfo: "#c6a9fc",
@@ -41,7 +41,7 @@ export const purpleTheme: CustomThemeConfig = {
 // 默认主题配置
 export const defaultTheme: CustomThemeConfig = {
   name: 'default',
-  displayName: '默认主题',
+  displayName: 'Default Theme',
   token: {
     colorPrimary: '#1677ff',
     colorInfo: '#1677ff',

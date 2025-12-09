@@ -23,7 +23,6 @@ const InputLabelCreate: React.FC<InputLabelCreateProps> = ({
                 maxLabelLength={20}
                 placeholder="Enter labels separated by commas (e.g., fraud, corruption, insider trading)"
             />
-            {/* Note: InputLabel 组件有自己的内部错误管理 */}
         </div>
     );
 };

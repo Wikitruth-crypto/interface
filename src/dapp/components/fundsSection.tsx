@@ -23,7 +23,7 @@ export interface FundsSectionProps {
 }
 
 const FundsSection: React.FC<FundsSectionProps> = ({
-    title = "Your Funds",
+    title = "Can withdraw Funds",
     funds,
     selectedValue,
     onSelect,
@@ -51,10 +51,8 @@ const FundsSection: React.FC<FundsSectionProps> = ({
     const handleChange = (e: any) => {
         const tokenSymbol = e.target.value;
         if (selectedValue === tokenSymbol) {
-            // 取消选择
             onDeselect?.(tokenSymbol);
         } else {
-            // 选择新的token
             onSelect?.(tokenSymbol);
         }
     };
@@ -85,7 +83,7 @@ const FundsSection: React.FC<FundsSectionProps> = ({
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 {/* 标题区域 */}
                 <Title level={5} style={{ margin: 0 }}>
-                    {title}
+                    {hasAnyFunds ? title : 'No funds available'}
                 </Title>
 
                 {/* 代币选择区域 */}
@@ -93,7 +91,7 @@ const FundsSection: React.FC<FundsSectionProps> = ({
                     <Radio.Group
                         value={selectedValue || undefined}
                         onChange={handleChange}
-                        style={{ width: '100%' }}
+                        // style={{ width: '100%' }}
                     >
                         <Space direction="vertical" size="small" style={{ width: '100%' }}>
                             {validFunds.map((fund, index) => (
@@ -104,11 +102,11 @@ const FundsSection: React.FC<FundsSectionProps> = ({
                                     style={{
                                         width: '100%',
                                         height: 'auto',
-                                        padding: '12px 16px',
+                                        padding: '6px 10px',
                                         textAlign: 'left',
                                     }}
                                 >
-                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                    <Space direction="horizontal" size={4} style={{ width: '100%' }}>
                                         <Text strong style={{ fontSize: 16, fontFamily: 'monospace' }}>
                                             {formatAmount(fund.amount, fund.decimals ?? 18)}
                                         </Text>
@@ -125,22 +123,6 @@ const FundsSection: React.FC<FundsSectionProps> = ({
                             ))}
                         </Space>
                     </Radio.Group>
-                )}
-
-                {/* 选择状态提示 */}
-                {selectedValue && hasAnyFunds && (
-                    <Alert
-                        message={
-                            <Space>
-                                <CheckCircleOutlined />
-                                <Text strong>Selected: {selectedValue}</Text>
-                            </Space>
-                        }
-                        description="Click to deselect or choose another token"
-                        type="info"
-                        showIcon
-                        style={{ fontSize: 12 }}
-                    />
                 )}
             </Space>
         </div>

@@ -71,7 +71,8 @@ export function useReadContract() {
                 const cacheAge = Date.now() - queryState.dataUpdatedAt;
                 if (cacheAge < FORCE_CACHE_TIME) {
                     if (import.meta.env.DEV) {
-                        console.log('force 模式下：检查10秒内的缓存', queryState.data);
+                        console.log('force:', queryState.data);
+                        console.log('queryKey', queryKey);
                     }
                     return queryState.data as any;
 

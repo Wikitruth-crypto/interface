@@ -5,15 +5,15 @@ import { parseUnits } from 'viem';
 export interface MintStepDependencies {
   writeCustorm: (params: any) => Promise<string>;
   contractConfig: any;
-  tokens: Array<{ decimals: number }>;
+  decimals?: number ;
 }
 
 export function createMintStep(deps: MintStepDependencies): WorkflowStep<WorkflowPayload, MintOutput> {
-  const { writeCustorm, contractConfig, tokens } = deps;
+  const { writeCustorm, contractConfig, decimals } = deps;
 
   return {
     name: 'mint',
-    description: '铸造 NFT',
+    description: 'Mint Truth Box and NFT',
 
     validate: (input) => {
       const outputs = input.allStepOutputs;
@@ -56,8 +56,15 @@ export function createMintStep(deps: MintStepDependencies): WorkflowStep<Workflo
         let args: any[];
 
         if (mintMethod === 'create') {
-          const token = tokens[0];
-          const priceInWei = parseUnits(price, token.decimals);
+          // 验证所有必需的参数
+          if (!price || typeof price !== 'string') {
+            throw new Error(`Invalid price: ${price} (type: ${typeof price})`);
+          }
+          if (!outputs.keyPair?.privateKey_minter) {
+            throw new Error('keyPair.privateKey_minter is missing');
+          }
+          
+          const priceInWei = parseUnits(price, decimals || 18);
           functionName = 'create';
           args = [
             nftOwner,
@@ -71,9 +78,28 @@ export function createMintStep(deps: MintStepDependencies): WorkflowStep<Workflo
           args = [nftOwner, outputs.metadataNFTCid, outputs.metadataBoxCid];
         }
 
+        const invalidArgs = args.map((arg, index) => ({ 
+          index, 
+          arg, 
+          isUndefined: arg === undefined,
+          isNull: arg === null,
+          type: typeof arg,
+        }));
+        const hasInvalid = invalidArgs.some(item => item.isUndefined || item.isNull);
+        if (hasInvalid) {
+          console.error('Mint: Some arguments are invalid:', invalidArgs);
+          console.error('Mint: Full args array:', args);
+          throw new Error(`Cannot mint: some arguments are invalid. Args: ${JSON.stringify(invalidArgs)}`);
+        }
+
+        if (!contractConfig || !contractConfig.address || !contractConfig.abi) {
+          console.error('Mint: Invalid contractConfig:', contractConfig);
+          throw new Error(`Invalid contractConfig: ${JSON.stringify(contractConfig)}`);
+        }
+
         context.throwIfCancelled();
         const transactionHash = await writeCustorm({
-          contract: contractConfig.address,
+          contract: contractConfig,
           functionName: functionName as any,
           args: args as any,
         });

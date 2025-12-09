@@ -6,7 +6,7 @@ import { mintDataUpload } from '../utils/commonUpload';
 export function createUploadBoxImageStep(): WorkflowStep<WorkflowPayload, UploadBoxImageOutput> {
   return {
     name: 'uploadBoxImage',
-    description: '上传盒子封面图片到 IPFS',
+    description: 'Upload Box Image to IPFS',
 
     validate: (input) => {
       if (!input.boxImages || input.boxImages.length === 0) {

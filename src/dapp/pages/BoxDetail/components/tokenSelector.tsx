@@ -10,7 +10,7 @@ interface TokenSelectorProps {
 const TokenSelector: React.FC<TokenSelectorProps> = ({ onChange }) => {
     const supportedTokens = useSupportedTokens();
     const [value, setValue] = useState<CommonSelectOption|null>(null)
-    const options: CommonSelectOption[] = supportedTokens.map(token => ({
+    const options: CommonSelectOption[] = supportedTokens.filter(token => token.canAcceptToken).map(token => ({
         // icon: '/token/usdt.png',
         index: token.index,
         name: token.name,

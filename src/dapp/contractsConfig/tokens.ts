@@ -15,6 +15,7 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       address: addresses.OfficialToken,
       mappingAddress: addresses.OfficialTokenSecret,
       types: 'ERC20',
+      canAcceptToken: false,
       contractName: ContractName.OFFICIAL_TOKEN,
       abi: ABIS[ContractName.OFFICIAL_TOKEN],
     },
@@ -27,6 +28,7 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       address: addresses.OfficialTokenSecret,
       mappingAddress: addresses.OfficialToken,
       types: 'Secret',
+      canAcceptToken: true,
       domainName: "Secret ERC20 Token",
       contractName: ContractName.OFFICIAL_TOKEN_SECRET,
       abi: ABIS[ContractName.OFFICIAL_TOKEN_SECRET],
@@ -40,6 +42,7 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       address: addresses.wROSE,
       mappingAddress: addresses.wROSE_Secret,
       types: 'ERC20',
+      canAcceptToken: false,
       contractName: ContractName.WROSE,
       abi: ABIS[ContractName.WROSE],
     },
@@ -52,7 +55,8 @@ export function getSupportedTokens_WithChainId(chainId: SupportedChainId): Token
       address: addresses.wROSE_Secret,
       mappingAddress: addresses.wROSE,
       types: 'Secret',
-      domainName: "Secret ROSE Token",
+      canAcceptToken: true,
+      domainName: "Secret ERC20 Token",
       contractName: ContractName.WROSE_SECRET,
       abi: ABIS[ContractName.WROSE_SECRET],
     },
@@ -73,7 +77,9 @@ export function getOfficialTokenConfig_WithChainId(chainId: SupportedChainId): T
     address: addresses.OfficialToken,
     mappingAddress: addresses.OfficialTokenSecret,
     types: 'ERC20',
+    canAcceptToken: false,
     contractName: ContractName.OFFICIAL_TOKEN,
     abi: ABIS[ContractName.OFFICIAL_TOKEN],
   };
 }
+

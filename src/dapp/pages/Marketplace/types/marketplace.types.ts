@@ -28,20 +28,20 @@ export interface MarketplaceBoxData {
   tokenIdNumeric?: number;
   price: string;
   status: BoxStatus | string;
-  deadline?: string | null;
-  boxInfoCID?: string | null;
+  deadline: string | null;
+  boxInfoCID: string | null;
   acceptToken?: string | null;
 
 
-  title?: string;
+  title: string;
   description?: string;
-  nftImage?: string | null;
-  boxImage?: string | null;
-  country?: string | null;
-  state?: string | null;
-  eventDate?: string | null;
-  typeOfCrime?: string | null;
-  label?: string[] | null;
+  nftImage: string | null;
+  boxImage: string | null;
+  country: string | null;
+  state: string | null;
+  eventDate: string | null;
+  typeOfCrime: string | null;
+  label: string[] | null;
 
   relevance?: number;
   hasError?: boolean;

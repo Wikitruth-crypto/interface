@@ -15,7 +15,7 @@ export {
   MAINNET_ADDRESSES 
 } from './contracts';
 
-// 导出当前链配置
+// 导出当前配置
 export {
   SUPPORTED_TOKENS,
   CHAIN_ID,
@@ -23,6 +23,7 @@ export {
   OFFICIAL_TOKEN_CONFIG,
   PROTOCOL_CONSTANTS,
   useSetCurrentChainConfig,
+  getTokenMetadata,
 } from './current';
 
 // 导出协议常量
@@ -48,6 +49,7 @@ export {
   useSupportedTokens,
   useContractAddress,
   useChainConfig,
+  useTokenMetadata,
 } from './hooks';
 
 // 导出 Token 配置

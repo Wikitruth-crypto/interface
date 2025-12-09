@@ -15,14 +15,7 @@ interface ModalProps {
     onNext?: () => void;
 }
 
-/**
- * 创建成功弹窗组件
- * 
- * 功能：
- * - 显示创建成功的信息摘要
- * - 提供交易哈希查看功能
- * - 一键复制关键信息
- */
+
 const ModalDialogCompletedCreate: React.FC<ModalProps> = ({ onClose, onNext }) => {
     const workflowStore = useCreateWorkflowStore();
     const createStore = useNFTCreateStore();
@@ -102,7 +95,7 @@ const ModalDialogCompletedCreate: React.FC<ModalProps> = ({ onClose, onNext }) =
                     Done
                 </Button>
             ]}
-            width={600}
+            width={520}
         >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 {/* 成功提示 */}

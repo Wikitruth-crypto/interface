@@ -1,10 +1,8 @@
 import React from 'react';
-import { Card, Row, Col } from 'antd';
-
-// 导入基础组件
-import BoxImage from './base/boxImage';
+import { Card, Row, Col, Image } from 'antd';
 import BoxInfo, { BoxMetadata } from './base/boxInfo';
 import FundsSection, { FundsData } from './fundsSection';
+import { ipfsCidToUrl } from '@/config/ipfsUrl/ipfsCidToUrl';
 
 // 类型定义
 export interface CardProfileData {
@@ -32,21 +30,6 @@ export interface CardProfileProps {
     className?: string;
 }
 
-/**
- * CardProfile - 纯UI组件
- * 
- * 功能：
- * - 展示Box的基础信息（图片、标题、描述、元数据）
- * - 展示资金信息（Office Token、Accepted Token）
- * - 提供Claim操作界面
- * - 支持响应式布局：宽屏横向布局，移动端纵向布局
- * 
- * 设计原则：
- * - 纯UI组件，不包含业务逻辑
- * - 通过props接收所有数据和回调
- * - 专注于展示和用户交互
- * - 使用 Ant Design 组件构建
- */
 const CardProfile: React.FC<CardProfileProps> = ({
     data,
     funds,
@@ -65,30 +48,75 @@ const CardProfile: React.FC<CardProfileProps> = ({
     return (
         <Card
             className={className}
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 10 }}
             hoverable
+            styles={{
+                body: { padding: '12px 16px' }
+            }}
         >
-            <Row gutter={[16, 16]} align="middle">
-                {/* 左侧：Box 基础信息展示区 */}
-                <Col xs={24} md={16}>
+            <Row gutter={[12, 12]} align="middle">
+                <Col xs={24} md={0}>
+                    <div
+                        onClick={actions.onCardClick}
+                        style={{
+                            cursor: actions.onCardClick ? 'pointer' : 'default',
+                        }}
+                    >
+                        <BoxInfo
+                            title={data.title}
+                            description={data.description}
+                            metadata={boxMetadata}
+                            responsive={true}
+                        />
+                    </div>
+                </Col>
+                <Col xs={24} md={0}>
+                    <Row gutter={[12, 12]} align="middle">
+                        <Col xs={9}>
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image
+                                    src={ipfsCidToUrl(data.boxImage || '')}
+                                    alt={`${data.title} #${data.tokenId}`}
+                                    width={100}
+                                    height={100}
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            </div>
+                        </Col>
+                        <Col xs={15}>
+                            <FundsSection
+                                funds={funds}
+                                selectedValue={actions.selectedTokenSymbol}
+                                onSelect={actions.onSelect}
+                                onDeselect={actions.onDeselect}
+                            />
+                        </Col>
+                    </Row>
+                </Col>
+
+                {/* 平板端和电脑端：Box 基础信息展示区 */}
+                <Col xs={0} md={16} lg={17} xl={18}>
                     <Row
                         onClick={actions.onCardClick}
                         style={{
                             cursor: actions.onCardClick ? 'pointer' : 'default',
                         }}
-                        gutter={[16, 16]}
+                        gutter={[12, 12]}
                         align="top"
                     >
-                        {/* Box 图片 */}
-                        <Col xs={24} sm={8} style={{ display: 'flex', justifyContent: 'center' }}>
-                            <BoxImage
-                                src={data.boxImage || ''}
-                                alt={`${data.title} #${data.tokenId}`}
-                            />
+                        <Col md={8} lg={7} xl={6}>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <Image
+                                    src={ipfsCidToUrl(data.boxImage || '')}
+                                    alt={`${data.title} #${data.tokenId}`}
+                                    width={110}
+                                    height={110}
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            </div>
                         </Col>
 
-                        {/* Box 信息 */}
-                        <Col xs={24} sm={16}>
+                        <Col md={16} lg={17} xl={18}>
                             <BoxInfo
                                 title={data.title}
                                 description={data.description}
@@ -99,24 +127,13 @@ const CardProfile: React.FC<CardProfileProps> = ({
                     </Row>
                 </Col>
 
-                {/* 右侧：资金展示区域 */}
-                <Col xs={24} md={8}>
-                    <div
-                        style={{
-                            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                            borderLeft: 'none',
-                            paddingTop: 16,
-                            paddingLeft: 0,
-                        }}
-                        className="md:border-t-0 md:border-l md:pl-4 md:pt-0"
-                    >
-                        <FundsSection
-                            funds={funds}
-                            selectedValue={actions.selectedTokenSymbol}
-                            onSelect={actions.onSelect}
-                            onDeselect={actions.onDeselect}
-                        />
-                    </div>
+                <Col xs={0} md={8} lg={7} xl={6}>
+                    <FundsSection
+                        funds={funds}
+                        selectedValue={actions.selectedTokenSymbol}
+                        onSelect={actions.onSelect}
+                        onDeselect={actions.onDeselect}
+                    />
                 </Col>
             </Row>
         </Card>

@@ -51,7 +51,7 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    
+
     // 使用 ref 跟踪上次的值，避免重复触发
     const prevStartRef = useRef<string>('');
     const prevEndRef = useRef<string>('');
@@ -63,15 +63,15 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
     // 验证数字格式（根据decimal参数）
     const validateNumberFormat = (value: string): boolean => {
         if (!value || value === '') return true;
-        
+
         // 整数验证
         if (decimal === 0) {
             const integerRegex = allowNegative ? /^-?\d+$/ : /^\d+$/;
             return integerRegex.test(value);
         }
-        
+
         // 小数验证
-        const decimalRegex = allowNegative 
+        const decimalRegex = allowNegative
             ? new RegExp(`^-?\\d*\\.?\\d{0,${decimal}}$`)
             : new RegExp(`^\\d*\\.?\\d{0,${decimal}}$`);
         return decimalRegex.test(value);
@@ -122,7 +122,7 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
 
         // 检查值是否真正变化
         const hasChanged = start !== prevStartRef.current || end !== prevEndRef.current;
-        
+
         // 仅在有效值变化时触发回调，避免初始化时的无效触发
         if (hasChanged) {
             const timeoutId = setTimeout(() => {
@@ -151,89 +151,92 @@ export const RangeSelector: React.FC<RangeSelectProps> = ({
 
     return (
         <Space direction="vertical" size="middle" style={{ width: '100%' }} className={className}>
-            <Text strong style={{ fontFamily: 'monospace' }}>
-                {label}
-            </Text>
+            <Space direction="horizontal" size="middle" style={{ width: '100%' }}>
 
-            <Space.Compact style={{ width: '100%' }} size="small">
-                {/* Start Input */}
-                {type === 'number' ? (
-                    <InputNumber
-                        value={startNum}
-                        onChange={(value) => setStart(value !== null && value !== undefined ? String(value) : '')}
-                        precision={decimal > 0 ? decimal : undefined}
-                        min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
-                        max={max}
-                        step={step}
-                        placeholder={placeholder.start}
-                        disabled={disabled}
-                        controls={showControls}
-                        style={{ flex: 1, fontFamily: 'monospace' }}
-                        status={isError ? 'error' : ''}
-                    />
-                ) : (
-                    <Input
-                        type="text"
-                        placeholder={placeholder.start}
-                        value={start}
-                        onChange={(e) => setStart(e.target.value)}
-                        disabled={disabled}
-                        style={{ flex: 1, fontFamily: 'monospace' }}
-                        status={isError ? 'error' : ''}
-                    />
-                )}
+                <Text strong style={{ fontFamily: 'monospace' }}>
+                    {label}
+                </Text>
 
-                {/* Separator */}
-                <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    padding: '0 8px',
-                    minWidth: '24px',
-                    justifyContent: 'center'
-                }}>
-                    <Text type="secondary">~</Text>
-                </div>
+                <Space.Compact style={{ width: '100%' }} size="small">
+                    {/* Start Input */}
+                    {type === 'number' ? (
+                        <InputNumber
+                            value={startNum}
+                            onChange={(value) => setStart(value !== null && value !== undefined ? String(value) : '')}
+                            precision={decimal > 0 ? decimal : undefined}
+                            min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
+                            max={max}
+                            step={step}
+                            placeholder={placeholder.start}
+                            disabled={disabled}
+                            controls={showControls}
+                            style={{ flex: 1, fontFamily: 'monospace' }}
+                            status={isError ? 'error' : ''}
+                        />
+                    ) : (
+                        <Input
+                            type="text"
+                            placeholder={placeholder.start}
+                            value={start}
+                            onChange={(e) => setStart(e.target.value)}
+                            disabled={disabled}
+                            style={{ flex: 1, fontFamily: 'monospace' }}
+                            status={isError ? 'error' : ''}
+                        />
+                    )}
 
-                {/* End Input */}
-                {type === 'number' ? (
-                    <InputNumber
-                        value={endNum}
-                        onChange={(value) => setEnd(value !== null && value !== undefined ? String(value) : '')}
-                        precision={decimal > 0 ? decimal : undefined}
-                        min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
-                        max={max}
-                        step={step}
-                        placeholder={placeholder.end}
-                        disabled={disabled}
-                        controls={showControls}
-                        style={{ flex: 1, fontFamily: 'monospace' }}
-                        status={isError ? 'error' : ''}
-                    />
-                ) : (
-                    <Input
-                        type="text"
-                        placeholder={placeholder.end}
-                        value={end}
-                        onChange={(e) => setEnd(e.target.value)}
-                        disabled={disabled}
-                        style={{ flex: 1, fontFamily: 'monospace' }}
-                        status={isError ? 'error' : ''}
-                    />
-                )}
+                    {/* Separator */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 8px',
+                        minWidth: '24px',
+                        justifyContent: 'center'
+                    }}>
+                        <Text type="secondary">~</Text>
+                    </div>
 
-                {/* Confirm Button */}
-                {showButton && (
-                    <Button
-                        type="primary"
-                        size="small"
-                        onClick={handleConfirm}
-                        disabled={disabled || isError || (!start && !end) || isLoading}
-                        loading={isLoading}
-                    >
-                        Confirm
-                    </Button>
-                )}
-            </Space.Compact>
+                    {/* End Input */}
+                    {type === 'number' ? (
+                        <InputNumber
+                            value={endNum}
+                            onChange={(value) => setEnd(value !== null && value !== undefined ? String(value) : '')}
+                            precision={decimal > 0 ? decimal : undefined}
+                            min={allowNegative ? (min !== undefined ? min : undefined) : (min !== undefined ? Math.max(0, min) : 0)}
+                            max={max}
+                            step={step}
+                            placeholder={placeholder.end}
+                            disabled={disabled}
+                            controls={showControls}
+                            style={{ flex: 1, fontFamily: 'monospace' }}
+                            status={isError ? 'error' : ''}
+                        />
+                    ) : (
+                        <Input
+                            type="text"
+                            placeholder={placeholder.end}
+                            value={end}
+                            onChange={(e) => setEnd(e.target.value)}
+                            disabled={disabled}
+                            style={{ flex: 1, fontFamily: 'monospace' }}
+                            status={isError ? 'error' : ''}
+                        />
+                    )}
+
+                    {/* Confirm Button */}
+                    {showButton && (
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={handleConfirm}
+                            disabled={disabled || isError || (!start && !end) || isLoading}
+                            loading={isLoading}
+                        >
+                            Confirm
+                        </Button>
+                    )}
+                </Space.Compact>
+            </Space>
 
             {/* Error Message */}
             {isError && errorMessage && (

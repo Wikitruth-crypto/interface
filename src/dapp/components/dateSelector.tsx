@@ -155,7 +155,7 @@ export function DateSelector({
                         placeholder={placeholder}
                         disabled={disabled}
                         allowClear={allowClear}
-                        showToday={showToday}
+                        showNow={showToday}
                         format={format}
                         disabledDate={getDisabledDate}
                         size={size}

@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { Input } from 'antd';
+import { Input, Typography } from 'antd';
 import { cn } from "@/lib/utils";
 
 export interface InputAreaProps {
@@ -80,16 +80,16 @@ const InputArea: React.FC<InputAreaProps> = ({
 
             {/* 错误消息（优先级高于警告） */}
             {shouldShowError && (
-                <p className="text-sm text-error font-light">
+                <Typography.Text type="danger">
                     {error}
-                </p>
+                </Typography.Text>
             )}
 
             {/* 警告消息（仅在没有错误时显示） */}
             {!shouldShowError && shouldShowWarning && (
-                <p className="text-sm text-warning font-light">
+                <Typography.Text type="warning">
                     {warning}
-                </p>
+                </Typography.Text>
             )}
         </div>
     );

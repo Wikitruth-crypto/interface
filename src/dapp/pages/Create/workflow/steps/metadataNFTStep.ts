@@ -9,7 +9,7 @@ import { mintDataUpload } from '../utils/commonUpload';
 export function createMetadataNFTStep(): WorkflowStep<WorkflowPayload, MetadataNFTOutput> {
   return {
     name: 'metadataNFT',
-    description: '处理NFT元数据文件',
+    description: 'Create Metadata NFT',
 
     validate: (input) => {
       const outputs = input.allStepOutputs;

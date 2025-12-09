@@ -3,7 +3,7 @@ import WithdrawCard from '@/dapp/components/witrhdrawCard';
 import { formatAmount } from '@/dapp/utils/formatAmount';
 import { useWithdrawStore } from '../store/withdrawStore';
 import { useWithdraw } from '../hooks/useWithdraw';
-import { cn } from '@/lib/utils';
+// import { cn } from '@/lib/utils';
 
 export interface ProfileWithdrawPanelProps {
     className?: string;
@@ -20,8 +20,8 @@ const getWithdrawLabel = (type: string | null) => {
     return 'Order Amount';
 };
 
-const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = ({ className }) => {
-    const { withdraw, isPending, isSuccessed, error } = useWithdraw();
+const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = () => {
+    const { withdraw, isLoading, isSuccessed, error } = useWithdraw();
     const { withdrawData, canClaim, totalAmount } = useWithdrawStore();
 
     const hasSelection = canClaim();
@@ -47,19 +47,18 @@ const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = ({ className }
     }
 
     return (
-        <div className={cn('rounded-2xl border border-border bg-card/50 p-6', className)}>
             <WithdrawCard
                 formattedAmount={formattedAmount}
                 tokenSymbol={tokenSymbol}
                 message={message}
                 buttonText={`Withdraw ${label}`}
-                disabled={!shouldDisplay || isPending}
-                isLoading={isPending}
+                disabled={!shouldDisplay || isLoading}
+                isLoading={isLoading}
                 isSuccess={isSuccessed}
                 error={error?.message}
                 onClick={handleWithdraw}
+                className='mb-3!'
             />
-        </div>
     );
 };
 

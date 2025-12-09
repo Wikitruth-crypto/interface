@@ -10,25 +10,17 @@ import {
 const { Paragraph } = Typography;
 
 export interface PromptModalProps {
-    /** 是否显示弹窗 */
     isOpen: boolean;
-    /** 关闭回调 */
     onClose: () => void;
-    /** 弹窗标题 */
     title?: string;
-    /** 弹窗内容 */
     content?: string | React.ReactNode;
     /** 确认按钮文字 */
     confirmText?: string;
-    /** 提示类型 */
     type?: 'info' | 'warning' | 'success' | 'error';
-    /** 是否显示关闭按钮 */
     closable?: boolean;
     /** 点击遮罩是否关闭 */
     maskClosable?: boolean;
-    /** 弹窗宽度 */
     width?: number;
-    /** 内容区域最大高度（像素），超出此高度将显示滚动条，默认 400px */
     maxHeight?: number;
 }
 

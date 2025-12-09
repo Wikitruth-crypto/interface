@@ -2,7 +2,7 @@
 import {
     // ConfigProvider,
     Modal,
-    // Button,
+    Divider,
     Typography,
     InputNumber,
 } from 'antd';
@@ -16,22 +16,23 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 // import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 // import { usePermissionContext } from '../useState/permission/PermissionContext';
+// import type { BoxActionController } from '../actions/types';
 
 interface Props {
+    // controller: BoxActionController;
     onClose: () => void;
 }
 
-const ModalExtend: React.FC<Props> = ({ onClose }) => {
+const ModalExtend: React.FC<Props> = ({ onClose}) => {
     const { boxId, box } = useBoxDetailContext();
     // const { address } = useWalletContext();
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
-    const { roles } = useBoxDetailStore(state => state.userState);
-    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2(boxId);
+    // const { roles } = useBoxDetailStore(state => state.userState);
+    const { writeCustormV2, error, isLoading, isSuccessed } = useWriteCustormV2(boxId);
     const allConfigs = useAllContractConfigs();
     const [isAble, setIsAble] = useState<boolean>(false)
     const [okText, setOkText] = useState<string>('Submit')
-    const [timestamp, setTimestamp] = useState<number>(0)
-    const [days, setDays] = useState<number>(0)
+    const [days, setDays] = useState<string>('')
 
     if (!box) {
         return <div>loading...</div>
@@ -44,8 +45,8 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
     useEffect(() => {
         if (isSuccessed) {
             setIsAble(false)
-            setOkText('Submit')
-        } else if (isPending) {
+            setOkText('Success')
+        } else if (isLoading) {
             setIsAble(true)
             setOkText('wait...')
         } else if (error) {
@@ -53,28 +54,23 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
             setOkText('Submit')
         }
 
-    }, [error, isPending, isSuccessed]);
+    }, [error, isLoading, isSuccessed]);
 
     const handleInputTime = (value: string) => {
         if (import.meta.env.DEV) {
             console.log("value days:", value)
         }
-        setDays(Number(value))
-        setTimestamp(Number(value) * 24 * 60 * 60)
+        setDays(value)
     }
 
     const handleExtend = async () => {
-        if (timestamp) {
-            if (roles.includes('Minter')) {
-                await writeCustormV2({
-                    contract: allConfigs.TruthBox,
-                    functionName: 'extendDeadline',
-                    args: [boxId, timestamp], // 
-                });
-            } else {
-                alert('You can`t do that!');
-                return;
-            }
+        if (days && Number(days) > 0) {
+            const timestamp = Number(days) * 24 * 60 * 60;
+            await writeCustormV2({
+                contract: allConfigs.TruthBox,
+                functionName: 'extendDeadline',
+                args: [boxId, timestamp], // 
+            });
         } else {
             alert('Empty data!')
         }
@@ -104,23 +100,16 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
             <div className='flex flex-col gap-2'>
 
                 <div className='flex flex-row gap-2 items-baseline'>
-                    <Typography.Paragraph className='text-gray-300'>Current tokenId:</Typography.Paragraph>
+                    <Typography.Paragraph className='text-gray-300'>Current boxId:</Typography.Paragraph>
                     <Typography.Paragraph className='text-lg'>{boxId}</Typography.Paragraph>
                 </div>
                 <div className='flex flex-col gap-2'>
                     {/* <Typography.Paragraph className='text-muted-foreground'>Please enter the data from the previously minted files.</Typography.Paragraph> */}
                     <div className='flex flex-col gap-2 w-full'>
                         <Typography.Paragraph className='text-gray-300'>Days:</Typography.Paragraph>
-                        {/* <input
-                            className='modalInput'
-                            type="text"
-                            name="uint256"
-                            placeholder="Input timestamp"
-                            onChange={(e) => handleInputTime(e.target.value)}
-                        /> */}
                         <div className='flex flex-row w-full'>
                             <InputNumber
-                                value={days.toString() || ''}
+                                value={days}
                                 suffix='days'
                                 precision={0}
                                 min="1"
@@ -132,7 +121,7 @@ const ModalExtend: React.FC<Props> = ({ onClose }) => {
                     </div>
                 </div>
             </div>
-            <div className='w-full h-[1px]  border-t border-gray-500 my-2'></div>
+            <Divider />
         
         </Modal >
 

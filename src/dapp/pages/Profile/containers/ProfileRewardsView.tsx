@@ -10,7 +10,7 @@ interface ProfileRewardsViewProps {
 const ProfileRewardsView: React.FC<ProfileRewardsViewProps> = ({ userId, className }) => {
     return (
         <div className={cn('space-y-6', className)}>
-            <ProfileRewardsPanel userId={userId} className="w-full" />
+            <ProfileRewardsPanel userId={userId}/>
         </div>
     );
 };

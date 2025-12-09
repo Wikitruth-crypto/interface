@@ -7,14 +7,6 @@ import CompletedCreate from '@dapp/pages/Create/ModalDialog/completed';
 import { useCreateWorkflowStore } from '../store/useCreateWorkflowStore';
 import { useCreateForm } from '../context/CreateFormContext';
 
-/**
- * Mint 按钮组件（重构版）
- * 
- * 关键改进：
- * - 使用 React Hook Form 实时检查表单完整性
- * - 表单不完整时自动禁用按钮
- * - 提供更好的用户反馈
- */
 const MintButton: React.FC = () => {
   const [openModal, setOpenModal] = useState<'mintProgress' | 'completed' | null>(null);
   const { address } = useWalletContext();

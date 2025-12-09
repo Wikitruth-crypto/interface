@@ -7,7 +7,7 @@ import { mintDataUpload } from '../utils/commonUpload';
 export function createUploadNFTImageStep(): WorkflowStep<WorkflowPayload, UploadNFTImageOutput> {
   return {
     name: 'uploadNFTImage',
-    description: '上传 NFT 图片到 IPFS',
+    description: 'Upload NFT Image to IPFS',
 
     validate: (input) => {
       const image = input.allStepOutputs.nftImage;

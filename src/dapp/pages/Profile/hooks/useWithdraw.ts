@@ -7,10 +7,8 @@ import { useSupportedTokens } from "@/dapp/contractsConfig";
 export const useWithdraw = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
-    // const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2();
-    const error: any = null;
-    const isPending = false;
-    const isSuccessed = false;
+    const { writeCustormV2, error, isPending, isSuccessed, status } = useWriteCustormV2();
+
 
     const withdraw = async () => {
         const withdrawData = useWithdrawStore.getState().withdrawData;
@@ -59,6 +57,7 @@ export const useWithdraw = () => {
         withdraw,
         error,
         isPending,
+        isLoading: status !== 'idle' && status !== "error" && !isSuccessed,
         isSuccessed
     }
 }

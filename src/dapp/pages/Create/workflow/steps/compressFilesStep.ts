@@ -6,7 +6,7 @@ import { zipFileService } from '@/dapp/services/zip/zipFile';
 export function createCompressFilesStep(): WorkflowStep<WorkflowPayload, CompressFilesOutput> {
   return {
     name: 'compressFiles',
-    description: '处理文件并压缩',
+    description: 'Compress files',
 
     validate: (input) => {
       if (!input.files || input.files.length === 0) {

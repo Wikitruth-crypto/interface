@@ -64,7 +64,7 @@ export const useSmartWorkflow = () => {
   // 获取 Mint 步骤需要的 Hook 依赖
   const { writeCustorm } = useWriteCustorm();
   const contractConfig = useContractConfig(ContractName.TRUTH_BOX);
-  const tokens = useSupportedTokens();
+  const decimals = useSupportedTokens()[0]?.decimals;
 
   /**
    * 创建智能编排器
@@ -91,12 +91,12 @@ export const useSmartWorkflow = () => {
       .registerStep(createMintStep({
         writeCustorm,
         contractConfig,
-        tokens,
+        decimals,
       }))
       .registerStep(createUploadResultDataStep());
 
     return orchestrator;
-  }, [writeCustorm, contractConfig, tokens]);
+  }, [writeCustorm, contractConfig, decimals]);
 
   /**
    * 启动工作流

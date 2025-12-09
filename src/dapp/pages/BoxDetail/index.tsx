@@ -1,27 +1,28 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Typography } from 'antd';
 import { useParams } from 'react-router-dom';
 import ContentLeft from './containers/left';
 import ContentRight from './containers/right';
 import { Container } from '@/components/Container';
 import { BoxDetailProvider } from './contexts/BoxDetailContext';
-// import FloatSignatureButtonBoxDetail from './components/floatSignatureButton';
-import UserIdAlert from '@/dapp/components/userIdAlert';
+// import UserIdAlert from '@/dapp/components/userIdAlert';
 
 const BoxDetail: React.FC = () => {
     const { tokenId } = useParams<{ tokenId: string }>();
 
     return (
         <>
-            {/* <FloatSignatureButtonBoxDetail /> */}
             <Container className="py-8 md:py-12 lg:py-16">
                 {/* Hero Section */}
                 <div className="text-center mb-8 md:mb-12">
-                    <h2 className="text-md font-mono md:text-lg lg:text-xl font-semibold text-foreground mb-4">
+                    <Typography.Title level={2} 
+                    style={{ marginBottom: 2, marginTop: 2 }}
+                    >
                         Only criminals fear the truth being revealed!
-                    </h2>
+                    </Typography.Title>
                 </div>
 
-                <UserIdAlert />
+                {/* <UserIdAlert /> */}
 
                 {/* Main Content */}
                 <div className="bg-muted/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 lg:p-12">

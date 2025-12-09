@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Dropdown, Space, Typography, MenuProps, Button } from 'antd';
 import { UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { useAccount } from 'wagmi';
 import { ConnectButtonComponent } from '@/dapp/context/connectWallet/connectButton';
 import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 import { useGetMyUserId } from '@/dapp/hooks/readContracts2/useGetMyUserId';
+import AlertCustom from '@/dapp/components/base/alertCustom';
 
 const { Text } = Typography;
 
@@ -23,33 +24,19 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
     const navigate = useNavigate();
     const dropdownRef = useRef<HTMLDivElement>(null);
     
-    // 钱包连接状态
+    // Wallet connection status
     const {isConnected } = useAccount();
 
-    // SIWE 登录相关
-    const { session, login, logout: siweLogout, validateSession, isLoading: isSiweLoading, error: siweError } = useSiweAuth();
+    // SIWE login related
+    const { session, login, logout: siweLogout, isValidateSession, isLoading: isSiweLoading, error: siweError } = useSiweAuth();
 
     // UserId
     const userId = useGetMyUserId();
 
-    // 检查 SIWE token 是否过期
-    const isSiweExpired = useMemo(() => {
-        if (!session.expiresAt) {
-            return false;
-        }
-        return session.expiresAt.getTime() <= Date.now();
-    }, [session.expiresAt]);
+    // 使用响应式的 isValidateSession 来判断是否需要登录
+    const needsSiweLogin = !isValidateSession;
 
-    const needsSiweLogin = !session.isLoggedIn || !session.token || isSiweExpired;
-
-    // 验证会话
-    useEffect(() => {
-        if (session.isLoggedIn && !needsSiweLogin) {
-            void validateSession();
-        }
-    }, [session.isLoggedIn, needsSiweLogin, validateSession]);
-
-    // 处理 SIWE 登录
+    // Handle SIWE login
     const handleSiweLogin = async () => {
         try {
             await login();
@@ -58,12 +45,12 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
         }
     };
 
-    // 处理 SIWE 登出
+    // Handle SIWE logout
     const handleSiweLogout = () => {
         siweLogout();
     };
 
-    // 处理 Profile 导航
+    // Handle Profile navigation
     const handleProfileClick = () => {
         navigate('/app/profile');
     };
@@ -76,13 +63,13 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
 
         const items: MenuProps['items'] = [];
 
-        // SIWE 登录状态
+        // SIWE login status
         if (needsSiweLogin) {
             items.push({
                 key: 'siwe-login',
                 label: (
                     <Space direction="vertical" size={4} style={{ width: '100%', padding: '8px 0' }}>
-                        <Text type="warning" style={{ fontSize: 12 }}>
+                        <Text type="warning" strong style={{ fontSize: 12 }}>
                             Not logged in
                         </Text>
                         <Text type="secondary" style={{ fontSize: 11 }}>
@@ -108,7 +95,7 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
                                 width: '100%',
                             }}
                         >
-                            {isSiweLoading ? 'Signing...' : 'Sign In with Ethereum'}
+                            {isSiweLoading ? 'Signing...' : 'Sign In with SIWE'}
                         </Button>
                         {siweError && (
                             <Text type="danger" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
@@ -120,12 +107,12 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
                 disabled: true,
             });
         } else {
-            // 已登录 SIWE
+            // SIWE logged in
             items.push({
                 key: 'siwe-status',
                 label: (
                     <Space>
-                        <Text type="success" style={{ fontSize: 12 }}>
+                        <Text type="success" strong style={{ fontSize: 12 }}>
                             ✓ Logged in
                         </Text>
                     </Space>
@@ -133,14 +120,14 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
                 disabled: true,
             });
 
-            // 显示 UserId（如果存在）
+            // Display UserId (if it exists)
             if (userId && userId.trim() !== '') {
                 items.push({
                     key: 'user-id',
                     label: (
                         <Space>
-                            <Text style={{ fontSize: 12 }}>
-                                User ID: <Text strong style={{ fontFamily: 'monospace' }}>{userId}</Text>
+                            <Text strong >
+                                User ID: <Text type="success" strong style={{ fontFamily: 'monospace', fontSize: 14 }}>{userId}</Text>
                             </Text>
                         </Space>
                     ),
@@ -148,14 +135,14 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
                 });
             }
 
-            // Profile 链接（如果有 UserId）
+            // Profile link (if there is UserId)
             if (userId && userId.trim() !== '') {
                 items.push({
                     key: 'profile',
                     label: (
                         <Space>
                             <ProfileOutlined />
-                            <Text>Profile</Text>
+                            <Text strong>Profile</Text>
                         </Space>
                     ),
                     onClick: handleProfileClick,
@@ -166,13 +153,12 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
                 type: 'divider',
             });
 
-            // 登出按钮
             items.push({
                 key: 'siwe-logout',
                 label: (
                     <Space>
-                        <LogoutOutlined />
-                        <Text>Logout</Text>
+                        <LogoutOutlined style={{ color: 'var(--color-warning)' }}/>
+                        <Text type="warning" strong>Logout</Text>
                     </Space>
                 ),
                 onClick: handleSiweLogout,
@@ -182,7 +168,7 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
         return items;
     }, [
         isConnected,
-        needsSiweLogin,
+        isValidateSession,
         isSiweLoading,
         siweError,
         userId,
@@ -191,7 +177,7 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
         handleProfileClick,
     ]);
 
-    // 如果未连接，直接显示 ConnectButtonComponent
+    // If the wallet is not connected, display ConnectButtonComponent
     if (!isConnected) {
         return (
             <div className={className}>
@@ -200,27 +186,64 @@ const LoginDropdown: React.FC<LoginDropdownProps> = ({
         );
     }
 
-    // 如果已连接，显示 ConnectButtonComponent 和额外的下拉菜单
-    // ConnectButtonComponent 正常处理钱包功能（打开 AccountModal）
-    // 下拉菜单提供 SIWE 和 Profile 相关功能
+    // If the wallet is connected, display ConnectButtonComponent and additional dropdown menu
+    // ConnectButtonComponent handles wallet functionality (opens AccountModal)
+    // Dropdown menu provides SIWE and Profile related functionality
     return (
-        <div ref={dropdownRef} className={className} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <ConnectButtonComponent size={size} />
+        <div ref={dropdownRef} className={className} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, position: 'relative' }}>
+            <ConnectButtonComponent 
+                size={size} 
+                style={{ 
+                    // border: '1px solid var(--color-primary)', 
+                    borderRadius: 10 
+                }} />
             {menuItems.length > 0 && (
-                <Dropdown
-                    menu={{ items: menuItems }}
-                    trigger={['click']}
-                    placement="bottomRight"
-                    overlayStyle={{ minWidth: 280 }}
-                    getPopupContainer={() => dropdownRef.current || document.body}
-                >
-                    <Button
-                        type="text"
-                        size={size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'middle'}
-                        icon={<UserOutlined style={{ fontSize: 18 }}/>}
-                        style={{ padding: '4px 8px' }}
-                    />
-                </Dropdown>
+                <div style={{ position: 'relative' }}>
+                    <Dropdown
+                        menu={{ items: menuItems }}
+                        trigger={['click']}
+                        placement="bottomRight"
+                        overlayStyle={{ minWidth: 150, border: '1px solid primary', borderRadius: 10 }}
+                        getPopupContainer={() => dropdownRef.current || document.body}
+                    >
+                        <Button
+                            type="text"
+                            size={size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'middle'}
+                            icon={needsSiweLogin ? <UserOutlined style={{ fontSize: 22 }}/> : <UserOutlined style={{ fontSize: 22, color: 'var(--color-primary)' }}/>}
+                            // style={{ padding: '4px 8px' }}
+                        />
+                    </Dropdown>
+                    {/* If the wallet is connected but not logged in or the session is invalid, display a floating prompt */}
+                    {isConnected && needsSiweLogin && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                marginTop: '4px',
+                                zIndex: 1000,
+                                width: 'max-content',
+                                maxWidth: '160px',
+                            }}
+                        >
+                            <div style={{ margin: '-12px' }}>
+                                <AlertCustom
+                                    type="warning"
+                                    message="Unlogged"
+                                    showIcon={false}
+                                    enablePulse={true}
+                                    style={{
+                                        padding: '4px 7px',
+                                        fontSize: '12px',
+                                        lineHeight: '1.2',
+                                        margin: 0,
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

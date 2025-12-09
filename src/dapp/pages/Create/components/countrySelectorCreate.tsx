@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import { useCreateForm } from '../context/CreateFormContext';
 import CountrySelector, { CountryStateSelection } from '@/dapp/components/countrySelector/countrySelector2';
 import { cn } from '@/lib/utils';
+import { Typography } from 'antd';
 
 interface CountrySelectorCreateProps {
     /** 自定义样式类名 */
@@ -75,12 +76,9 @@ const CountrySelectorCreate: React.FC<CountrySelectorCreateProps> = ({
             
             {/* 错误提示 */}
             {shouldShowError && (
-                <p className={cn(
-                    "text-sm font-light text-error",
-                    "px-1 leading-tight"
-                )}>
+                <Typography.Text type="danger">
                     {error}
-                </p>
+                </Typography.Text>
             )}
         </div>
     );

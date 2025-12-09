@@ -3,13 +3,13 @@
 import React, { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import StatusStepFlow from './base/statusStepFlow';
-import { StatusType } from './base/statusLabel';
+import { BoxStatus,} from '@/dapp/types/contracts/truthBox';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 // 组件接口
 interface StatusStepProps {
     /** 当前激活的状态 */
-    status: StatusType;
+    status: BoxStatus;
     /** 列表模式 */
     listedMode?: string;
     /** 自定义样式类名 */
@@ -78,14 +78,14 @@ const StatusStep: React.FC<StatusStepProps> = ({
         };
     };
 
-    const statusOptions: StatusType[] = [
-        'Storing', 'Selling', 'Auctioning',
-        'Paid', 'Refunding', 'InSecrecy', 'Published'
-    ];
+    // const statusOptions: BoxStatus[] = [
+    //     'Storing', 'Selling', 'Auctioning',
+    //     'Paid', 'Refunding', 'InSecrecy', 'Published'
+    // ];
 
     // 根据传入的status值，自动水平滚动至对应的位置（x轴）
-    const scrollToStatus = (status: StatusType) => {
-        const statusIndex = statusOptions.indexOf(status);
+    const scrollToStatus = (status: BoxStatus) => {
+        // const statusIndex = statusOptions.indexOf(status);
         const statusElement = document.querySelector(`#status-step-flow-${status}`);
         if (statusElement) {
             statusElement.scrollIntoView({ behavior: 'smooth', inline: 'center' });
