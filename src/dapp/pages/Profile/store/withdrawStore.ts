@@ -57,6 +57,8 @@ const initialWithdrawData: WithdrawDataType = {
     selectedType: null,
 };
 
+const normalizeBoxId = (boxId: string | number) => String(boxId);
+
 export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, get) => ({
     withdrawData: initialWithdrawData,
     registeredItems: new Map(),
@@ -74,8 +76,8 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
     registerSelectableItem: (item) => {
         set((state) => {
             const newRegisteredItems = new Map(state.registeredItems);
-            const key = `${item.boxId}-${item.tokenSymbol}`;
-            newRegisteredItems.set(key, item);
+            const key = `${normalizeBoxId(item.boxId)}-${item.tokenSymbol}`;
+            newRegisteredItems.set(key, { ...item, boxId: normalizeBoxId(item.boxId) });
             return { registeredItems: newRegisteredItems };
         });
     },
@@ -83,7 +85,7 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
     unregisterSelectableItem: (boxId, tokenSymbol) => {
         set((state) => {
             const newRegisteredItems = new Map(state.registeredItems);
-            const key = `${boxId}-${tokenSymbol}`;
+            const key = `${normalizeBoxId(boxId)}-${tokenSymbol}`;
             newRegisteredItems.delete(key);
             return { registeredItems: newRegisteredItems };
         });
@@ -108,23 +110,42 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
     },
 
     handleRadioSelect: (boxId, tokenSymbol, type, claimMethod, amount) => {
+        const normalizedBoxId = normalizeBoxId(boxId);
         const currentData = get().withdrawData;
 
         if (!amount || amount === '0' || parseFloat(amount) <= 0) {
             return;
         }
 
-        if (currentData.selectedTokenSymbol === tokenSymbol) {
-            set({ withdrawData: initialWithdrawData });
+        const isSameToken =
+            currentData.selectedTokenSymbol === tokenSymbol &&
+            currentData.selectedClaimMethod === claimMethod &&
+            currentData.selectedType === type;
+
+        // 如果当前已经选的是同一 Token，同一类型/方法，则只需把 box 加回选中列表
+        if (isSameToken) {
+            const currentBoxes = currentData.selectedBoxes ?? [];
+            if (currentBoxes.includes(normalizedBoxId)) {
+                // 已在选中列表，无需处理（真正的“取消”在 handleRadioDeselect 中）
+                return;
+            }
+
+            set({
+                withdrawData: {
+                    ...currentData,
+                    selectedBoxes: [...currentBoxes, normalizedBoxId],
+                },
+            });
             return;
         }
 
+        // 选择了全新的 Token / Claim 组合，按原策略选中所有匹配项
         const matchingItems = get().getMatchingItems(tokenSymbol, type, claimMethod);
-        const fallbackKey = `${boxId}-${tokenSymbol}`;
+        const fallbackKey = `${normalizedBoxId}-${tokenSymbol}`;
         const fallbackItem = get().registeredItems.get(fallbackKey);
         const referenceItem = matchingItems[0] ?? fallbackItem;
-        const allMatchingBoxIds = matchingItems.map((item) => item.boxId);
-        const selectedBoxes = allMatchingBoxIds.length > 0 ? allMatchingBoxIds : [boxId];
+        const allMatchingBoxIds = matchingItems.map((item) => normalizeBoxId(item.boxId));
+        const selectedBoxes = allMatchingBoxIds.length > 0 ? allMatchingBoxIds : [normalizedBoxId];
 
         set({
             withdrawData: {
@@ -139,9 +160,10 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
     },
 
     handleRadioDeselect: (boxId) => {
+        const normalizedBoxId = normalizeBoxId(boxId);
         set((state) => {
             const currentBoxes = state.withdrawData.selectedBoxes || [];
-            const updatedBoxes = currentBoxes.filter((id) => id !== boxId);
+            const updatedBoxes = currentBoxes.filter((id) => id !== normalizedBoxId);
 
             if (updatedBoxes.length === 0) {
                 return { withdrawData: initialWithdrawData };
@@ -158,10 +180,11 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
 
     isRadioSelected: (boxId, tokenSymbol) => {
         const { selectedTokenSymbol, selectedBoxes } = get().withdrawData;
+        const normalizedBoxId = normalizeBoxId(boxId);
         return (
             selectedTokenSymbol === tokenSymbol &&
             Array.isArray(selectedBoxes) &&
-            selectedBoxes.includes(boxId)
+            selectedBoxes.includes(normalizedBoxId)
         );
     },
 
@@ -197,25 +220,27 @@ export const useWithdrawStore = create<WithdrawState & WithdrawActions>((set, ge
     },
 
     addBoxToSelection: (boxId) => {
+        const normalizedBoxId = normalizeBoxId(boxId);
         set((state) => {
             const currentBoxes = state.withdrawData.selectedBoxes || [];
-            if (currentBoxes.includes(boxId)) {
+            if (currentBoxes.includes(normalizedBoxId)) {
                 return state;
             }
 
             return {
                 withdrawData: {
                     ...state.withdrawData,
-                    selectedBoxes: [...currentBoxes, boxId],
+                    selectedBoxes: [...currentBoxes, normalizedBoxId],
                 },
             };
         });
     },
 
     removeBoxFromSelection: (boxId) => {
+        const normalizedBoxId = normalizeBoxId(boxId);
         set((state) => {
             const currentBoxes = state.withdrawData.selectedBoxes || [];
-            const updatedBoxes = currentBoxes.filter((id) => id !== boxId);
+            const updatedBoxes = currentBoxes.filter((id) => id !== normalizedBoxId);
 
             if (updatedBoxes.length === 0) {
                 return { withdrawData: initialWithdrawData };

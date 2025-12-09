@@ -22,7 +22,7 @@ const getWithdrawLabel = (type: string | null) => {
 
 const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = () => {
     const { withdraw, isLoading, isSuccessed, error } = useWithdraw();
-    const { withdrawData, canClaim, totalAmount } = useWithdrawStore();
+    const { withdrawData, canClaim, totalAmount , resetWithdrawData} = useWithdrawStore();
 
     const hasSelection = canClaim();
     const method = withdrawData.selectedClaimMethod as SupportedMethod | null;
@@ -42,6 +42,10 @@ const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = () => {
         withdraw().catch((err) => console.error('withdraw failed', err));
     };
 
+    const handleCancel = () => {
+        resetWithdrawData();
+    };
+
     if (!shouldDisplay) {
         return null;
     }
@@ -56,7 +60,8 @@ const ProfileWithdrawPanel: React.FC<ProfileWithdrawPanelProps> = () => {
                 isLoading={isLoading}
                 isSuccess={isSuccessed}
                 error={error?.message}
-                onClick={handleWithdraw}
+                submit={handleWithdraw}
+                cancel={handleCancel}
                 className='mb-3!'
             />
     );

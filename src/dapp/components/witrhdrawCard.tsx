@@ -11,7 +11,8 @@ export interface WithdrawCardProps {
     message?: string;
     formattedAmount: string;
     tokenSymbol?: string;
-    onClick?: () => void;
+    submit?: () => void;
+    cancel?: () => void;
     /** 自定义样式类名 */
     className?: string;
     isSuccess?: boolean;
@@ -25,7 +26,8 @@ const WithdrawCard: React.FC<WithdrawCardProps> = ({
     message = '',
     formattedAmount,
     tokenSymbol = '',
-    onClick,
+    submit,
+    cancel,
     className,
     isSuccess = false,
     error,
@@ -114,12 +116,21 @@ const WithdrawCard: React.FC<WithdrawCardProps> = ({
                         <Button
                             {...buttonProps}
                             disabled={disabled || isSuccess}
-                            onClick={onClick}
+                            onClick={submit}
                             loading={isLoading}
                             size="middle"
                             block
                         >
                             {getButtonText()}
+                        </Button>
+                        <Button
+                            type="default"
+                            disabled={disabled || isSuccess}
+                            onClick={cancel}
+                            size="middle"
+                            block
+                        >
+                            Cancel
                         </Button>
                     </Space>
                 </Space>

@@ -47,13 +47,19 @@ const FundsSection: React.FC<FundsSectionProps> = ({
     // 检查是否有可用资金
     const hasAnyFunds = validFunds.length > 0;
 
-    // 处理代币选择逻辑
+    // 处理代币选择逻辑（Radio 本身无法“取消选中”，因此补充 onClick）
     const handleChange = (e: any) => {
         const tokenSymbol = e.target.value;
         if (selectedValue === tokenSymbol) {
             onDeselect?.(tokenSymbol);
         } else {
             onSelect?.(tokenSymbol);
+        }
+    };
+
+    const handleClick = (tokenSymbol: string) => {
+        if (selectedValue === tokenSymbol) {
+            onDeselect?.(tokenSymbol);
         }
     };
 
@@ -99,6 +105,7 @@ const FundsSection: React.FC<FundsSectionProps> = ({
                                     key={`${fund.symbol}-${index}`}
                                     value={fund.symbol}
                                     disabled={fund.disabled}
+                                    onClick={() => handleClick(fund.symbol)}
                                     style={{
                                         width: '100%',
                                         height: 'auto',

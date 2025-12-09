@@ -23,6 +23,7 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
     onCardClick,
     className
 }) => {
+    const boxId = useMemo(() => String(data.id), [data.id]);
     const { funds, hasClaimableFunds } = useFunds({ box: data, userId });
 
     const {
@@ -41,7 +42,7 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
 
         validTokens.forEach((token) => {
             const item: SelectableItem = {
-                boxId: data.id,
+                boxId,
                 tokenSymbol: token.symbol,
                 tokenAddress: token.address,
                 tokenDecimals: token.decimals,
@@ -55,11 +56,11 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
 
         return () => {
             validTokens.forEach((token) => {
-                unregisterSelectableItem(data.id, token.symbol);
+                unregisterSelectableItem(boxId, token.symbol);
             });
         };
     }, [
-        data.id,
+        boxId,
         funds.tokens,
         funds.type,
         funds.claimMethod,
@@ -93,12 +94,12 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
 
     const selectedTokenSymbol = useMemo(() => {
         for (const symbol of tokenSymbols) {
-            if (isRadioSelected(data.id, symbol)) {
+            if (isRadioSelected(boxId, symbol)) {
                 return symbol;
             }
         }
         return '';
-    }, [data.id, tokenSymbols, withdrawData.selectedBoxes, isRadioSelected]);
+    }, [boxId, tokenSymbols, withdrawData.selectedBoxes, isRadioSelected]);
 
     const cardActions: CardProfileActions = useMemo(() => ({
         selectedTokenSymbol,
@@ -108,7 +109,7 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
             if (!token || !token.hasValidAmount) return;
 
             handleRadioSelect(
-                data.id,
+                boxId,
                 tokenSymbol,
                 funds.type,
                 funds.claimMethod,
@@ -116,7 +117,7 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
             );
         },
         onDeselect: () => {
-            handleRadioDeselect(data.id);
+            handleRadioDeselect(boxId);
         }
     }), [
         onCardClick,
@@ -124,7 +125,7 @@ const CardProfileContainer: React.FC<CardProfileContainerProps> = ({
         funds.tokens,
         funds.type,
         funds.claimMethod,
-        data.id,
+        boxId,
         handleRadioSelect,
         handleRadioDeselect
     ]);

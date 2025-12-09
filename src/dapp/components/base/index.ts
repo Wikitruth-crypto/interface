@@ -1,6 +1,6 @@
 // 基础组件导出
 export { default as FundsSection } from '../fundsSection';
-export { default as BoxImage } from './boxImage';
+// export { default as BoxImage } from './boxImage';
 export { default as BoxInfo } from './boxInfo';
 export { default as BaseButton } from './baseButton';
 export { default as InputArea } from './inputArea';
@@ -13,14 +13,13 @@ export { default as PriceText } from './priceLabel';
 // export { default as InfiniteScroll } from './infiniteScroll';
 // export { default as FileUploadButton } from '../fileUploadButton';
 
-// 新增的重构组件
 export { default as CommonSelect } from './CommonSelect';
 // export { default as AlertBox } from './alertBox';
 export { default as SearchBox } from './searchBox';
 
-// 导出类型
-export type { FundsSectionProps, TokenInfo } from '../fundsSection';
-export type { BoxImageProps } from './boxImage';
+// ---------------------------typescript types---------------------------
+export type { FundsSectionProps, FundsData } from '../fundsSection';
+// export type { BoxImageProps } from './boxImage';
 export type { BoxInfoProps, BoxMetadata } from './boxInfo';
 export type { InputAreaProps } from './inputArea';
 // export type { InputBoxProps } from './inputBox';
