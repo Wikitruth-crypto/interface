@@ -31,9 +31,6 @@ export const useGetPrivateKey = () => {
         if (privateKey) {
             return privateKey;
         }
-        if (import.meta.env.DEV) {
-            console.log('Has no private key, checking siweToken...');
-        }
         // Check if the siweToken is valid
         let siweToken: string | null = null;
         if (!isValidateSession) {
@@ -50,9 +47,6 @@ export const useGetPrivateKey = () => {
             }
         } else {
             siweToken = session.token;
-            if (import.meta.env.DEV) {
-                console.log('SiweToken is valid!');
-            }
         }
         if (siweToken) {
 
@@ -64,7 +58,7 @@ export const useGetPrivateKey = () => {
                 setPrivateKey_TruthBox(boxId, privateData, chainId, address);
                 return privateData;
             }
-            
+
         }
         return null;
     }

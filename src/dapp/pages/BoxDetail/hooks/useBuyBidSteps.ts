@@ -233,6 +233,7 @@ export const useBuyBidSteps = (
                 args: [allConfigs.FundManager.address, amountInWei],
             });
             updateStepStatus('approve', 'success');
+            // NOTE: 不需要再次读取，成功直接进入下一步。
         } catch (error) {
             console.error('Handle approve click error:', error);
             updateStepStatus('approve', 'error');

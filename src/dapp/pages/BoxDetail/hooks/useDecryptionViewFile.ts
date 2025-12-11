@@ -27,6 +27,10 @@ const useDecryptionViewFile = () => {
                 !metadataBox.encryptionPasswords ||
                 !metadataBox.encryptionSlicesMetadataCID
             ) {
+                console.log("metadataBox.publicKey:", metadataBox.publicKey);
+                console.log("metadataBox.encryptionFileCID:", metadataBox.encryptionFileCID);
+                console.log("metadataBox.encryptionPasswords:", metadataBox.encryptionPasswords);
+                console.log("metadataBox.encryptionSlicesMetadataCID:", metadataBox.encryptionSlicesMetadataCID);
                 throw new Error('Metadata box is required!');
             }
 

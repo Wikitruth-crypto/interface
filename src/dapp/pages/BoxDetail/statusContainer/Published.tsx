@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Alert } from 'antd';
-import UriPassword from '@/dapp/components/uriPassword';
+import ParagraphList from '@/dapp/components/ParagraphList';
 import { timeToDate } from '@dapp/utils/time';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import useDecryptionViewFile from '../hooks/useDecryptionViewFile';
@@ -135,15 +135,31 @@ const Published: React.FC<Props> = ({ }) => {
                 />
             )}
 
-            {!uriError && metadataBox && (
-                <UriPassword
-                    fileCidList={fileCidList}
-                    slicesMetadataCID={isCreateMode ? slicesMetadataCID : ''}
-                    password={isCreateMode ? password : ''}
-                    showPassword={isCreateMode}
-                    hidePasswordByDefault={false}
+            {fileCidList.length > 0 && (
+                <ParagraphList
+                    label="File CID"
+                    type="cid"
+                    cidList={fileCidList}
                 />
+
+
             )}
+            {
+                password && (
+                    <ParagraphList
+                        label="Password"
+                        type="password"
+                        cidList={[password]}
+                    />
+                )}
+            {
+                slicesMetadataCID && (
+                    <ParagraphList
+                        label="Slices Metadata CID"
+                        type="cid"
+                        cidList={[slicesMetadataCID]}
+                    />
+                )}
 
             {!isResolving && !uriError && metadataBox && !hasUriData && (
                 <Typography.Paragraph className="text-muted-foreground text-xs">

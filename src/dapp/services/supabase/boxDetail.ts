@@ -1,7 +1,7 @@
-/**
- * Box 详情服务
+﻿/**
+ * Box 璇︽儏鏈嶅姟
  * 
- * 从 Supabase 数据库获取 Box 详情数据
+ * 浠?Supabase 鏁版嵁搴撹幏鍙?Box 璇︽儏鏁版嵁
  */
 
 import type { PostgrestError } from '@supabase/supabase-js';
@@ -32,8 +32,8 @@ export interface BoxDetailResult_BiddersIds {
 }
 
 /**
- * 转换 BoxRow 为 BoxDetailData
- * @param boxRow - Box 数据行
+ * 杞崲 BoxRow 涓?BoxDetailData
+ * @param boxRow - Box 鏁版嵁琛?
  */
 function convertBoxRow(
     boxRow: BoxRow,
@@ -48,34 +48,95 @@ function convertBoxRow(
 }
 
 /**
- * 转换 MetadataBoxRow 为 MetadataBoxType
+ * 杞崲 MetadataBoxRow 涓?MetadataBoxType
  * @param metadataRow 
  * @returns 
  */
 function convertMetadataBoxRow(metadataRow: MetadataBoxRow): MetadataBoxType {
-    // 使用 camelcase-keys 自动转换所有 snake_case 字段为 camelCase
-    // deep: true 表示递归转换嵌套对象（如果有嵌套对象）
-    const camelCased = camelcaseKeys(metadataRow, { deep: true }) as any;
-    return {
-        ...camelCased,
+    // 鎵嬪姩鏄犲皠 supabase snake_case + JSON 瀛楁鍒?MetadataBoxType
+    const encSlices: any = (metadataRow as any).encryption_slices_metadata_cid || {};
+    const encPasswords: any = (metadataRow as any).encryption_passwords || {};
+    const encFiles: any[] = Array.isArray((metadataRow as any).encryption_file_cid) ? (metadataRow as any).encryption_file_cid : [];
+
+    const encryptionSlicesMetadataCID = {
+        slicesMetadataCID_encryption:
+            encSlices.slicesMetadataCID_encryption ??
+            encSlices.slicesMetadataCidEncryption ??
+            encSlices.slices_metadata_cid_encryption ??
+            '',
+        slicesMetadataCID_iv:
+            encSlices.slicesMetadataCID_iv ??
+            encSlices.slicesMetadataCidIv ??
+            encSlices.slices_metadata_cid_iv ??
+            '',
     };
+
+    const encryptionPasswords = {
+        password_encryption:
+            encPasswords.password_encryption ??
+            encPasswords.passwordEncryption ??
+            encPasswords.password_encryption ??
+            '',
+        password_iv:
+            encPasswords.password_iv ??
+            encPasswords.passwordIv ??
+            encPasswords.password_iv ??
+            '',
+    };
+
+    const encryptionFileCID = encFiles.map((item) => ({
+        fileCID_encryption:
+            item.fileCID_encryption ??
+            item.fileCidEncryption ??
+            item.file_cid_encryption ??
+            '',
+        fileCID_iv:
+            item.fileCID_iv ??
+            item.fileCidIv ??
+            item.file_cid_iv ??
+            '',
+    }));
+
+    return {
+        project: (metadataRow as any).project,
+        website: (metadataRow as any).website,
+        name: (metadataRow as any).name,
+        tokenId: (metadataRow as any).id?.toString?.() ?? '',
+        typeOfCrime: (metadataRow as any).type_of_crime ?? '',
+        label: (metadataRow as any).label ?? [],
+        title: (metadataRow as any).title ?? '',
+        nftImage: (metadataRow as any).nft_image ?? '',
+        boxImage: (metadataRow as any).box_image ?? '',
+        country: (metadataRow as any).country ?? '',
+        state: (metadataRow as any).state ?? '',
+        description: (metadataRow as any).description ?? '',
+        eventDate: (metadataRow as any).event_date ?? '',
+        createDate: (metadataRow as any).create_date ?? '',
+        timestamp: Number((metadataRow as any).timestamp ?? 0),
+        mintMethod: (metadataRow as any).mint_method as MetadataBoxType['mintMethod'],
+        fileList: (metadataRow as any).file_list ?? [],
+        encryptionSlicesMetadataCID,
+        encryptionFileCID,
+        encryptionPasswords,
+        publicKey: (metadataRow as any).public_key ?? '',
+    } as MetadataBoxType;
 }
 
 /**
- * 查询 Box 详情（包含 metadata）
+ * 鏌ヨ Box 璇︽儏锛堝寘鍚?metadata锛?
  * 
- * 默认必须查询 boxes 表和 metadata_boxes 表
+ * 榛樿蹇呴』鏌ヨ boxes 琛ㄥ拰 metadata_boxes 琛?
  * 
- * @param network - 网络类型 (testnet | mainnet)
- * @param boxId - Box ID (字符串形式)
- * @returns Box 详情数据和元数据
+ * @param network - 缃戠粶绫诲瀷 (testnet | mainnet)
+ * @param boxId - Box ID (瀛楃涓插舰寮?
+ * @returns Box 璇︽儏鏁版嵁鍜屽厓鏁版嵁
  */
 export async function queryBoxAndMetadata(
     boxId: string,
 ): Promise<BoxDetailResult> {
     try {
         const { network, layer } = CHAIN_CONFIG;
-        // 第一步：查询 Box 基础数据
+        // 绗竴姝ワ細鏌ヨ Box 鍩虹鏁版嵁
         const { data: boxData, error: boxError } = await supabase
             .from('boxes')
             .select('*')
@@ -100,7 +161,7 @@ export async function queryBoxAndMetadata(
             };
         }
 
-        // 第二步：查询 metadata_boxes（一对一关系）
+        // 绗簩姝ワ細鏌ヨ metadata_boxes锛堜竴瀵逛竴鍏崇郴锛?
 
         const { data: metadataData, error: metadataError } = await supabase
             .from('metadata_boxes')
@@ -116,7 +177,7 @@ export async function queryBoxAndMetadata(
 
         const metadataRow: MetadataBoxRow | null = metadataData || null;
 
-        // 转换数据格式
+        // 杞崲鏁版嵁鏍煎紡
         const box = convertBoxRow(boxData);
         const metadataBox = metadataRow ? convertMetadataBoxRow(metadataRow) : null;
 
@@ -135,12 +196,12 @@ export async function queryBoxAndMetadata(
 }
 
 /**
- * 查询 Box 的竞标者 ID 列表（box_bidders 表）
+ * 鏌ヨ Box 鐨勭珵鏍囪€?ID 鍒楄〃锛坆ox_bidders 琛級
  * 
- * 根据情况决定是否查询：当 listedMode 为 'Auctioning' 时调用
+ * 鏍规嵁鎯呭喌鍐冲畾鏄惁鏌ヨ锛氬綋 listedMode 涓?'Auctioning' 鏃惰皟鐢?
  * 
- * @param listedMode - 列表模式，只有 'Auctioning' 时才查询
- * @returns 竞标者 ID 列表
+ * @param listedMode - 鍒楄〃妯″紡锛屽彧鏈?'Auctioning' 鏃舵墠鏌ヨ
+ * @returns 绔炴爣鑰?ID 鍒楄〃
  */
 export async function queryBoxDetail_BiddersIds(
     boxId: string,
@@ -150,7 +211,7 @@ export async function queryBoxDetail_BiddersIds(
     try {
         let biddersIds: string[] | null = null;
 
-        // 只有当 listedMode 为 'Auctioning' 时才查询
+        // 鍙湁褰?listedMode 涓?'Auctioning' 鏃舵墠鏌ヨ
         if (listedMode === 'Auctioning') {
             const { data, error } = await supabase
                 .from('box_bidders')
@@ -167,7 +228,7 @@ export async function queryBoxDetail_BiddersIds(
                 };
             }
 
-            // 从查询结果中提取 bidder_id 数组
+            // 浠庢煡璇㈢粨鏋滀腑鎻愬彇 bidder_id 鏁扮粍
             if (data && Array.isArray(data)) {
                 biddersIds = data
                     .map((item: { bidder_id: string | number | bigint }) => {
@@ -198,7 +259,7 @@ export async function queryBoxDetail_BiddersIds(
 
 
 /**
- * 将错误转换为 QueryError 类型
+ * 灏嗛敊璇浆鎹负 QueryError 绫诲瀷
  */
 function toQueryError(error: unknown): QueryError {
     if (!error) {
