@@ -32,6 +32,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
     amount,
     functionName,
 }) => {
+    const tokenMetadata = useTokenMetadata(tokenAddress);
 
     const {
         steps,
@@ -43,9 +44,12 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
         status,
         currentStepItem,
         allowanceAmount,
-    } = useBuyBidSteps(boxId, tokenAddress, amount, functionName);
+    } = useBuyBidSteps(boxId, tokenMetadata, amount, functionName);
 
-    const tokenMetadata = useTokenMetadata(tokenAddress);
+
+    if (!tokenMetadata) {
+        return null;
+    }
 
     const canApprove = currentStepItem.stepKey === 'approve' && currentStepItem.status !== 'finish';
     const canBuyBid = currentStepItem.stepKey === 'buy' || currentStepItem.stepKey === 'bid' || currentStepItem.stepKey === 'payConfiFee';
@@ -57,12 +61,9 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
     );
 
     useEffect(() => {
-        if (!open) {
-            return;
-        } else {
-            checkAllowance('init');
-        }
-    }, [open]);
+        if (!open) return;
+        checkAllowance('init');
+    }, [open, tokenAddress]);
 
     const handleClose = () => {
         onClose();
@@ -93,7 +94,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
                             <Text strong>
                                 You are about to {functionName} this box.
                             </Text>
-                            <Text>Price: {amount} {tokenMetadata.symbol}</Text>
+                            <Text>Price: {amount} {tokenMetadata?.symbol}</Text>
                         </Space>
                     }
                     showIcon
@@ -125,7 +126,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
                             disabled={!canApprove}
                             block
                         >
-                            Approve {amount} {tokenMetadata.symbol}
+                            Approve {amount} {tokenMetadata?.symbol}
                         </Button>
                         <Button
                             type="primary"

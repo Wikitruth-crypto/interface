@@ -45,7 +45,7 @@ export const boxActionConfigs: Record<string, BoxActionConfig> = {
     id: 'payConfiFee',
     label: 'PayConfiFee',
     description: 'Pay the confidentiality fee and extend the confidentiality period.',
-    contract: exchangeContract,
+    contract: truthBoxContract,
     functionName: 'payConfiFee',
     getArgs: ({ boxId }) => [boxId],
     needAllowance: true,

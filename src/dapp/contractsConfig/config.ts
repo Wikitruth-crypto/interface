@@ -24,7 +24,7 @@ class ConfigManager {
   /**
    * 获取指定网络的所有合约地址
    */
-  getContractAddresses_WithChainId(chainId?: number): ContractAddresses {
+  getAllContractAddresses(chainId?: number): ContractAddresses {
     const targetChainId = chainId ?? this.currentChainId;
     
     if (!isSupportedChain(targetChainId)) {
@@ -48,7 +48,7 @@ class ConfigManager {
     chainId?: number
   ): ContractConfig {
     const targetChainId = (chainId ?? this.currentChainId) as SupportedChainId;
-    const addresses = this.getContractAddresses_WithChainId(targetChainId);
+    const addresses = this.getAllContractAddresses(targetChainId);
     const address = addresses[contractName];
 
     return {
@@ -59,11 +59,23 @@ class ConfigManager {
   }
 
   /**
+   * 通过地址获取合约配置
+   */
+  getContractConfigByAddress(address: `0x${string}`): ContractConfig {
+    const configs = this.getAllContractConfigs();
+    const config = Object.values(configs).find((config) => config.address === address);
+    if (!config) {
+      throw new Error(`Contract config not found for address: ${address}`);
+    }
+    return config;
+  }
+
+  /**
    * 获取当前网络的所有合约配置
    * 
    * 注意：保证总是返回完整的配置对象
    */
-  getAllContractConfigs_WithChainId(chainId?: number): ContractConfigs {
+  getAllContractConfigs(chainId?: number): ContractConfigs {
     const targetChainId = chainId ?? this.currentChainId;
     const configs: Partial<ContractConfigs> = {};
 
@@ -107,12 +119,16 @@ export function getContractAddress(
 /**
  * 便捷函数：获取所有合约地址
  */
-export function getContractAddresses_WithChainId(chainId?: number): ContractAddresses {
-  return configManager.getContractAddresses_WithChainId(chainId);
+export function getAllContractAddresses(chainId?: number): ContractAddresses {
+  return configManager.getAllContractAddresses(chainId);
 }
 
 
-export function getAllContractConfigs_WithChainId(chainId?: number): ContractConfigs {
-  return configManager.getAllContractConfigs_WithChainId(chainId);
+export function getAllContractConfigs(chainId?: number): ContractConfigs {
+  return configManager.getAllContractConfigs(chainId);
 }
 
+// 通过地址获取合约配置
+export function getContractConfigByAddress(address: `0x${string}`): ContractConfig {
+  return configManager.getContractConfigByAddress(address);
+}

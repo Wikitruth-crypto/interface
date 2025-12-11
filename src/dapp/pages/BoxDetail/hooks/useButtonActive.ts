@@ -4,6 +4,7 @@ import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { BoxInteractionRecord, useAccountStore, AccountStoreState } from '@/dapp/store/accountStore';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
+import { FunctionNameType } from '@/dapp/types/contracts';
 
 export type ButtonActiveNameType =
   'extendActive' |
@@ -119,6 +120,11 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
       return false;
     };
 
+    // 确保wroteList中不包含数组中的所有functionName
+    const wroteListNotInclude = (functionNames: FunctionNameType[]): boolean => {
+      return functionNames.every(functionName => !wroteList.includes(functionName));
+    }
+
 
     switch (name) {
       case 'extendActive':
@@ -133,14 +139,14 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
         return !isInBlackListed &&
           status === 'Storing' &&
           sellOrAuction_roleCheck() &&
-          !wroteList.includes('sell') &&
+          wroteListNotInclude(['sell','auction','publishByMinter']) &&
           modalStatus.SellAuction === 'close';
 
       case 'auctionActive':
         return !isInBlackListed &&
           status === 'Storing' &&
           sellOrAuction_roleCheck() &&
-          !wroteList.includes('auction') &&
+          wroteListNotInclude(['sell','auction','publishByMinter']) &&
           modalStatus.SellAuction === 'close';
 
       case 'buyActive':
@@ -149,14 +155,14 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
           status === 'Selling' &&
           isOther  &&
           // isInDeadline &&
-          !wroteList.includes('buy');
+          wroteListNotInclude(['buy','bid','publishByMinter','publishByBuyer']);
 
       case 'bidActive':
         return !isInBlackListed &&
           status === 'Auctioning' &&
           (isOther || isBidder)  &&
           isInDeadline &&
-          !wroteList.includes('bid');
+          wroteListNotInclude(['buy','bid','publishByMinter','publishByBuyer']);
 
       case 'requestRefundActive':
         return !isInBlackListed &&
@@ -165,28 +171,28 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
           reviewDeadline === 0 &&
           status === 'Paid' &&
           isBuyer  &&
-          !wroteList.includes('requestRefund');
+          wroteListNotInclude(['requestRefund']);
 
       case 'cancelRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           isBuyer  &&
-          !wroteList.includes('cancelRefund');
+          wroteListNotInclude(['cancelRefund']);
 
       case 'agreeRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           agreeRefund_roleCheck() &&
-          !wroteList.includes('agreeRefund');
+          wroteListNotInclude(['agreeRefund']);
 
       case 'refuseRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
           refuseRefund_roleCheck() &&
-          !wroteList.includes('refuseRefund');
+          wroteListNotInclude(['refuseRefund']);
 
       case 'completeActive':
         return !isInBlackListed &&
@@ -195,20 +201,19 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
           !refundPermit &&
           status === 'Paid' &&
           completeOrder_roleCheck() &&
-          !wroteList.includes('completeOrder');
+          wroteListNotInclude(['completeOrder']);
 
       case 'payConfiFeeActive':
         return !isInBlackListed &&
           status === 'InSecrecy' &&
           deadlineCheckState?.isInExtendDeadlineTimeWindow &&
           !isGuest &&
-          !wroteList.includes('payConfiFee');
+          wroteListNotInclude(['payConfiFee']);
 
       case 'publishActive':
         return !isInBlackListed &&
           publishActive_roleCheck() &&
-          !wroteList.includes('publishByMinter') &&
-          !wroteList.includes('publishByBuyer');
+          wroteListNotInclude(['publishByMinter','publishByBuyer']) 
 
       case 'viewFileActive':
         return !isInBlackListed &&

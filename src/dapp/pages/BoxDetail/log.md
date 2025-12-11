@@ -1,60 +1,413 @@
-react-dom-client.development.js:28004 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
-sync.ts:80 [IPFS Gateway] Polling started, interval: 15 minutes
-current.ts:40 chainId: 23295
-deprecations.ts:9  ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
-warnOnce @ deprecations.ts:9
-deprecations.ts:9  ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
-warnOnce @ deprecations.ts:9
-current.ts:40 chainId: 23295
-sync.ts:49 [IPFS Gateway] Updated to: https://ipfs.io/ipfs/{cid}
-useLisenerRoles.tsx:44 userId-boxDetailPage: 
-useLisenerRoles.tsx:81 roles-boxDetailPage: Array(1)
-useLisenerRoles.tsx:44 userId-boxDetailPage: 
-useLisenerRoles.tsx:81 roles-boxDetailPage: Array(1)
-react-dom-client.development.js:7597  Uncaught Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
-1. You might have mismatching versions of React and the renderer (such as React DOM)
-2. You might be breaking the Rules of Hooks
-3. You might have more than one copy of React in the same app
-See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
-    at Object.throwInvalidHookError (react-dom-client.development.js:7597:13)
-    at exports.useContext (react.development.js:1212:25)
-    at useBoxDetailContext (BoxDetailContext.tsx:180:19)
-    at useButtonActive (useButtonActive.ts:25:46)
-    at calcMoney.tsx:33:22
-    at Object.react_stack_bottom_frame (react-dom-client.development.js:25989:20)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at commitHookEffectListMount (react-dom-client.development.js:13249:29)
-    at commitHookPassiveMountEffects (react-dom-client.development.js:13336:11)
-    at commitPassiveMountOnFiber (react-dom-client.development.js:15484:13)
-react-dom-client.development.js:9362  An error occurred in the <CalcMoney> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom-client.development.js:9362
-react-dom-client.development.js:7597  Uncaught Error: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
-1. You might have mismatching versions of React and the renderer (such as React DOM)
-2. You might be breaking the Rules of Hooks
-3. You might have more than one copy of React in the same app
-See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
-    at Object.throwInvalidHookError (react-dom-client.development.js:7597:13)
-    at exports.useContext (react.development.js:1212:25)
-    at useBoxDetailContext (BoxDetailContext.tsx:180:19)
-    at useButtonActive (useButtonActive.ts:25:46)
-    at calcMoney.tsx:33:22
-    at Object.react_stack_bottom_frame (react-dom-client.development.js:25989:20)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at commitHookEffectListMount (react-dom-client.development.js:13249:29)
-    at commitHookPassiveMountEffects (react-dom-client.development.js:13336:11)
-    at reconnectPassiveEffects (react-dom-client.development.js:15832:11)
-react-dom-client.development.js:9362  An error occurred in the <CalcMoney> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
-defaultOnUncaughtError @ react-dom-client.development.js:9362
-errors.ts:698  Uncaught (in promise) Error: could not coalesce error (error={ "code": -32002, "data": { "method": "PUBLIC_requestAccounts" }, "message": "Request of type 'PUBLIC_requestAccounts' already pending for origin http://localhost:3000. Please wait." }, payload={ "id": 2, "jsonrpc": "2.0", "method": "eth_accounts", "params": [  ] }, code=UNKNOWN_ERROR, version=6.15.0)
-    at makeError (errors.ts:698:21)
-    at _BrowserProvider.getRpcError (provider-jsonrpc.ts:1086:16)
-    at _BrowserProvider.getRpcError (provider-browser.ts:193:22)
-    at provider-jsonrpc.ts:571:45
+useGetPrivateKey.ts:35 Has no private key, checking siweToken...
+useGetPrivateKey.ts:54 SiweToken is valid!
+useGetPrivateKey.ts:61 privateData is: 0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b0201010420de61ec8fb557a22004805826cacdff7b6913fa7696f7e9fd744f1a9aaba64797a144034200044a197e56e1e3376b4a3b87862c1517cc478bd5376d457aa14ca443fb12f9f6f71d336930eb58fffa5989ba236fbd0a8b8afb953251497891b03ca01aecf49e5a
+useDecryptionViewFile.ts:69  Error: Metadata box is required!
+    at decryptionViewFile (useDecryptionViewFile.ts:30:23)
+    at modalViewFile.tsx:103:34
+decryptionViewFile @ useDecryptionViewFile.ts:69
+(匿名) @ modalViewFile.tsx:103
+await in (匿名)
+(匿名) @ modalViewFile.tsx:132
+react_stack_bottom_frame @ react-dom-client.development.js:25989
+runWithFiberInDEV @ react-dom-client.development.js:871
+commitHookEffectListMount @ react-dom-client.development.js:13249
+commitHookPassiveMountEffects @ react-dom-client.development.js:13336
+commitPassiveMountOnFiber @ react-dom-client.development.js:15484
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15476
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15519
+flushPassiveEffects @ react-dom-client.development.js:18432
+flushPendingEffects @ react-dom-client.development.js:18358
+flushSpawnedWork @ react-dom-client.development.js:18323
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<ModalViewFile>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ViewFileButton @ viewFile.tsx:43
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+updateSimpleMemoComponent @ react-dom-client.development.js:9830
+beginWork @ react-dom-client.development.js:12212
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+useDecryptionViewFile.ts:69  Error: Metadata box is required!
+    at decryptionViewFile (useDecryptionViewFile.ts:30:23)
+    at modalViewFile.tsx:103:34
+decryptionViewFile @ useDecryptionViewFile.ts:69
+(匿名) @ modalViewFile.tsx:103
+await in (匿名)
+handleRetry @ modalViewFile.tsx:147
+(匿名) @ button.js:188
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.createElement @ react.development.js:1054
+Button @ button.js:261
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ModalViewFile @ modalViewFile.tsx:194
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<ModalViewFile>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ViewFileButton @ viewFile.tsx:43
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+updateSimpleMemoComponent @ react-dom-client.development.js:9830
+beginWork @ react-dom-client.development.js:12212
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+useDecryptionViewFile.ts:69  Error: Metadata box is required!
+    at decryptionViewFile (useDecryptionViewFile.ts:30:23)
+    at modalViewFile.tsx:103:34
+decryptionViewFile @ useDecryptionViewFile.ts:69
+(匿名) @ modalViewFile.tsx:103
+await in (匿名)
+handleRetry @ modalViewFile.tsx:147
+(匿名) @ button.js:188
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.createElement @ react.development.js:1054
+Button @ button.js:261
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ModalViewFile @ modalViewFile.tsx:194
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<ModalViewFile>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ViewFileButton @ viewFile.tsx:43
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+updateSimpleMemoComponent @ react-dom-client.development.js:9830
+beginWork @ react-dom-client.development.js:12212
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+useDecryptionViewFile.ts:69  Error: Metadata box is required!
+    at decryptionViewFile (useDecryptionViewFile.ts:30:23)
+    at modalViewFile.tsx:103:34
+decryptionViewFile @ useDecryptionViewFile.ts:69
+(匿名) @ modalViewFile.tsx:103
+await in (匿名)
+handleRetry @ modalViewFile.tsx:147
+(匿名) @ button.js:188
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.createElement @ react.development.js:1054
+Button @ button.js:261
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ModalViewFile @ modalViewFile.tsx:194
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<ModalViewFile>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ViewFileButton @ viewFile.tsx:43
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+updateSimpleMemoComponent @ react-dom-client.development.js:9830
+beginWork @ react-dom-client.development.js:12212
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+useDecryptionViewFile.ts:69  Error: Metadata box is required!
+    at decryptionViewFile (useDecryptionViewFile.ts:30:23)
+    at modalViewFile.tsx:103:34
+decryptionViewFile @ useDecryptionViewFile.ts:69
+(匿名) @ modalViewFile.tsx:103
+await in (匿名)
+handleRetry @ modalViewFile.tsx:147
+(匿名) @ button.js:188
+executeDispatch @ react-dom-client.development.js:19116
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:19166
+(匿名) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<button>
+exports.createElement @ react.development.js:1054
+Button @ button.js:261
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateForwardRef @ react-dom-client.development.js:9724
+beginWork @ react-dom-client.development.js:12117
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<Button>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ModalViewFile @ modalViewFile.tsx:194
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991
+<ModalViewFile>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+ViewFileButton @ viewFile.tsx:43
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+updateSimpleMemoComponent @ react-dom-client.development.js:9830
+beginWork @ react-dom-client.development.js:12212
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(匿名) @ react-dom-client.development.js:18991

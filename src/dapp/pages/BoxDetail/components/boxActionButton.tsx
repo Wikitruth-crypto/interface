@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { Button, Typography } from 'antd';
-import ApproveButton from '@BoxDetail/ButtonContainer/approve';
+// import ApproveButton from '@BoxDetail/ButtonContainer/approve';
 import { cn } from '@/lib/utils';
 import type { BoxActionController } from '../actions/types';
 
@@ -12,9 +12,9 @@ interface BoxActionButtonProps {
 }
 
 const BoxActionButton: React.FC<BoxActionButtonProps> = ({ controller, className, onClick, children }) => {
-  if (controller.showApprove) {
-    return <ApproveButton className={className} onClick={onClick} />;
-  }
+  // if (controller.showApprove) {
+  //   return <ApproveButton className={className} onClick={onClick} />;
+  // }
 
   return (
     <div className={cn('w-full', className)}>

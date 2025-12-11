@@ -7,6 +7,7 @@ export type ViewFileRoleType = 'Minter' | 'Buyer';
 export type ModalType = 
 'SellAuction' | 
 'ExtendDeadline' |
+'BuyBidPay' |
 'ViewFile';
 
 

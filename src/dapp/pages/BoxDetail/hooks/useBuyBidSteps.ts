@@ -1,10 +1,9 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
-import { useAllContractConfigs } from '@/dapp/contractsConfig';
+import { getContractConfigByAddress, TokenMetadata, useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useAccount } from 'wagmi';
 import { formatUnits, parseUnits, maxUint256 } from 'viem';
-import { FunctionNameType } from '@/dapp/types/contracts';
 
 type writeStatus = 'idle' | 'pending' | 'success' | 'error';
 type StepStatus = 'wait' | 'process' | 'finish' | 'error';
@@ -92,7 +91,7 @@ const createSteps = (functionName: 'buy' | 'bid' | 'payConfiFee', isEnough: bool
             description: STEP_CONFIGS.allowance.descriptions.success,
             status: 'wait',
         },
-        
+
     ];
     if (!isEnough) {
         steps.push({
@@ -135,7 +134,7 @@ type StepsState = {
 
 export const useBuyBidSteps = (
     boxId: string,
-    tokenAddress: `0x${string}`,
+    tokenMetadata: TokenMetadata,
     amount: string,
     functionName: 'buy' | 'bid' | 'payConfiFee',
 ) => {
@@ -146,17 +145,17 @@ export const useBuyBidSteps = (
 
     const [state, setState] = useState<StepsState>({
         steps: createSteps(functionName, false),
-        currentIndex: 1, // allowance is done; start at first actionable step
+        currentIndex: 0,
     });
 
-    const initializeSteps = useCallback((isEnough: boolean) => {
-        const nextSteps = createSteps(functionName, isEnough);
-        const nextCurrentIndex = 1; // always point to the first actionable step (approve or wrap)
+    const initializeSteps = useCallback((isEnoughValue: boolean) => {
+        const nextSteps = createSteps(functionName, isEnoughValue);
+        const nextCurrentIndex = nextSteps.length > 1 ? 1 : 0; // 指向首个可操作步骤
         setState({
             steps: nextSteps,
             currentIndex: nextCurrentIndex,
         });
-    }, []);
+    }, [functionName]);
 
     const updateStepStatus = useCallback((stepKey: StepKey, status: writeStatus) => {
         if (import.meta.env.DEV) {
@@ -201,49 +200,64 @@ export const useBuyBidSteps = (
 
 
     const checkAllowance = useCallback(async (checkType: 'init' | 'approve') => {
-        if (!address || !tokenAddress || !amount) {
+        if (!address || !tokenMetadata || !amount || !allConfigs.FundManager.address) {
             return;
         }
-        const amountInWei = parseUnits(amount, 18);
+        const amountInWei = parseUnits(amount, tokenMetadata.decimals);
         try {
             const result = await readAllowance(
-                tokenAddress,
+                tokenMetadata.address,
                 address,
                 allConfigs.FundManager.address,
                 amountInWei,
             );
-            if (checkType === 'init') {
+            if (checkType === 'init' || checkType === 'approve') {
                 initializeSteps(result.isEnough);
-                console.log('isEnough:', result.isEnough);
             }
+            updateStepStatus('allowance', 'success');
         } catch (error) {
             console.error('Check allowance error:', error);
             updateStepStatus('allowance', 'error');
         }
-    }, [tokenAddress, amount, readAllowance, address, initializeSteps]);
+    }, [tokenMetadata, amount, readAllowance, address, initializeSteps, updateStepStatus]);
 
     const handleApproveClick = useCallback(async (isMax: boolean = false) => {
-        if (!tokenAddress || !amount) return;
-        const amountInWei = isMax ? maxUint256 : parseUnits(amount, 18);
-        await writeCustormV2({
-            contract: allConfigs.wROSE_Secret,
-            functionName: 'approve',
-            args: [allConfigs.FundManager.address, amountInWei],
-        });
-    }, [tokenAddress, amount, writeCustormV2]);
+        if (!tokenMetadata || !amount || !allConfigs.FundManager.address) return;
+        const amountInWei = isMax ? maxUint256 : parseUnits(amount, tokenMetadata.decimals);
+        try {
+            updateStepStatus('approve', 'pending');
+            const contractConfig = getContractConfigByAddress(tokenMetadata.address);
+            await writeCustormV2({
+                contract: contractConfig,
+                functionName: 'approve',
+                args: [allConfigs.FundManager.address, amountInWei],
+            });
+            updateStepStatus('approve', 'success');
+        } catch (error) {
+            console.error('Handle approve click error:', error);
+            updateStepStatus('approve', 'error');
+        }
+    }, [tokenMetadata, amount, writeCustormV2, checkAllowance, updateStepStatus]);
 
     const handleBuyBidClick = useCallback(async () => {
-        if (!tokenAddress || !amount) return;
+        if (!tokenMetadata || !amount || !allConfigs) return;
         let contract = allConfigs.Exchange;
         if (functionName === 'payConfiFee') {
             contract = allConfigs.TruthBox;
         }
-        await writeCustormV2({
-            contract: allConfigs.Exchange,
-            functionName: functionName,
-            args: [boxId],
-        });
-    }, [tokenAddress, amount, writeCustormV2]);
+        try {
+            updateStepStatus(functionName, 'pending');
+            await writeCustormV2({
+                contract,
+                functionName: functionName,
+                args: [boxId],
+            });
+            updateStepStatus(functionName, 'success');
+        } catch (error) {
+            console.error('Handle buy bid click error:', error);
+            updateStepStatus(functionName, 'error');
+        }
+    }, [tokenMetadata, amount, writeCustormV2, functionName, boxId, updateStepStatus]);
 
 
     return {

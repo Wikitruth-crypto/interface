@@ -16,8 +16,8 @@ import {
 import {
   configManager,
   getContractConfig,
-  getContractAddresses_WithChainId,
-  getAllContractConfigs_WithChainId,
+  getAllContractAddresses,
+  getAllContractConfigs,
 } from './config';
 import { getChainConfig} from './chains';
 import { 
@@ -31,7 +31,7 @@ import { CHAIN_ID, } from './current';
 export function useAllContractAddresses(): ContractAddresses {
 
   return useMemo(() => {
-    return getContractAddresses_WithChainId(CHAIN_ID);
+    return getAllContractAddresses(CHAIN_ID);
   }, [CHAIN_ID]);
 }
 
@@ -57,7 +57,7 @@ export function useContractConfig(contractName: ContractName): ContractConfig {
 export function useAllContractConfigs(): ContractConfigs {
 
   return useMemo(() => {
-    return getAllContractConfigs_WithChainId(CHAIN_ID);
+    return getAllContractConfigs(CHAIN_ID);
   }, [CHAIN_ID]);
 }
 

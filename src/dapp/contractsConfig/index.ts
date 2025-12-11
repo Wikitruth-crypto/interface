@@ -37,8 +37,9 @@ export {
   configManager,
   getContractConfig,
   getContractAddress,
-  getContractAddresses_WithChainId,
-  getAllContractConfigs_WithChainId,
+  getAllContractAddresses,
+  getAllContractConfigs,
+  getContractConfigByAddress,
 } from './config';
 
 // 导出 Hooks
