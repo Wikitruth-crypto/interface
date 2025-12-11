@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState, useRef } from 'react';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useBoxDetailStore } from '../store/boxDetailStore';
@@ -51,6 +51,11 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
     setAllowanceChecked(!shouldCheckAllowance);
   }, [shouldCheckAllowance]);
 
+  const allowanceParams = useMemo(() => {
+    if (!config.needAllowance || !config.getAllowanceParams) return null;
+    return config.getAllowanceParams(ctx, allConfigs);
+  }, [config, ctx, allConfigs]);
+
   const pendingFns = config.pendingFunctions ?? [config.functionName];
   const isActionPending = pendingFns.includes((functionWriting ?? '') as FunctionNameType);
   const blockedByOtherAction =
@@ -71,6 +76,40 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
 
   const showApprove = shouldCheckAllowance && allowanceChecked && config.needAllowance && !isEnough;
 
+  // 监听 approve 完成后自动刷新 allowance（避免一直显示 Approve 按钮）
+  const prevFunctionWriting = useRef<string | null>(null);
+  useEffect(() => {
+    prevFunctionWriting.current = functionWriting;
+  }, [functionWriting]);
+
+  useEffect(() => {
+    const prev = prevFunctionWriting.current;
+    if (
+      prev === 'approve' &&
+      functionWriting === null &&
+      showApprove &&
+      allowanceParams &&
+      !isCheckingAllowance
+    ) {
+      const refresh = async () => {
+        setIsCheckingAllowance(true);
+        await checkAllowance_BoxDetail(
+          allowanceParams.token as `0x${string}`,
+          allowanceParams.amount
+        );
+        setIsCheckingAllowance(false);
+        setAllowanceChecked(true);
+      };
+      void refresh();
+    }
+  }, [
+    functionWriting,
+    showApprove,
+    allowanceParams,
+    checkAllowance_BoxDetail,
+    isCheckingAllowance,
+  ]);
+
   const execute: BoxActionController['execute'] = async (options) => {
 
     const writeParams = buildWrite(options?.customArgs);
@@ -83,6 +122,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
       if (!allowanceParams) {
         return;
       }
+      console.log('allowanceParams:', allowanceParams);
 
       setIsCheckingAllowance(true);
       const result = await checkAllowance_BoxDetail(allowanceParams.token as `0x${string}`, allowanceParams.amount);

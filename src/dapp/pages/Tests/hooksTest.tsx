@@ -13,6 +13,7 @@ import {
     ContractName,
     useAllContractConfigs,
     useSupportedTokens,
+    getTokenMetadata
 } from '@dapp/contractsConfig';
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { RequestEip712 } from '@/dapp/components/secret/requestEip712';
@@ -24,7 +25,8 @@ import { useReadBalance } from '@/dapp/hooks/readContracts2/token/useReadBalance
 const HooksTest = () => {
 
     const { address } = useAccount();
-    const [result, setResult] = useState<any>(null);
+    const [allowanceAmount, setAllowanceAmount] = useState<bigint>(BigInt(0));
+    const [balance, setBalance] = useState<bigint>(BigInt(0));
     const { writeCustormV2 } = useWriteCustormV2();
 
     const { readContract } = useReadContract();
@@ -37,17 +39,18 @@ const HooksTest = () => {
     // 测试：读取代币授�?
     const testRead = async () => {
         if (!address) return;
-        // const result = await readAllowance(
+        const result = await readAllowance(
+            allConfigs.wROSE_Secret.address,
+            address,
+            allConfigs.FundManager.address,
+            0,
+        )
+        setAllowanceAmount(result.allowanceAmount);
+        // const balance = await readBalance(
         //     allConfigs.OfficialTokenSecret.address,
         //     address,
-        //     allConfigs.FundManager.address,
-        //     1000,
         // )
-        const result = await readBalance(
-            allConfigs.OfficialTokenSecret.address,
-            address,
-        )
-        setResult(result);
+        // setBalance(balance);
     }
 
     // 测试：读取合约数�?
@@ -83,10 +86,16 @@ const HooksTest = () => {
             <Card title="HooksTest">
                 <div className="flex flex-col items-center justify-center">
                     <Button onClick={testRead}>Test readAllowance</Button>
-                    {result && (
+                    {/* {balance && (
                         <div className="mt-4 p-4 bg-gray-500 rounded">
                             <h3>查询结果</h3>
-                            <p>余额: {formatUnits(result.balance, supportedTokens.find(token => token.address === allConfigs.OfficialTokenSecret.address)?.decimals ?? 18)}</p>
+                            <p>余额: {formatUnits(balance, 18)}</p>
+                        </div>
+                    )} */}
+                    {allowanceAmount && (
+                        <div className="mt-4 p-4 bg-gray-500 rounded">
+                            <h3>查询结果</h3>
+                            <p>授权量: {formatUnits(allowanceAmount, 18)}</p>
                         </div>
                     )}
                 </div>

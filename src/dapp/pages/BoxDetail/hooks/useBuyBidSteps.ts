@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useTokenOperations } from '../hooks/useTokenOperations';
-import { ContractConfig } from '@/dapp/contractsConfig/types';
+import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
+import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useAccount } from 'wagmi';
 import { formatUnits, parseUnits, maxUint256 } from 'viem';
@@ -8,7 +8,7 @@ import { FunctionNameType } from '@/dapp/types/contracts';
 
 type writeStatus = 'idle' | 'pending' | 'success' | 'error';
 type StepStatus = 'wait' | 'process' | 'finish' | 'error';
-type StepKey = "eip712Permit"|'allowance' | 'approve' | 'buy' | 'bid';
+type StepKey = 'allowance' | 'approve' | 'buy' | 'bid' | 'payConfiFee';
 
 interface StepConfig {
     title: string;
@@ -23,15 +23,6 @@ export interface StepItem {
 }
 
 const STEP_CONFIGS: Record<StepKey, StepConfig> = {
-    eip712Permit: {
-        title: 'EIP712 Permit',
-        descriptions: {
-            idle: 'Need to sign EIP712 permit',
-            pending: 'Signing EIP712 permit...',
-            success: 'EIP712 permit signed',
-            error: 'Signing EIP712 permit failed',
-        },
-    },
     allowance: {
         title: 'Checking allowance...',
         descriptions: {
@@ -67,7 +58,16 @@ const STEP_CONFIGS: Record<StepKey, StepConfig> = {
             success: 'Bid operation success',
             error: 'Bid operation failed',
         },
-    }
+    },
+    payConfiFee: {
+        title: 'PayConfiFee',
+        descriptions: {
+            idle: 'Ready to pay confidentiality fee',
+            pending: 'Executing pay confidentiality fee operation...',
+            success: 'Pay confidentiality fee operation success',
+            error: 'Pay confidentiality fee operation failed',
+        },
+    },
 };
 
 const mapWriteStatusToStepStatus = (status: writeStatus): StepStatus => {
@@ -84,27 +84,24 @@ const mapWriteStatusToStepStatus = (status: writeStatus): StepStatus => {
     }
 };
 
-const createSteps = (functionName: FunctionNameType): StepItem[] => {
+const createSteps = (functionName: 'buy' | 'bid' | 'payConfiFee', isEnough: boolean): StepItem[] => {
     const steps: StepItem[] = [
-        {
-            stepKey: 'eip712Permit',
-            title: STEP_CONFIGS.eip712Permit.title,
-            description: STEP_CONFIGS.eip712Permit.descriptions.idle,
-            status: 'wait',
-        },
         {
             stepKey: 'allowance',
             title: STEP_CONFIGS.allowance.title,
             description: STEP_CONFIGS.allowance.descriptions.success,
             status: 'wait',
         },
-        {
+        
+    ];
+    if (!isEnough) {
+        steps.push({
             stepKey: 'approve',
             title: STEP_CONFIGS.approve.title,
             description: STEP_CONFIGS.approve.descriptions.idle,
             status: 'wait',
-        },
-    ];
+        });
+    }
     if (functionName === 'buy') {
         steps.push({
             stepKey: 'buy',
@@ -119,6 +116,13 @@ const createSteps = (functionName: FunctionNameType): StepItem[] => {
             description: STEP_CONFIGS.bid.descriptions.idle,
             status: 'wait',
         });
+    } else if (functionName === 'payConfiFee') {
+        steps.push({
+            stepKey: 'payConfiFee',
+            title: STEP_CONFIGS.payConfiFee.title,
+            description: STEP_CONFIGS.payConfiFee.descriptions.idle,
+            status: 'wait',
+        });
     }
 
     return steps;
@@ -129,24 +133,24 @@ type StepsState = {
     currentIndex: number;
 };
 
-export const useBoxDetailSteps = (
+export const useBuyBidSteps = (
     boxId: string,
-    tokenAddress: `0x${string}`, 
+    tokenAddress: `0x${string}`,
     amount: string,
-    contract: ContractConfig,
-    functionName: FunctionNameType,
+    functionName: 'buy' | 'bid' | 'payConfiFee',
 ) => {
+    const allConfigs = useAllContractConfigs();
     const { address } = useAccount();
-    const { readAllowance, allowanceAmount } = useReadAllowance();
-    const { wrap, approve, status, isLoading, isPending, isSuccessed, activeButton } = useTokenOperations();
+    const { readAllowance, allowanceAmount, isEnough } = useReadAllowance();
+    const { writeCustormV2, status, isLoading, isSuccessed } = useWriteCustormV2(boxId);
 
     const [state, setState] = useState<StepsState>({
-        steps: createSteps(functionName),
+        steps: createSteps(functionName, false),
         currentIndex: 1, // allowance is done; start at first actionable step
     });
 
     const initializeSteps = useCallback((isEnough: boolean) => {
-        const nextSteps = createSteps(functionName);
+        const nextSteps = createSteps(functionName, isEnough);
         const nextCurrentIndex = 1; // always point to the first actionable step (approve or wrap)
         setState({
             steps: nextSteps,
@@ -195,19 +199,17 @@ export const useBoxDetailSteps = (
 
     // ---
 
-    
+
     const checkAllowance = useCallback(async (checkType: 'init' | 'approve') => {
-        if (!address || !tokenPair.erc20.address || !amount || !tokenPair.secret?.address) {
+        if (!address || !tokenAddress || !amount) {
             return;
         }
-
-        const amountInWei = parseUnits(amount, tokenPair.erc20.decimals);
-
+        const amountInWei = parseUnits(amount, 18);
         try {
             const result = await readAllowance(
-                tokenPair.erc20.address,
+                tokenAddress,
                 address,
-                tokenPair.secret?.address,
+                allConfigs.FundManager.address,
                 amountInWei,
             );
             if (checkType === 'init') {
@@ -218,49 +220,30 @@ export const useBoxDetailSteps = (
             console.error('Check allowance error:', error);
             updateStepStatus('allowance', 'error');
         }
-    }, [tokenPair, amount, readAllowance, address, initializeSteps]);
+    }, [tokenAddress, amount, readAllowance, address, initializeSteps]);
 
-    useEffect(() => {
-        
-        if (activeButton === 'approve') {
-            if (status !== 'idle') {
-                updateStepStatus('approve', status);
-            }
-        } else if (activeButton === 'wrap') {
-            if (status !== 'idle') {
-                updateStepStatus('wrap', status);
-            }
-        } 
-    }, [activeButton, status]);
+    const handleApproveClick = useCallback(async (isMax: boolean = false) => {
+        if (!tokenAddress || !amount) return;
+        const amountInWei = isMax ? maxUint256 : parseUnits(amount, 18);
+        await writeCustormV2({
+            contract: allConfigs.wROSE_Secret,
+            functionName: 'approve',
+            args: [allConfigs.FundManager.address, amountInWei],
+        });
+    }, [tokenAddress, amount, writeCustormV2]);
 
-    const handleApproveClick = useCallback(async () => {
-        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
-        await approve(
-            tokenPair.erc20.address,
-            tokenPair.secret?.address,
-            amount,
-            tokenPair.erc20.decimals,
-        );
-    }, [tokenPair, amount, approve]);
-
-    const handleApproveMaxClick = useCallback(async () => {
-        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
-        await approve(
-            tokenPair.erc20.address,
-            tokenPair.secret?.address,
-            maxUint256.toString(),
-            tokenPair.erc20.decimals,
-        );
-    }, [tokenPair, amount, approve]);
-
-    const handleWrapClick = useCallback(async () => {
-        if (!tokenPair || !amount || !tokenPair.secret?.address) return;
-        await wrap(
-            tokenPair.secret?.address,
-            amount,
-            tokenPair.erc20.decimals,
-        );
-    }, [tokenPair, amount, wrap]);
+    const handleBuyBidClick = useCallback(async () => {
+        if (!tokenAddress || !amount) return;
+        let contract = allConfigs.Exchange;
+        if (functionName === 'payConfiFee') {
+            contract = allConfigs.TruthBox;
+        }
+        await writeCustormV2({
+            contract: allConfigs.Exchange,
+            functionName: functionName,
+            args: [boxId],
+        });
+    }, [tokenAddress, amount, writeCustormV2]);
 
 
     return {
@@ -271,13 +254,11 @@ export const useBoxDetailSteps = (
         updateStepStatus,
         checkAllowance,
         handleApproveClick,
-        handleApproveMaxClick,
-        handleWrapClick,
-        isPending,
+        handleBuyBidClick,
         isLoading,
+        isEnough,
         isSuccessed,
         status,
-        activeButton,
         allowanceAmount,
     };
 };
