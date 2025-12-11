@@ -14,8 +14,10 @@ interface Props {
 const BidButton: React.FC<Props> = ({ onClick, className }) => {
     const controller = useBoxActionController(boxActionConfigs.bid);
 
+
     return (
         <BoxActionButton controller={controller} className={className} onClick={onClick}>
+
             <div className={cn('flex flex-col items-start w-full')}>
                 <CalcMoney />
             </div>

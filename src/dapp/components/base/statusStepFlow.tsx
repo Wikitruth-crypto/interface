@@ -16,12 +16,13 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from '@/lib/utils';
-import StatusLabel, { StatusType } from './statusLabel';
+import StatusLabel from './statusLabel';
+import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 
 // 状态步骤接口
 export interface StatusStepFlowProps {
     /** 当前激活的状态 */
-    status: StatusType;
+    status: BoxStatus;
     listedMode: 'Selling' | 'Auctioning';
     /** 自定义样式类名 */
     className?: string;
@@ -81,11 +82,11 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
     fixedSize = false
 }) => {
     // 判断状态是否已激活
-    const isStatusActive = useCallback((checkStatus: StatusType): boolean => {
+    const isStatusActive = useCallback((checkStatus: BoxStatus): boolean => {
         if (!status) return false;
 
         // 定义状态路径
-        const statusPaths: Record<StatusType, StatusType[]> = {
+        const statusPaths: Record<BoxStatus, BoxStatus[]> = {
             'Storing': ['Storing'],
             'Selling': ['Storing', 'Selling'],
             'Auctioning': ['Storing', 'Auctioning'],
@@ -145,7 +146,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'storing',
                 position: positions.storing,
                 data: {
-                    status: 'Storing' as StatusType,
+                    status: 'Storing' as BoxStatus,
                     isActive: isStatusActive('Storing'),
                     isCurrent: status === 'Storing',
                     size,
@@ -157,7 +158,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'selling',
                 position: positions.selling,
                 data: {
-                    status: 'Selling' as StatusType,
+                    status: 'Selling' as BoxStatus,
                     isActive: isStatusActive('Selling'),
                     isCurrent: status === 'Selling',
                     size,
@@ -169,7 +170,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'auctioning',
                 position: positions.auctioning,
                 data: {
-                    status: 'Auctioning' as StatusType,
+                    status: 'Auctioning' as BoxStatus,
                     isActive: isStatusActive('Auctioning'),
                     isCurrent: status === 'Auctioning',
                     size,
@@ -181,7 +182,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'paid',
                 position: positions.paid,
                 data: {
-                    status: 'Paid' as StatusType,
+                    status: 'Paid' as BoxStatus,
                     isActive: isStatusActive('Paid'),
                     isCurrent: status === 'Paid',
                     size,
@@ -193,7 +194,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'inSecrecy',
                 position: positions.inSecrecy,
                 data: {
-                    status: 'InSecrecy' as StatusType,
+                    status: 'InSecrecy' as BoxStatus,
                     isActive: isStatusActive('InSecrecy'),
                     isCurrent: status === 'InSecrecy',
                     size,
@@ -205,7 +206,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'refunding',
                 position: positions.refunding,
                 data: {
-                    status: 'Refunding' as StatusType,
+                    status: 'Refunding' as BoxStatus,
                     isActive: isStatusActive('Refunding'),
                     isCurrent: status === 'Refunding',
                     size,
@@ -217,7 +218,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 id: 'published',
                 position: positions.published,
                 data: {
-                    status: 'Published' as StatusType,
+                    status: 'Published' as BoxStatus,
                     isActive: isStatusActive('Published'),
                     isCurrent: status === 'Published',
                     size,

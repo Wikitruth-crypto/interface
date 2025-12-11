@@ -41,8 +41,9 @@ function convertBoxRow(
     const camelCased = camelcaseKeys(boxRow, { deep: true }) as any;
     return {
         ...camelCased,
-        // 确保 biddersIds 字段存在（boxes 表中没有此字段，初始化为空数组）
         biddersIds: camelCased.biddersIds || [],
+        acceptedToken: camelCased.acceptedToken ?? undefined,
+        listedMode: camelCased.listedMode ?? undefined,
     };
 }
 

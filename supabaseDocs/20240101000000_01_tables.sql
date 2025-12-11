@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS boxes (
   
   -- 时间戳字段
   create_timestamp NUMERIC(78, 0) NOT NULL, 
-  sell_timestamp NUMERIC(78, 0), 
   publish_timestamp NUMERIC(78, 0), 
   listed_timestamp NUMERIC(78, 0), 
   purchase_timestamp NUMERIC(78, 0), 

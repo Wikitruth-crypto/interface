@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAccountStore } from '@/dapp/store/accountStore';
 import { useUserId } from '../readContracts/useUserId';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
-import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
+import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 
 type AccountStoreSnapshot = ReturnType<typeof useAccountStore.getState>;
 
@@ -30,13 +30,8 @@ const resolveUserIdFromAccounts = (
 
 /**
  * 监听和读取当前账户的 UserId
- * 
- * 功能：
- * 1. 监听 SIWE token 的有效性
- * 2. 如果 SIWE token 有效且 userId 不存在，则自动从合约获取 userId
- * 3. 将获取到的 userId 保存到 accountStore
- * 
  * @returns 当前账户的 userId（如果存在）
+ * 
  * 
  * @example
  * ```tsx
@@ -55,7 +50,9 @@ export function useGetMyUserId(): string {
     const { setUserId: setUserIdToStore} = useAccountStore();
     const { myUserId } = useUserId();
     const { address, chainId } = useWalletContext();
-    const currentSession = useSimpleSecretStore((state) => state.currentSession);
+    
+    // 使用 useSiweAuth 获取响应式的会话验证状态和 token
+    const { isValidateSession, session } = useSiweAuth();
     
     // Use selector to precisely listen for changes in the userId of the current account
     const currentUserIdFromStore = useAccountStore((state) => {
@@ -64,23 +61,6 @@ export function useGetMyUserId(): string {
 
         return resolveUserIdFromAccounts(state, targetChainId, targetAddress);
     });
-
-    // ==================== Check if the SIWE token is valid ====================
-    const isSiweTokenValid = useCallback((): boolean => {
-        if (!currentSession.isLoggedIn || !currentSession.token) {
-            return false;
-        }
-
-        // Check the expiration time
-        if (currentSession.expiresAt) {
-            const now = new Date();
-            const expiresAt = new Date(currentSession.expiresAt);
-            return now < expiresAt;
-        }
-
-        // If there is no expiration time, but the token exists and isLoggedIn is true, consider it valid
-        return true;
-    }, [currentSession.isLoggedIn, currentSession.token, currentSession.expiresAt]);
 
     // ==================== Get the current account's userId ====================
 
@@ -94,10 +74,10 @@ export function useGetMyUserId(): string {
             return;
         }
 
-        // Check the necessary conditions
-        if (!currentSession.token || !isSiweTokenValid()) {
+        // Check the necessary conditions - 使用响应式的 isValidateSession
+        if (!session.token || !isValidateSession) {
             if (import.meta.env.DEV) {
-            console.log('[useMyUserId] SIWE token is not valid, skipping fetch');
+                console.log('[useMyUserId] SIWE token is not valid, skipping fetch');
             }
             return;
         }
@@ -132,7 +112,7 @@ export function useGetMyUserId(): string {
         try {
             
             // Call the contract to get the userId
-            const fetchedUserId = await myUserId(currentSession.token);
+            const fetchedUserId = await myUserId(session.token!);
 
             if (fetchedUserId && fetchedUserId > 0) {
                 const userIdString = fetchedUserId.toString();
@@ -156,9 +136,12 @@ export function useGetMyUserId(): string {
             fetchingRef.current = false;
         }
     }, [
-        currentSession.token,
+        session.token,
+        isValidateSession,
         address,
         chainId,
+        myUserId,
+        setUserIdToStore,
     ]);
 
     // ==================== Synchronize the userId in the store to the local state ====================
@@ -171,16 +154,13 @@ export function useGetMyUserId(): string {
     // ==================== Listen for changes and automatically get ====================
     useEffect(() => {
         // If the userId does not exist and the SIWE token is valid, and there is no fetching, then get
-        if (!currentUserIdFromStore && isSiweTokenValid() && !fetchingRef.current) {
+        if (!currentUserIdFromStore && isValidateSession && !fetchingRef.current) {
             fetchUserIdFromContract();
         }
     }, [
         currentUserIdFromStore,
-        currentSession.isLoggedIn,
-        currentSession.token,
-        currentSession.expiresAt,
+        isValidateSession,
         fetchUserIdFromContract,
-        isSiweTokenValid,
     ]);
 
     return userId;

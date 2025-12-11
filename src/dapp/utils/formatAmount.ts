@@ -4,7 +4,7 @@ import { formatUnits } from "viem";
  * 
  * @param amount - 金额值，可以是 string、bigint 或 number
  * @param decimals - 代币精度，默认 18
- * @param decimalLength - 显示的小数位数，默认 3
+ * @param precision - 显示的小数位数，默认 3
  * @param thousandSeparator - 是否显示千位分隔符，默认 true（当前未实现）
  * @returns 格式化后的金额字符串
  * 
@@ -16,7 +16,7 @@ import { formatUnits } from "viem";
 export function formatAmount(
     amount: string | bigint | number, 
     decimals: number = 18, 
-    decimalLength: number = 3,
+    precision: number = 3,
     // thousandSeparator: boolean = true,
 ): string {
     if (!amount || amount === '0' || amount === '0n') {
@@ -46,7 +46,7 @@ export function formatAmount(
         }
 
         // 使用指定的 decimalLength，而不是硬编码的 3
-        return numValue.toFixed(decimalLength);
+        return numValue.toFixed(precision);
     } catch (error) {
         console.error('Failed to format amount:', error);
         return '0.000';

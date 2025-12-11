@@ -2,7 +2,7 @@
 import { Modal, InputNumber, message, Typography, Divider } from 'antd';
 import { parseUnits,} from 'viem';
 import { useState, useEffect, useMemo } from 'react';
-import { useSupportedTokens } from '@/dapp/contractsConfig';
+import { ACCEPTED_TOKENS } from '@/dapp/contractsConfig';
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import TokenSelector from '../components/tokenSelector';
 import { CommonSelectOption } from '@/dapp/components/base/CommonSelect';
@@ -19,16 +19,11 @@ interface Props {
 
 const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) => {
     const updateModalStatus = useBoxDetailStore(state => state.updateModalStatus);
-    const supportedTokens = useSupportedTokens();
     const { roles } = useBoxDetailStore(state => state.userState);
     const { boxId, box } = useBoxDetailContext();
 
-    const officeToken = supportedTokens[0];
-    const defaultToken = (box?.acceptedToken as `0x${string}` | undefined) || officeToken?.address || '0x0000000000000000000000000000000000000000';
-    const defaultDecimals = useMemo(() => {
-        const found = supportedTokens.find(token => token.address === box?.acceptedToken);
-        return found?.decimals ?? officeToken?.decimals ?? 18;
-    }, [supportedTokens, box?.acceptedToken, officeToken?.decimals]);
+    const defaultToken = ACCEPTED_TOKENS[0].address;
+    const defaultDecimals = ACCEPTED_TOKENS[0].decimals;
 
     const [price, setPrice] = useState<string>('');
     const [accpetTokenAddress, setAccpetTokenAddress] = useState<string>(defaultToken);
@@ -38,7 +33,11 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
         updateModalStatus('SellAuction', 'open');
     }, []);
 
-    const handleSell = async () => {
+    const handleOk = async () => {
+        if (controller.isSuccessed) {
+            handleClose();
+            return;
+        }
         if (!box) return;
 
         let tokenAddress = accpetTokenAddress as `0x${string}`;
@@ -66,7 +65,6 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
     };
 
     const handlePriceChange = (value: number | string | null) => {
-        // InputNumber 的 onChange 可能返回 number | null，需要转换为字符串
         if (value === null || value === undefined) {
             setPrice('');
         } else {
@@ -92,7 +90,7 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
             open={true}
             closable={false}
             maskClosable={false}
-            onOk={handleSell}
+            onOk={handleOk}
             onCancel={handleClose}
             okButtonProps={{ disabled: controller.isLoading }}
             cancelButtonProps={{ disabled: controller.isLoading }}
@@ -103,16 +101,13 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
             <div className='flex flex-col gap-2'>
 
                 <div className='flex flex-col gap-2 text-foreground'>
-                    <div className='flex flex-row gap-2 items-baseline'>
-                        <Typography.Paragraph color='muted-foreground'>boxId:</Typography.Paragraph>
-                        <Typography.Paragraph >{boxId}</Typography.Paragraph>
-                    </div>
+                    <Typography.Paragraph color='muted-foreground'>boxId:{boxId}</Typography.Paragraph>
                     <div className='flex flex-row gap-2 items-baseline'>
                         <Typography.Paragraph color='muted-foreground'>Current Price:</Typography.Paragraph>
                         <PriceLabel
                             price={box.price}
-                            symbol={officeToken?.symbol}
-                            decimals={officeToken?.decimals}
+                            symbol={ACCEPTED_TOKENS[0].symbol}
+                            decimals={ACCEPTED_TOKENS[0].decimals}
                         />
                     </div>
                     <Divider />
@@ -120,19 +115,15 @@ const ModalSellAuction: React.FC<Props> = ({ onClose, listedMode, controller }) 
                         <div className='flex flex-col gap-2'>
                             <div className='flex flex-col gap-2 items-start'>
                                 <Typography.Paragraph color='muted-foreground'>Accpet Token:</Typography.Paragraph>
-                                <div className='flex w=full flex-row items-center '>
-                                    <TokenSelector onChange={handleToken} />
-                                </div>
+                                <TokenSelector onChange={handleToken} />
                             </div>
                             <div className='flex flex-col gap-2 items-baseline'>
                                 <Typography.Paragraph color='muted-foreground'>Price:</Typography.Paragraph>
-                                <div className='flex flex-row items-center '>
-                                    <InputNumber
-                                        onChange={(value) => handlePriceChange(value)}
-                                        value={price ? Number(price) : undefined}
-                                        placeholder="Enter price"
-                                    />
-                                </div>
+                                <InputNumber
+                                    onChange={(value) => handlePriceChange(value)}
+                                    value={price ? Number(price) : undefined}
+                                    placeholder="Enter price"
+                                />
                             </div>
                             <Typography.Paragraph color='muted-foreground'>If you don't enter the price, the default price will be used.</Typography.Paragraph>
                         </div>

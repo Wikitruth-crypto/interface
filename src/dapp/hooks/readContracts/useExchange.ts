@@ -11,14 +11,14 @@ export function useExchange() {
     // function calcPayMoney(uint256 boxId_) external view returns (uint256);
     const calcPayMoney = async (
         id: number | string, 
-        address: string, 
+        siweToken: string, 
         force: boolean = false
     ): Promise<number> => {
         try {
             const tx = await readContract({
                 contractName: ContractName.EXCHANGE,
                 functionName: 'calcPayMoney',
-                args: [id, address],
+                args: [id, siweToken],
                 force
             });
             return tx ? Number(tx) : 0;

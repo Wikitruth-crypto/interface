@@ -14,6 +14,7 @@ import type { MetadataBoxType } from '@/dapp/types/metadata/metadataBox';
 import { type BoxRewardData, type BoxUserOrderAmountData } from '@/dapp/services/supabase/fundsBox';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 import { useCheckDeadline } from '../hooks/useCheckDeadline';
+import { useBoxDetailStore } from '../store/boxDetailStore';
 
 interface BoxDetailContextType {
   // 基础数据（默认查询 - 必须）
@@ -115,12 +116,15 @@ export const BoxDetailProvider: React.FC<{
   // - userId 在 queryKey 中，所以当 userId 变化时，React Query 会自动重新查询
   // - enabled 参数控制是否查询，只有当所有条件满足时才查询
   const shouldQueryOrderAmounts = !!boxId && !!userId ;
+  const roles = useBoxDetailStore((state) => state.userState.roles);
+
   const { 
     orderAmountsData, 
     isLoading: isLoadingOrderAmounts 
   } = useBoxOrderAmounts(
     boxId,
     userId || '', // 当 userId 为 null 时传入空字符串
+    roles,
     shouldQueryOrderAmounts // 只有当所有条件满足时才查询
   );
   

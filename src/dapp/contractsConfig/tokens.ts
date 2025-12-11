@@ -1,6 +1,7 @@
 import { ContractName, SupportedChainId, TokenMetadata } from './types';
 import { NETWORK_CONTRACTS } from './contracts';
 import { ABIS } from './chain-23295/abis';
+import { CHAIN_ID , OFFICIAL_TOKEN_CONFIG} from './current';
 
 export function getSupportedTokens_WithChainId(chainId: SupportedChainId): TokenMetadata[] {
   const addresses = NETWORK_CONTRACTS[chainId];
@@ -83,3 +84,30 @@ export function getOfficialTokenConfig_WithChainId(chainId: SupportedChainId): T
   };
 }
 
+export function getTokenMetadata(tokenAddress: string): TokenMetadata {
+  if (!tokenAddress) {
+    console.warn('[getTokenMetadata] tokenAddress is empty, returning OFFICIAL_TOKEN_CONFIG');
+    return OFFICIAL_TOKEN_CONFIG;
+  }
+
+  const supportedTokens = getSupportedTokens_WithChainId(CHAIN_ID);
+  
+  // 规范化地址：统一转小写进行比较（以太坊地址不区分大小写）
+  const normalizedAddress = tokenAddress.toLowerCase();
+  
+  const foundToken = supportedTokens.find(token => {
+    const tokenAddressNormalized = token.address?.toLowerCase();
+    return tokenAddressNormalized === normalizedAddress;
+  });
+
+  if (!foundToken) {
+    return OFFICIAL_TOKEN_CONFIG;
+  }
+
+  return foundToken;
+}
+
+export function getAcceptedTokens_WithChainId(chainId: SupportedChainId): TokenMetadata[] {
+  const supportedTokens = getSupportedTokens_WithChainId(chainId);
+  return supportedTokens.filter(token => token.canAcceptToken);
+}

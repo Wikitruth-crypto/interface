@@ -2,14 +2,18 @@
 
 import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useLisenerRoles } from '../hooks/useLisenerRoles';
-import { Alert } from 'antd';
+import { Alert, Button, Typography, Space } from 'antd';
+import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 
 interface Props {
     tokenId?: number,
 }
 
+// const { Paragraph } = Typography;
+
 const RoleContainer: React.FC<Props> = () => {
     const { roles } = useBoxDetailStore(state => state.userState);
+    const { login, isLoading } = useSiweAuth();
     useLisenerRoles();
 
     return (
@@ -27,10 +31,19 @@ const RoleContainer: React.FC<Props> = () => {
             ) : (
                 <>
                     <Alert
+                        type="warning"
                         showIcon={true}
                         message="You are: Guest, please login!"
-                        description="Please login to the website to use the Wallet Connection"
-                        type="warning"
+                        description={
+
+                            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                {/* <Paragraph type="secondary" style={{ marginBottom: 0, fontSize: 13 }}>
+
+                                    Please login to the website to use the Wallet Connection
+                                </Paragraph> */}
+                                <Button type="primary" block  loading={isLoading} onClick={() => login()}>Login</Button>
+                            </Space>
+                        }
                     />
                 </>
 

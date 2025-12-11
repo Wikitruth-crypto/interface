@@ -148,11 +148,14 @@ export async function queryMarketplaceBoxes(
         const { data, error } = await (supabase.rpc as any)('search_boxes', searchParams);
 
         if (error) {
+            console.error('[queryMarketplaceBoxes] Supabase error:', error);
             return { data: null, error };
         }
 
+        const filteredData = applyClientSideFilters(data, filters);
+
         return {
-            data: applyClientSideFilters(data, filters),
+            data: filteredData,
             error: null,
         };
     } catch (error) {

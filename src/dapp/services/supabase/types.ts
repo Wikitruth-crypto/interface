@@ -47,15 +47,17 @@ export function convertSearchResultToMarketplaceBoxData(
     // 处理特殊字段和类型转换
     return {
         ...camelCased,
-        tokenId: result.id,
-        tokenIdNumeric: toNumericTokenId(result.id),
+        id: result.id, // 保留原始的 id 字段
+        tokenId: result.token_id || result.id, // 优先使用 token_id
+        tokenIdNumeric: toNumericTokenId(result.token_id || result.id),
         status: normalizeStatus(result.status),
         deadline: null,
         boxInfoCID: null,
-        acceptToken: undefined,
+        acceptToken: camelCased.acceptedToken ?? undefined, // camelcaseKeys 会将 accepted_token 转换为 acceptedToken
         hasError: false,
         title: camelCased.title ?? undefined,
         description: camelCased.description ?? undefined,
         typeOfCrime: camelCased.typeOfCrime ?? undefined,
+        // event_date 会被 camelcaseKeys 自动转换为 eventDate
     };
 }

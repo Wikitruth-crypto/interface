@@ -8,10 +8,8 @@ import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 
 export const useBoxAndMetadata = (boxId: string) => {
-    // 获取当前网络
     const { network, layer } = CHAIN_CONFIG;
 
-    // 使用 React Query 查询 Box 详情（只查询 boxes 和 metadata_boxes）
     const { data, isLoading, error, isFetching } = useQuery({
         queryKey: ['box-detail', network, layer, boxId],
         queryFn: async () => {

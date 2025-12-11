@@ -13,14 +13,5 @@
   "WROSESecret": "0x4e30337908E19917f3F74adB45966114A55205c2",
   "OfficialToken": "0x990DE401CD0103a0107D27F82283db60F4844203",
   "OfficialToken_ERC20Secret": "0x449e2CD61F0328Ae68f4A530170C892B45b4B269",
-  "ERC20Secret": "",
-
-  "Implementation_Current": "------------------ Now we use the implementation -------------------------------",
-  "AddressManager_Implementation": "0xd16b46d33e24464454c9D900B65E3b2f02de045c",
-  "Exchange_Implementation": "0x1B6769C54C3D0EfA64c94237b623b06fD4D52D23",
-  "FundManager_Implementation": "0x69CAe2422Cb8CF00663Bf1C53869e1340b19B272",
-  "TruthBox_Implementation": "0x4058F87ac5703c4929D43901FAA464bC139bB9D5",
-  "TruthNFT_Implementation": "0xa67C79a3016CCd8522B51e90aE7C0AaD39748E62",
-  "UserId_Implementation": "0x828230Dfcb432A778f1f48e2C2DdC12353f58BE1"
-
+  "ERC20Secret": ""
 }

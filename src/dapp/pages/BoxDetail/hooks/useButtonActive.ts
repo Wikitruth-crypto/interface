@@ -2,7 +2,6 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useMemo, useState, useEffect } from 'react';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { BoxInteractionRecord, useAccountStore, AccountStoreState } from '@/dapp/store/accountStore';
-// import { Address_0 } from '@/dapp/constants/addressRoles';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
 
@@ -69,15 +68,15 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
 
     const publishActive_roleCheck = (): boolean => {
       if (status === 'Storing') {
-        return isMinter;
+        return isMinter ;
       } else if (status === 'InSecrecy') {
-        return isBuyer;
+        return isBuyer ;
       }
       return false;
     }
     const sellOrAuction_roleCheck = (): boolean => {
       if (isInDeadline) {
-        return isMinter; // 没过期，则必须是minter
+        return isMinter ; // 没过期，则必须是minter
       } else {
         return !isGuest; // 过期了，则只要不是guest就可以
       }
@@ -85,7 +84,7 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
 
     const agreeRefund_roleCheck = (): boolean => {
       if (isInReviewRefundDeadline) {
-        return isAdmin || isMinter; // 在审核退款期限内，则必须是admin或minter
+        return isAdmin || (isMinter ); // 在审核退款期限内，则必须是admin或minter
       } else {
         return !isGuest; // 过期，则只要不是guest就可以
       }
@@ -101,7 +100,7 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
 
     const completeOrder_roleCheck = (): boolean => {
       if (isInRequestRefundDeadline) {
-        return isBuyer; // 在请求退款期限内，则必须是buyer
+        return isBuyer ; // 在请求退款期限内，则必须是buyer
       } else {
         return !isGuest; // 过期，则只要不是guest就可以
       }
@@ -109,9 +108,9 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
 
     const viewFileActive = (): boolean => {
       if (status === 'Storing' || status === 'Selling' || status === 'Auctioning') {
-        return isMinter;
+        return isMinter ;
       } else if (status === 'InSecrecy' || status === 'Paid') {
-        return isBuyer;
+        return isBuyer ;
       } else if (status === 'Refunding') {
         return !isGuest;
       } else if (status === 'Published') {
@@ -124,7 +123,7 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
     switch (name) {
       case 'extendActive':
         return !isInBlackListed &&
-          isMinter &&
+          isMinter  &&
           isInDeadline &&
           deadlineCheckState?.isInExtendDeadlineTimeWindow &&
           !wroteList.includes('extendDeadline') &&
@@ -148,15 +147,14 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
         return !isInBlackListed &&
           purchaseTimestamp === 0 &&
           status === 'Selling' &&
-          isOther &&
+          isOther  &&
           // isInDeadline &&
           !wroteList.includes('buy');
 
       case 'bidActive':
         return !isInBlackListed &&
           status === 'Auctioning' &&
-          !isBuyer &&
-          (isOther || isBidder) &&
+          (isOther || isBidder)  &&
           isInDeadline &&
           !wroteList.includes('bid');
 
@@ -166,14 +164,14 @@ export const useButtonActive = (name: ButtonActiveNameType) => {
           isInRequestRefundDeadline &&
           reviewDeadline === 0 &&
           status === 'Paid' &&
-          isBuyer &&
+          isBuyer  &&
           !wroteList.includes('requestRefund');
 
       case 'cancelRefundActive':
         return !isInBlackListed &&
           !refundPermit &&
           status === 'Refunding' &&
-          isBuyer &&
+          isBuyer  &&
           !wroteList.includes('cancelRefund');
 
       case 'agreeRefundActive':

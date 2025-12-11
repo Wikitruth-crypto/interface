@@ -28,6 +28,7 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
 
     const [price, setPrice] = useState('');
     const [status, setStatus] = useState<BoxStatus>('Storing');
+    const [listedMode, setListedMode] = useState<string>('');
     const [deadline, setDeadline] = useState<number>(0);
     const [token, setToken] = useState<string>('');
 
@@ -37,6 +38,7 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             setPrice(box.price ?? '');
             setDeadline(Number(box.deadline));
             setToken(box.acceptedToken ?? '');
+            setListedMode(box.listedMode ?? 'Selling');
         }
     }, [box]);
 
@@ -77,7 +79,7 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             </Typography.Title>
             <StatusStep
                 status={status}
-                listedMode={box?.listedMode ?? ''}
+                listedMode={listedMode}
                 size="sm"
                 enableHorizontalScroll={true}
             />

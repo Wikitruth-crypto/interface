@@ -18,12 +18,12 @@ export {
 // 导出当前配置
 export {
   SUPPORTED_TOKENS,
+  ACCEPTED_TOKENS,
   CHAIN_ID,
   CHAIN_CONFIG,
   OFFICIAL_TOKEN_CONFIG,
   PROTOCOL_CONSTANTS,
   useSetCurrentChainConfig,
-  getTokenMetadata,
 } from './current';
 
 // 导出协议常量
@@ -50,12 +50,15 @@ export {
   useContractAddress,
   useChainConfig,
   useTokenMetadata,
+  useAcceptedTokens,
 } from './hooks';
 
 // 导出 Token 配置
 export {
-  getSupportedTokens_WithChainId,
-  getOfficialTokenConfig_WithChainId,
+  // getSupportedTokens_WithChainId,
+  // getOfficialTokenConfig_WithChainId,
+  // getAcceptedTokens_WithChainId,
+  getTokenMetadata,
 } from './tokens';
 
 // 导出事件配置

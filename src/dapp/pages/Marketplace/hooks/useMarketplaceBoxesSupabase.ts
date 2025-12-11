@@ -31,11 +31,21 @@ export const useMarketplaceBoxesSupabase = () => {
     const pageSize = paginationConfig.pageSize;
 
     // 查询总数（用于分页计算）
-    const { data: totalCountData } = useQuery({
+    const { data: totalCountData, error: countError } = useQuery({
         queryKey: ['marketplace-boxes-count', filters],
-        queryFn: () => countMarketplaceBoxes(filters),
+        queryFn: async () => {
+            const result = await countMarketplaceBoxes(filters);
+            if (result.error) {
+                console.error('[useMarketplaceBoxesSupabase] Count error:', result.error);
+            }
+            return result;
+        },
         staleTime: 30000, // 30 秒内不重新查询
     });
+
+    if (countError) {
+        console.error('[useMarketplaceBoxesSupabase] Count query error:', countError);
+    }
 
     const totalCount = totalCountData?.count ?? 0;
     const totalPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 0;
@@ -48,11 +58,14 @@ export const useMarketplaceBoxesSupabase = () => {
             const result = await queryMarketplaceBoxes(filters, pageSize, offset);
 
             if (result.error) {
+                console.error('[useMarketplaceBoxesSupabase] Paginator query error:', result.error);
                 throw result.error;
             }
 
             // 转换数据格式
-            return (result.data || []).map(convertSearchResultToMarketplaceBoxData);
+            const convertedData = (result.data || []).map(convertSearchResultToMarketplaceBoxData);
+            
+            return convertedData;
         },
         staleTime: 30000,
         placeholderData: keepPreviousData,

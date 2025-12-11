@@ -6,7 +6,7 @@ import { BoxStatus } from '@/dapp/types/contracts/truthBox';
 import useGetTokenPrice from '@/dapp/contractsConfig/useGetTokenPrice';
 import PriceLabel from '@/dapp/components/base/priceLabel';
 import Paragraph from '@/components/base/paragraph';
-import { SUPPORTED_TOKENS, TokenMetadata } from '@/dapp/contractsConfig';
+import { getTokenMetadata} from '@/dapp/contractsConfig';
 
 interface Props {
     price: string | number;
@@ -19,7 +19,7 @@ const PriceContainer: React.FC<Props> = ({ price, token, status, }) => {
     const { getTokenPrice } = useGetTokenPrice();
 
     const [priceUSD, setPriceUSD] = useState<number>(0);
-    const tokenMetadata = SUPPORTED_TOKENS.find((tokens: TokenMetadata) => tokens.address === token as `0x${string}`);
+    const tokenMetadata = getTokenMetadata(token);
     useEffect(() => {
         if (tokenMetadata) {
             getTokenPrice(tokenMetadata.address, Number(price)).then((priceUSD) => {

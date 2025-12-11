@@ -106,7 +106,7 @@ export const useBoxActionController = (config: BoxActionConfig): BoxActionContro
   return {
     label: config.label,
     description: config.description,
-    isLoading: isCheckingAllowance || isActionPending || isLoading,
+    isLoading: isActionPending || isLoading || isCheckingAllowance,
     isDisabled,
     isSuccessed,
     showApprove: showApprove ?? false,

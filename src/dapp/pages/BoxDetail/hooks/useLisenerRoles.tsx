@@ -5,10 +5,14 @@ import { useBoxDetailStore } from '../store/boxDetailStore';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 import { useAccountStore } from '@/dapp/store/accountStore';
 import { CHAIN_ID } from '@/dapp/contractsConfig';
+import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
+
 
 export const useLisenerRoles = () => {
     const { box } = useBoxDetailContext();
     const { address, isConnected, accountRole, chainId} = useWalletContext() || {};
+    const { isValidateSession } = useSiweAuth();
+
 
     const { 
         updateUserState, 
@@ -20,7 +24,7 @@ export const useLisenerRoles = () => {
         if (!targetChainId || !address) {
             return '';
         }
-
+        
         const chainAccounts = state.accounts[targetChainId];
         if (!chainAccounts) {
             return '';
@@ -37,6 +41,10 @@ export const useLisenerRoles = () => {
         let roles: BoxRoleType[] = [];
         updateUserState({ roles: roles });
         if (!address || !isConnected || !box) {
+            return;
+        }
+
+        if (!isValidateSession) {
             return;
         }
 
@@ -83,7 +91,7 @@ export const useLisenerRoles = () => {
             return roles;
         };
         updateUserState({ roles: role() });
-    }, [address, isConnected, box, userId]);
+    }, [address, isConnected, box, userId, isValidateSession]);
 
     return {};
 };

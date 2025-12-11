@@ -42,14 +42,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
     // 格式化价格显示
     const formattedPrice = useMemo(() => {
         try {
-            // 转换为 bigint 或 number
-            const priceValue = typeof price === 'bigint' 
-                ? price 
-                : typeof price === 'string' 
-                    ? (price.includes('n') ? BigInt(price.replace('n', '')) : BigInt(price))
-                    : BigInt(Math.floor(Number(price) || 0));
-            
-            return formatAmount(priceValue, decimals, precision);
+            return formatAmount(price, decimals, precision);
         } catch (error) {
             console.error('Failed to format price:', error);
             return '0';

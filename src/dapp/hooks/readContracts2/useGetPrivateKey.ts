@@ -15,7 +15,7 @@ import { useWalletContext } from "@/dapp/context/useAccount/WalletContext";
 export const useGetPrivateKey = () => {
     const { chainId, address } = useWalletContext();
     const { getPrivateKey_TruthBox, setPrivateKey_TruthBox } = useSimpleSecretStore();
-    const { session, validateSession, login } = useSiweAuth();
+    const { session, isValidateSession, login } = useSiweAuth();
     const { getPrivateData } = useTruthBox();
 
     const checkPrivateKeyExist = (boxId: string): boolean => {
@@ -35,9 +35,8 @@ export const useGetPrivateKey = () => {
             console.log('Has no private key, checking siweToken...');
         }
         // Check if the siweToken is valid
-        const isValid = await validateSession();
         let siweToken: string | null = null;
-        if (!isValid) {
+        if (!isValidateSession) {
             if (import.meta.env.DEV) {
                 console.log('SiweToken is not valid, logging in...');
             }

@@ -1,12 +1,11 @@
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useWalletContext } from '@/dapp/context/useAccount/WalletContext';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
-import { useState } from 'react';
+// import { useState } from 'react';
 
 export const useAllowance_BoxDetail = () => {
-    const [isEnough, setIsEnough] = useState(true);
     
-    const { readAllowance } = useReadAllowance();
+    const { readAllowance, isEnough , isLoading} = useReadAllowance();
     const { address } = useWalletContext() || {};
     const allConfigs = useAllContractConfigs();
 
@@ -20,10 +19,9 @@ export const useAllowance_BoxDetail = () => {
         const spender = allConfigs.FundManager.address;
 
         const result = await readAllowance(tokenAddress, owner, spender, amount);
-        setIsEnough(result.isEnough);
 
         return result;
     };
 
-    return { isEnough, checkAllowance_BoxDetail };
+    return { isEnough, isLoading, checkAllowance_BoxDetail };
 }

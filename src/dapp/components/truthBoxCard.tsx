@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import PriceLabel from './base/priceLabel';
 import ImageSwiper from './imageSwiper';
 import { boxStatus } from '@/dapp/types/contracts/truthBox';
-import { useSupportedTokens } from '@/dapp/contractsConfig';
+import { getTokenMetadata } from '@/dapp/contractsConfig';
 import StatusLabel from './base/statusLabel';
 
 
@@ -26,8 +26,7 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     className,
     onImageLoad, // 新增
 }) => {
-    const supportedTokens = useSupportedTokens();
-    const tokenMetadata = supportedTokens.find(token => token.address === data.acceptToken);
+    const tokenMetadata = getTokenMetadata(data.acceptToken as `0x${string}`);
     
     const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6];
 

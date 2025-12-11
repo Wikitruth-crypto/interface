@@ -15,7 +15,6 @@ export const useBoxRewards = (
     enabled: boolean = true
 ) => {
 
-    // 获取当前网络
     const { network, layer } = CHAIN_CONFIG;
 
     // 使用 React Query 查询 Box 奖励数据

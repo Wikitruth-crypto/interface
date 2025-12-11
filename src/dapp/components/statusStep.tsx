@@ -8,21 +8,13 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 // 组件接口
 interface StatusStepProps {
-    /** 当前激活的状态 */
     status: BoxStatus;
-    /** 列表模式 */
     listedMode?: string;
-    /** 自定义样式类名 */
     className?: string;
-    /** 标签尺寸 */
     size?: 'sm' | 'md' | 'lg';
-    /** 是否启用响应式 */
     responsive?: boolean;
-    /** 是否显示背景 */
     showBackground?: boolean;
-    /** 是否显示指示箭头 */
     showIndicator?: boolean;
-    // 是否水平滚动
     enableHorizontalScroll?: boolean;
 }
 

@@ -20,8 +20,12 @@ import {
   getAllContractConfigs_WithChainId,
 } from './config';
 import { getChainConfig} from './chains';
-import { getSupportedTokens_WithChainId } from './tokens';
-import { CHAIN_ID, getTokenMetadata } from './current';
+import { 
+  getSupportedTokens_WithChainId,
+  getAcceptedTokens_WithChainId,
+  getTokenMetadata,
+} from './tokens';
+import { CHAIN_ID, } from './current';
 
 
 export function useAllContractAddresses(): ContractAddresses {
@@ -35,6 +39,12 @@ export function useTokenMetadata(tokenAddress: string): TokenMetadata {
   return useMemo(() => {
     return getTokenMetadata(tokenAddress);
   }, [tokenAddress]);
+}
+
+export function useAcceptedTokens(): TokenMetadata[] {
+  return useMemo(() => {
+    return getAcceptedTokens_WithChainId(CHAIN_ID);
+  }, [CHAIN_ID]);
 }
 
 export function useContractConfig(contractName: ContractName): ContractConfig {

@@ -5,14 +5,20 @@ import { getChainConfig, sapphireTestnet } from "./chains";
 
 import { 
     getSupportedTokens_WithChainId, 
-    getOfficialTokenConfig_WithChainId 
+    getOfficialTokenConfig_WithChainId ,
+    getAcceptedTokens_WithChainId
 } from "./tokens";
-import { getProtocolConstants, ProtocolConstantsType, SAPPHIRE_TESTNET_CONSTANTS } from "./ProtocolConstants";
+import { 
+    getProtocolConstants, 
+    ProtocolConstantsType, 
+    SAPPHIRE_TESTNET_CONSTANTS 
+} from "./ProtocolConstants";
 import { ABIS } from "./chain-23295/abis";
 
 export let CHAIN_ID = 23295;
 export let CHAIN_CONFIG = sapphireTestnet;
 export let SUPPORTED_TOKENS: TokenMetadata[] = [];
+export let ACCEPTED_TOKENS: TokenMetadata[] = [];
 export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     index: 0,
     name: 'WikiTruth Coin',
@@ -49,12 +55,10 @@ export function useSetCurrentChainConfig() {
             SUPPORTED_TOKENS = getSupportedTokens_WithChainId(chainId);
             OFFICIAL_TOKEN_CONFIG = getOfficialTokenConfig_WithChainId(chainId);
             PROTOCOL_CONSTANTS = getProtocolConstants(chainId);
+            ACCEPTED_TOKENS = getAcceptedTokens_WithChainId(chainId);
         }
 
     }, [chainId]);
 
 }
 
-export function getTokenMetadata(tokenAddress: string): TokenMetadata {
-    return SUPPORTED_TOKENS.find(token => token.address === tokenAddress) || OFFICIAL_TOKEN_CONFIG;
-}

@@ -22,26 +22,7 @@ export function createSupabaseClient(): SupabaseClient<Database> {
     });
 }
 
-/**
- * 创建 Supabase 服务端客户端（服务端使用）
- * 使用 Service Role Key，绕过 RLS 策略
- * 警告：仅在服务端使用，不要暴露给客户端
- */
-// export function createSupabaseServiceClient(): SupabaseClient<Database> {
-//     if (!supabaseConfig.serviceRoleKey) {
-//         throw new Error('缺少 SUPABASE_SERVICE_ROLE_KEY，无法创建服务端客户端');
-//     }
-
-//     return createClient<Database>(supabaseConfig.url, supabaseConfig.serviceRoleKey, {
-//         auth: {
-//             persistSession: false,
-//             autoRefreshToken: false,
-//         },
-//     });
-// }
-
 export const supabase = createSupabaseClient();
-
 
 /**
  * Supabase 数据库类型定义
@@ -78,7 +59,6 @@ export interface Database {
                     accepted_token: string | null;
                     refund_permit: boolean | null;
                     create_timestamp: string;
-                    sell_timestamp: string | null;
                     publish_timestamp: string | null;
                     listed_timestamp: string | null;
                     purchase_timestamp: string | null;
@@ -107,7 +87,6 @@ export interface Database {
                     accepted_token?: string | null;
                     refund_permit?: boolean | null;
                     create_timestamp: string;
-                    sell_timestamp?: string | null;
                     publish_timestamp?: string | null;
                     listed_timestamp?: string | null;
                     purchase_timestamp?: string | null;
@@ -115,6 +94,14 @@ export interface Database {
                     request_refund_deadline?: string | null;
                     review_deadline?: string | null;
                 };
+                // ⚠️ 允许更新：多个事件会更新 boxes 表
+                // - BoxStatusChanged: 更新 status
+                // - PriceChanged: 更新 price
+                // - DeadlineChanged: 更新 deadline
+                // - PrivateKeyPublished: 更新 private_key
+                // - BoxPurchased: 更新 buyer_id, purchase_timestamp
+                // - CompleterAssigned: 更新 completer_id
+                // 触发器会监听 status 的更新来更新 statistical_state
                 Update: {
                     network?: 'testnet' | 'mainnet';
                     layer?: 'sapphire';
@@ -136,7 +123,6 @@ export interface Database {
                     accepted_token?: string | null;
                     refund_permit?: boolean | null;
                     create_timestamp?: string;
-                    sell_timestamp?: string | null;
                     publish_timestamp?: string | null;
                     listed_timestamp?: string | null;
                     purchase_timestamp?: string | null;
@@ -482,6 +468,7 @@ export interface Database {
                     status_filter?: string[] | null;
                     type_of_crime_filter?: string[] | null;
                     country_filter?: string[] | null;
+                    accepted_token_filter?: string[] | null;
                     label_filter?: string[] | null;
                     min_price?: number | null;
                     max_price?: number | null;
@@ -494,6 +481,7 @@ export interface Database {
                 };
                 Returns: {
                     id: string;
+                    token_id: string;
                     title: string | null;
                     description: string | null;
                     type_of_crime: string | null;
@@ -506,6 +494,7 @@ export interface Database {
                     box_image: string | null;
                     event_date: string | null;
                     create_timestamp: string;
+                    accepted_token: string | null;
                     relevance: number;
                 }[];
             };
