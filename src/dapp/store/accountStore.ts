@@ -472,8 +472,6 @@ export const useAccountStore = create<AccountStore>()(
                     },
                 });
                 
-                
-                console.log(`[AccountStore] Box interaction recorded: ${functionWrote} on Box ${boxId}`);
             },
 
             getBoxInteractions: (boxId) => {

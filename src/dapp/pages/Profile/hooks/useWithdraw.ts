@@ -1,4 +1,4 @@
-"use client"
+import { useState } from "react";
 import { useWriteCustormV2 } from "@/dapp/hooks/useWriteCustormV2";
 import { useAllContractConfigs } from "@/dapp/contractsConfig";
 import { useWithdrawStore } from "../store/withdrawStore";
@@ -7,7 +7,8 @@ import { useSupportedTokens } from "@/dapp/contractsConfig";
 export const useWithdraw = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
-    const { writeCustormV2, error, isPending, isSuccessed, status } = useWriteCustormV2();
+    const { writeCustormV2, error, isLoading, isSuccessed, status } = useWriteCustormV2();
+    const [testLoading, setTestLoading] = useState(false);
 
 
     const withdraw = async () => {
@@ -37,7 +38,6 @@ export const useWithdraw = () => {
             } else {
                 args = [tokenAddress];
             }
-            console.log('args:', args);
 
             // TODO ：模拟交易，后续需要替换为实际交易
             // const hash = await writeCustormV2({
@@ -45,7 +45,11 @@ export const useWithdraw = () => {
             //     functionName: selectedClaimMethod,
             //     args: args
             // });
+            setTestLoading(true);
             const hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            setTestLoading(false);
+
             return hash;
         } catch (error) {
             console.error(error);
@@ -56,8 +60,7 @@ export const useWithdraw = () => {
     return {
         withdraw,
         error,
-        isPending,
-        isLoading: status !== 'idle' && status !== "error" && !isSuccessed,
+        isLoading: isLoading || testLoading,
         isSuccessed
     }
 }

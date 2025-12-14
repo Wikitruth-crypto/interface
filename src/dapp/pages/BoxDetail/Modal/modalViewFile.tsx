@@ -68,7 +68,7 @@ const ModalViewFile: React.FC<Props> = ({ onClose }) => {
                 <Alert
                     type="warning"
                     showIcon
-                    message="当前 Box 为 createAndPublish 模式，可在 Published 区域直接查看文件。"
+                    message="This Box is in createAndPublish mode, you can view the file directly in the Published area."
                     className="mb-4"
                 />
             )}
@@ -87,7 +87,7 @@ const ModalViewFile: React.FC<Props> = ({ onClose }) => {
                 <Alert
                     type="error"
                     showIcon
-                    message="操作失败"
+                    message="Operation failed"
                     description={errorMsg}
                     className="mb-3"
                 />
@@ -95,7 +95,7 @@ const ModalViewFile: React.FC<Props> = ({ onClose }) => {
 
             <div className="mb-4 flex items-center justify-between">
                 <Typography.Text type="secondary">
-                    尝试次数：{attemptCount}/{maxRetry}（剩余 {remainingAttempts} 次）
+                    Attempts: {attemptCount}/{maxRetry}（Remaining {remainingAttempts} times）
                 </Typography.Text>
                 <Button
                     type="link"
@@ -104,13 +104,13 @@ const ModalViewFile: React.FC<Props> = ({ onClose }) => {
                     disabled={isProcessing || remainingAttempts === 0}
                     className="px-0"
                 >
-                    继续请求
+                    Continue request
                 </Button>
             </div>
 
             {isProcessing && (
                 <Typography.Paragraph className="text-muted-foreground text-xs">
-                    正在处理中，请耐心等待…
+                    Processing, please wait patiently…
                 </Typography.Paragraph>
             )}
 

@@ -5,8 +5,8 @@ import CardProfileContainer from '@/dapp/pages/Profile/containers/CardProfileCon
 import SkeletonProfile from '@/dapp/components/base/skeletonProfile';
 import { testBoxProfileList } from "../store/testBox";
 // import { Container } from "@/components/Container";
-import ProgressiveRevealCard from '@/dapp/components/progressiveRevealCard';
-import { useProgressiveReveal } from '@/dapp/hooks/useProgressiveReveal';
+import ProgressiveRevealCard from '@/dapp/components/progressiveRevealCard/progressiveRevealCard';
+import { useProgressiveReveal } from '@/dapp/components/progressiveRevealCard/useProgressiveReveal';
 
 
 interface Props {

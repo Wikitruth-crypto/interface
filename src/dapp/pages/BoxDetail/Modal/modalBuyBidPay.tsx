@@ -43,13 +43,16 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
         isSuccessed,
         status,
         currentStepItem,
-        allowanceAmount,
+        // allowanceAmount,
+        formattedAllowanceAmount,
     } = useBuyBidSteps(boxId, tokenMetadata, amount, functionName);
 
 
-    if (!tokenMetadata) {
+    if (!tokenMetadata || !amount) {
         return null;
     }
+
+    const formattedAmount = formatUnits(BigInt(amount), tokenMetadata.decimals);
 
     const canApprove = currentStepItem.stepKey === 'approve' && currentStepItem.status !== 'finish';
     const canBuyBid = currentStepItem.stepKey === 'buy' || currentStepItem.stepKey === 'bid' || currentStepItem.stepKey === 'payConfiFee';
@@ -94,7 +97,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
                             <Text strong>
                                 You are about to {functionName} this box.
                             </Text>
-                            <Text>Price: {amount} {tokenMetadata?.symbol}</Text>
+                            <Text>Price: {formattedAmount} {tokenMetadata?.symbol}</Text>
                         </Space>
                     }
                     showIcon
@@ -113,7 +116,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
                             message={
                                 <Space direction="vertical" size="small">
                                     <Text>
-                                        Allowance is not enough. Current: {formatUnits(allowanceAmount, tokenMetadata.decimals)}, Required: {amount}
+                                        Allowance is not enough. Current: {formattedAllowanceAmount}, Required: {amount}
                                     </Text>
                                 </Space>
                             }
@@ -126,7 +129,7 @@ const ModalBuyBidPay: React.FC<ModalBuyBidPayProps> = ({
                             disabled={!canApprove}
                             block
                         >
-                            Approve {amount} {tokenMetadata?.symbol}
+                            Approve {formattedAmount} {tokenMetadata?.symbol}
                         </Button>
                         <Button
                             type="primary"

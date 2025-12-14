@@ -5,6 +5,7 @@ import {
 // import { ContractConfig, ContractName,} from '@/dapp/contractsConfig/types';
 // import { Abi, parseUnits } from 'viem';
 import { useSupportedTokens ,TokenMetadata} from '@/dapp/contractsConfig';
+import { useEffect } from 'react';
 
 interface WriteContractConfig {
     contractAddress: `0x${string}`;
@@ -69,6 +70,12 @@ export const useWriteToken = (): WriteContractResult => {
             throw err;
         }
     };
+
+    useEffect(() => {
+        if (isError) {
+            reset();
+        }
+    }, [isError, reset]);
 
     return {
         writeToken,

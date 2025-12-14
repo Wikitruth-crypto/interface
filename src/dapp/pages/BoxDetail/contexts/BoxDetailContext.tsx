@@ -101,7 +101,7 @@ export const BoxDetailProvider: React.FC<{
   
   // 2. 竞标者数据查询（仅当 listedMode === 'Auctioning' 时查询）
   const listedMode = box?.listedMode || '';
-  const shouldQueryBidders = !!boxId && listedMode === 'Auctioning';
+  const shouldQueryBidders = !!boxId && listedMode === 'Auctioning' ;
   const { 
     biddersIds, 
     isLoading: isLoadingBidders 

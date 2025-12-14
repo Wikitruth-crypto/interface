@@ -42,6 +42,7 @@ const initialState: InitialStateType = {
         SellAuction: 'close',
         ExtendDeadline: 'close',
         ViewFile: 'close',
+        BuyBidPay: 'close',
     },
 }
 

@@ -82,16 +82,15 @@ export function useReadContractERC20() {
             };
         }
 
-        const FORCE_CACHE_TIME = 10 * 1000; // 10秒缓存时间
+        const FORCE_CACHE_TIME = 15 * 1000; // 15秒缓存时间
 
         if (force) {
-            // force 模式下：检查10秒内的缓存
             const queryState = queryClient.getQueryState(queryKey);
             if (queryState?.dataUpdatedAt) {
                 const cacheAge = Date.now() - queryState.dataUpdatedAt;
                 if (cacheAge < FORCE_CACHE_TIME) {
                     if (import.meta.env.DEV) {
-                        console.log('force 模式下：检查10秒内的缓存', queryState.data);
+                        console.log('force ReadContractERC20', queryState.data);
                     }
                     return queryState.data as any;
                 }

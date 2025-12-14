@@ -62,7 +62,7 @@ export function useReadContract() {
         ];
 
         const force = params.force ?? false;
-        const FORCE_CACHE_TIME = 10 * 1000; // 10秒缓存时间
+        const FORCE_CACHE_TIME = 15 * 1000; // 15秒缓存时间
 
         if (force) {
             // force 模式下：检查10秒内的缓存
@@ -72,13 +72,12 @@ export function useReadContract() {
                 if (cacheAge < FORCE_CACHE_TIME) {
                     if (import.meta.env.DEV) {
                         console.log('force:', queryState.data);
-                        console.log('queryKey', queryKey);
                     }
                     return queryState.data as any;
 
                 }
             }
-            // 超过10秒，清除缓存并重新查询
+            // 超过15秒，清除缓存并重新查询
             queryClient.removeQueries({ queryKey });
         } else {
             // 非 force 模式：正常检查缓存（5分钟缓存）

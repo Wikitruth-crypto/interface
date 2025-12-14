@@ -38,10 +38,10 @@ const sortOptions: { value: string; label: string }[] = [
     { value: 'id_desc', label: 'ID ↓' },
 ];
 
-const paginationModeOptions: { value: string; label: string }[] = [
-    { value: 'paginator', label: 'Pages' },
-    { value: 'loadMore', label: 'Scroll' },
-];
+// const paginationModeOptions: { value: string; label: string }[] = [
+//     { value: 'paginator', label: 'Pages' },
+//     { value: 'loadMore', label: 'Scroll' },
+// ];
 
 const toNumber = (value: string | null): number | undefined => {
     if (!value?.trim()) return undefined;

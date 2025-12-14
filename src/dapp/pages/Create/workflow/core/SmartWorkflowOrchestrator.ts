@@ -201,7 +201,9 @@ export class SmartWorkflowOrchestrator<TOutput = any> {
         console.error(`${prefix} ${message}`);
         break;
       default:
-        console.log(`${prefix} ${message}`);
+        if (import.meta.env.DEV) {
+          console.log(`${prefix} ${message}`);
+        }
         break;
     }
   }

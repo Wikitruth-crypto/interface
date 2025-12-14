@@ -8,8 +8,10 @@ import { useInfiniteScroll } from '@/dapp/hooks/useInfiniteScroll';
 import { cn } from '@/lib/utils';
 import type { MarketplaceBoxData, PaginationMode } from '../types/marketplace.types';
 import SkeletonCard from '@/dapp/components/base/skeletonCard';
-import ProgressiveRevealCard from '@/dapp/components/progressiveRevealCard';
-import { useProgressiveReveal } from '@/dapp/hooks/useProgressiveReveal';
+import { 
+    ProgressiveRevealCard,
+    useProgressiveReveal 
+} from '@/dapp/components/progressiveRevealCard';
 
 interface MarketplaceListProps {
     className?: string;
@@ -83,7 +85,7 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
         startReveal,
         appendReveal,
         reset,
-        notifyImageLoaded,
+        notifyCompleted,
     } = useProgressiveReveal<MarketplaceBoxData>({
         initialCount: Math.max(visibleItems.length || 0),
         waitForImageLoad: true, // 启用图片加载等待模式
@@ -145,7 +147,7 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
                                         }
                                     },
                                 }}
-                                onImageLoad={notifyImageLoaded} // 传递图片加载回调
+                                onCompleted={notifyCompleted} // 传递图片加载回调
                                 animationType="fade-scale"
                                 transitionDuration={300}
                             />

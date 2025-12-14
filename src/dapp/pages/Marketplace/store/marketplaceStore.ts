@@ -57,14 +57,15 @@ export const useMarketplaceStore = create<MarketplaceStoreType>()(
     (set, get) => ({
       filters: defaultFilters,
       paginationConfig: defaultPaginationConfig,
-      // globalStats: defaultGlobalStats,
 
       updateFilters: newFilters => {
-        console.log('[MarketplaceStoreV2] update filters', {
-          previous: get().filters,
-          patch: newFilters,
-          merged: { ...get().filters, ...newFilters },
-        });
+        if (import.meta.env.DEV) {
+          console.log('[MarketplaceStoreV2] update filters', {
+            previous: get().filters,
+            patch: newFilters,
+            merged: { ...get().filters, ...newFilters },
+          });
+        }
 
         set(
           state => ({
@@ -76,12 +77,16 @@ export const useMarketplaceStore = create<MarketplaceStoreType>()(
       },
 
       resetFilters: () => {
-        console.log('[MarketplaceStoreV2] reset filters');
+        if (import.meta.env.DEV) {
+          console.log('[MarketplaceStoreV2] reset filters');
+        }
         set({ filters: defaultFilters }, false, 'resetFilters');
       },
 
       setSearch: search => {
-        console.log('[MarketplaceStoreV2] set search', { search });
+        if (import.meta.env.DEV) {
+          console.log('[MarketplaceStoreV2] set search', { search });
+        }
         set(
           state => ({
             filters: { ...state.filters, search },
@@ -92,7 +97,9 @@ export const useMarketplaceStore = create<MarketplaceStoreType>()(
       },
 
       setStatus: status => {
-        console.log('[MarketplaceStoreV2] set status', { status });
+        if (import.meta.env.DEV) {
+          console.log('[MarketplaceStoreV2] set status', { status });
+        }
         set(
           state => ({
             filters: { ...state.filters, status },
@@ -103,7 +110,9 @@ export const useMarketplaceStore = create<MarketplaceStoreType>()(
       },
 
       setSort: sort => {
-        console.log('[MarketplaceStoreV2] set sort', { sort });
+        if (import.meta.env.DEV) {
+          console.log('[MarketplaceStoreV2] set sort', { sort });
+        }
         set(
           state => ({
             filters: { ...state.filters, sort },

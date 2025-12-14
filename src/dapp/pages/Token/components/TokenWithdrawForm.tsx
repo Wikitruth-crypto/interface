@@ -56,16 +56,10 @@ const TokenWithdrawForm: React.FC<TokenWithdrawFormProps> = ({
 
     const handleWithdrawAll = useCallback(() => {
         if (balance && balance > BigInt(0)) {
-            // 使用 secret 的 decimals，如果没有则使用 erc20 的 decimals
             const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
             const formatted = formatBalance(formatUnits(balance, decimals));
             setWithdrawAmount(formatted);
-        } else {
-            console.log('handleWithdrawAll: conditions not met', {
-                hasBalance: !!balance,
-                balanceGreaterThanZero: balance ? balance > BigInt(0) : false,
-            });
-        }
+        } 
     }, [balance, selectedPair]);
 
     const handleWithdraw = useCallback(() => {

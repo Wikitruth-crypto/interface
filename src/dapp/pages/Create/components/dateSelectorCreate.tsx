@@ -22,7 +22,6 @@ const DateSelectorCreate: React.FC<DateSelectorCreateProps> = ({
         : undefined;
 
     const handleDateChange = useCallback((date: DateDataType) => {
-        console.log('Event date selected:', date);
         form.setValue('eventDate', date.value, {
             shouldValidate: true,
             shouldDirty: true,

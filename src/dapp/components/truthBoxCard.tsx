@@ -16,7 +16,7 @@ interface TruthBoxCardProps {
     enableIpfsUrl?: boolean;
     onClick?: () => void;
     className?: string;
-    onImageLoad?: () => void; // 新增
+    onCompleted?: () => void; // 新增
 }
 
 const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
@@ -24,16 +24,19 @@ const TruthBoxCard: React.FC<TruthBoxCardProps> = ({
     enableIpfsUrl = true,
     onClick,
     className,
-    onImageLoad, // 新增
+    onCompleted, // 新增
 }) => {
-    const tokenMetadata = getTokenMetadata(data.acceptToken as `0x${string}`);
+    // 获取代币元数据, 如果代币不存在，则不获取代币元数据
+    const tokenMetadata = data.acceptToken ? getTokenMetadata(data.acceptToken as `0x${string}`) : null;
     
-    const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6];
+    const shouldShowPrice = data.status !== boxStatus[0] && data.status !== boxStatus[6] && tokenMetadata !== null;
 
     const handleImageLoad = () => {
-        if(onImageLoad) {
-            onImageLoad();
-            console.log('onImageLoad: truthBoxCard');
+        if(onCompleted) {
+            onCompleted();
+            if(import.meta.env.DEV) {
+                console.log('onCompleted: truthBoxCard');
+            }
         }
     };
 

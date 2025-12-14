@@ -3,7 +3,7 @@ import { useWriteCustormV2 } from '@/dapp/hooks/useWriteCustormV2';
 import { getContractConfigByAddress, TokenMetadata, useAllContractConfigs } from '@/dapp/contractsConfig';
 import { useReadAllowance } from '@/dapp/hooks/readContracts2/token/useReadAllowance';
 import { useAccount } from 'wagmi';
-import { formatUnits, parseUnits, maxUint256 } from 'viem';
+import { parseUnits, maxUint256, formatUnits } from 'viem';
 
 type writeStatus = 'idle' | 'pending' | 'success' | 'error';
 type StepStatus = 'wait' | 'process' | 'finish' | 'error';
@@ -275,5 +275,6 @@ export const useBuyBidSteps = (
         isSuccessed,
         status,
         allowanceAmount,
+        formattedAllowanceAmount: formatUnits(allowanceAmount, tokenMetadata?.decimals ?? 18),
     };
 };

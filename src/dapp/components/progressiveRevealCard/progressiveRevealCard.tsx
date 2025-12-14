@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import type { ProgressiveItem } from '@/dapp/hooks/useProgressiveReveal';
+import type { ProgressiveItem } from './useProgressiveReveal';
 
 export interface ProgressiveRevealCardProps<T = any> {
     item: ProgressiveItem<T>;
@@ -29,10 +29,10 @@ export interface ProgressiveRevealCardProps<T = any> {
     interactive?: boolean;
     /** 性能优化：是否启用will-change */
     enableWillChange?: boolean;
-    /** 调试模式：显示状态指示器 */
-    debug?: boolean;
-    /** 图片加载完成回调（用于渐进式加载） */
-    onImageLoad?: (index: number) => void; // 新增
+    /** 加载完成回调（用于渐进式加载） */
+    onCompleted?: (index: number) => void; // 新增
+    /** 加载超时时间（毫秒），默认5000ms，超时后强制触发onCompleted */
+    loadTimeout?: number;
 }
 
 
@@ -48,8 +48,8 @@ function ProgressiveRevealCard<T = any>({
     contentProps = {},
     interactive = true,
     enableWillChange = true,
-    debug = false,
-    onImageLoad, // 新增
+    onCompleted, // 新增
+    loadTimeout = 5000, // 默认5秒
 }: ProgressiveRevealCardProps<T>) {
     const { data, status } = item;
     const [isHovered, setIsHovered] = useState(false);
@@ -167,20 +167,22 @@ function ProgressiveRevealCard<T = any>({
 
     // 新增：图片加载完成处理 - 使用 useEffect 延迟执行，避免在渲染期间更新父组件状态
     const handleImageLoad = useCallback(() => {
-        // 如果已经通知过，不再重复通知
         if (hasNotifiedRef.current) {
             return;
         }
 
         imageLoadCountRef.current += 1;
-        if (imageLoadCountRef.current >= expectedImageCount && onImageLoad) {
+        if (imageLoadCountRef.current >= expectedImageCount && onCompleted) {
             hasNotifiedRef.current = true;
             // 延迟执行，避免在渲染期间更新状态
             setTimeout(() => {
-                onImageLoad(item.index);
+                onCompleted(item.index);
             }, 0);
+            if (import.meta.env.DEV) {
+                console.log('handleImageLoad: ProgressiveRevealCard', item.index);
+            }
         }
-    }, [item.index, onImageLoad, expectedImageCount]);
+    }, [item.index, onCompleted, expectedImageCount]);
 
     // 重置图片加载计数（仅在数据真正变化时，且状态为 transitioning 或 revealed）
     useEffect(() => {
@@ -191,10 +193,34 @@ function ProgressiveRevealCard<T = any>({
         }
     }, [item.status, item.index]); // 使用更具体的依赖项
 
+    // 定时器功能：如果超时仍未加载完成，强制触发onImageLoad
+    useEffect(() => {
+        if (item.status !== 'transitioning' || !onCompleted) {
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            // 如果还没有通知过，强制触发回调
+            if (!hasNotifiedRef.current) {
+                hasNotifiedRef.current = true;
+                setTimeout(() => {
+                    onCompleted(item.index);
+                }, 0);
+                if (import.meta.env.DEV) {
+                    console.log('loadTimeout: ProgressiveRevealCard', item.index);
+                }
+            }
+        }, loadTimeout);
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [item.status, item.index, loadTimeout, onCompleted]);
+
     // 修改 contentProps，添加图片加载回调
     const enhancedContentProps = useMemo(() => ({
         ...contentProps,
-        onImageLoad: handleImageLoad, // 传递给内容组件
+        onCompleted: handleImageLoad, // 传递给内容组件
     }), [contentProps, handleImageLoad]);
 
     // 用于清理will-change，提升性能

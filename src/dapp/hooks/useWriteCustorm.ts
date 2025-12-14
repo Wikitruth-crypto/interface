@@ -2,6 +2,7 @@ import {
     useWaitForTransactionReceipt,
     useWriteContract
 } from 'wagmi';
+import { useEffect } from 'react';
 import { ContractConfig } from '@/dapp/contractsConfig/types';
 
 interface WriteContractConfig {
@@ -53,6 +54,12 @@ export const useWriteCustorm = (): WriteContractResult => {
             throw err;
         }
     };
+
+    useEffect(() => {
+        if (isError) {
+            reset();
+        }
+    }, [isError, reset]);
 
     return {
         writeCustorm,

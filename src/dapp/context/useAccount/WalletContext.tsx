@@ -1,10 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi';
-import { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { useAccount, useWalletClient, usePublicClient, useChainId,} from 'wagmi';
+import { BrowserProvider, JsonRpcSigner, ZeroAddress } from 'ethers';
 import { AccountRoleType } from '@/dapp/types/account';
-import { Address_0, Address_Admin } from '@/dapp/constants/addressRoles';
+import { Address_Admin } from '@/dapp/constants/addressRoles';
 import { isSapphireNetwork } from '@/dapp/context/sapphireWrap';
 
 interface WalletContextType {
@@ -64,7 +64,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, [walletClient, chainId]);
 
     useEffect(() => {
-        if (address && isConnected && address !== Address_0) {
+        if (address && isConnected && address !== ZeroAddress) {
             const isAdmin = (address === Address_Admin);
             setAccountRole(isAdmin ? 'Admin' : 'User');
         } else {

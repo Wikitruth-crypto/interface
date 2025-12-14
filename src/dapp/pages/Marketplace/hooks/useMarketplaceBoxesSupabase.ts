@@ -15,11 +15,6 @@ import type { MarketplaceBoxData } from '../types/marketplace.types';
  * - 处理筛选条件
  * - 处理分页逻辑（支持 Paginator 和 Load More 模式）
  * - 返回统一的数据格式
- * 
- * 特点：
- * - 使用 React Query 进行数据获取和缓存
- * - 支持筛选和排序（在数据库层面完成）
- * - 支持两种分页模式
  */
 export const useMarketplaceBoxesSupabase = () => {
     const filters = useMarketplaceStore(state => state.filters);
@@ -40,7 +35,7 @@ export const useMarketplaceBoxesSupabase = () => {
             }
             return result;
         },
-        staleTime: 30000, // 30 秒内不重新查询
+        // staleTime: 5 * 60 * 1000, // 不需要，因为已经在defaultQueryClient中配置了
     });
 
     if (countError) {
@@ -51,6 +46,7 @@ export const useMarketplaceBoxesSupabase = () => {
     const totalPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 0;
 
     // Paginator 模式：使用普通查询
+    // 使用默认缓存配置（5分钟），配合 placeholderData 实现平滑的页面切换
     const paginatorQuery = useQuery<MarketplaceBoxData[]>({
         queryKey: ['marketplace-boxes', filters, pageSize, currentPage],
         queryFn: async () => {
@@ -67,12 +63,12 @@ export const useMarketplaceBoxesSupabase = () => {
             
             return convertedData;
         },
-        staleTime: 30000,
-        placeholderData: keepPreviousData,
+        placeholderData: keepPreviousData, // 保持上一页数据，实现平滑切换
         enabled: paginationConfig.mode === 'paginator',
     });
 
     // Load More 模式：使用无限查询
+    // 使用默认缓存配置（5分钟），已加载的页面数据会被缓存
     const loadMoreQuery = useInfiniteQuery<MarketplaceBoxData[], Error, MarketplaceBoxData[], (string | number | typeof filters)[], number>({
         queryKey: ['marketplace-boxes-infinite', filters, paginationConfig.loadBatchSize],
         queryFn: async ({ pageParam }) => {
@@ -98,7 +94,6 @@ export const useMarketplaceBoxesSupabase = () => {
             }
             return loadedCount; // 返回下一个 offset
         },
-        staleTime: 30000,
         enabled: paginationConfig.mode === 'loadMore',
     });
 

@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useMemo } from 'react';
 import { useAccount, useChainId } from 'wagmi';
+import { ZeroAddress } from 'ethers';
 import { useReadSiweAuth } from '@/dapp/hooks/readContracts/useSiweAuth';
 import { useSiweAuthBase } from './useSiweAuthBase';
 import { useSimpleSecretStore } from '@/dapp/store/simpleSecretStore';
@@ -35,7 +36,7 @@ export const useSiweAuth = (): UseSiweAuthResult => {
   // 只在有地址时初始化基础 hook
   const baseAuth = useSiweAuthBase(
     chainId,
-    address || '0x0000000000000000000000000000000000000000'
+    address || ZeroAddress as `0x${string}`
   );
   
   const { isSessionValid: isSessionValidContract } = useReadSiweAuth();
@@ -193,9 +194,6 @@ export const useSiweAuth = (): UseSiweAuthResult => {
 
   const logout = useCallback(() => {
     clearSiweSession(chainId, session.address ?? address ?? undefined);
-    if (import.meta.env.DEV) {
-      console.log('SIWE session cleared');
-    }
   }, [clearSiweSession, chainId, session.address, address]);
 
   return {

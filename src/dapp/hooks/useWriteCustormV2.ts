@@ -92,9 +92,10 @@ export const useWriteCustormV2 = (boxIds?: string| string[]): WriteContractResul
                 addBoxInteraction(boxIds, writeType, hash);
             }
         } else if (isError){
+            reset();
             setFunctionWriting(null);
         }
-    }, [isSuccessed, writeType, address, boxIds, hash, addBoxInteraction, isError]);
+    }, [isSuccessed, writeType, address, boxIds, hash, addBoxInteraction, isError, reset]);
 
     return {
         writeCustormV2,

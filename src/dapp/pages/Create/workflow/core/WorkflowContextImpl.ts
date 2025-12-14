@@ -131,7 +131,9 @@ export class WorkflowContextImpl implements WorkflowContext {
 
         switch (level) {
             case 'info':
-                console.log(`${prefix} ${message}`);
+                if (import.meta.env.DEV) {
+                    console.log(`${prefix} ${message}`);
+                }
                 break;
             case 'warn':
                 console.warn(`${prefix} ${message}`);

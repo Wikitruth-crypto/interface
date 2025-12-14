@@ -49,7 +49,7 @@ interface ProfileState {
     // 批量大小配置
     batchSize: number;
 
-    
+
 }
 
 // Profile操作接口
@@ -63,7 +63,7 @@ interface ProfileActions {
 
     // 滚动状态更新
     updateScrollState: (updates: Partial<ScrollState>) => void;
-    
+
     // 筛选状态更新
     setFilterState: (updates: Partial<FilterState>) => void;
     updateSelectedTab: (tab: FilterState['selectedTab']) => void;
@@ -129,13 +129,13 @@ export const useProfileStore = create<ProfileState & ProfileActions>((set, get) 
         set((state) => {
             const existingItems = new Set(state.pageState.loadedItems);
             const newItems = tokenIds.filter(id => !existingItems.has(id));
-            
+
             if (newItems.length === 0) return state;
-            
+
             // 合并、去重、排序
             const merged = Array.from(new Set([...state.pageState.loadedItems, ...newItems]));
             merged.sort((a, b) => a - b);
-            
+
             return {
                 pageState: {
                     ...state.pageState,
@@ -168,18 +168,22 @@ export const useProfileStore = create<ProfileState & ProfileActions>((set, get) 
 
     // 筛选状态更新函数
     setFilterState: (updates) => {
-        console.log('🏪 profileStore: setFilterState调用', {
-            updates,
-            currentFilterState: get().filterState
-        });
-        
+        if (import.meta.env.DEV) {
+            console.log('🏪 profileStore: setFilterState调用', {
+                updates,
+                currentFilterState: get().filterState
+            });
+        }
+
         set((state) => {
             const newFilterState = { ...state.filterState, ...updates };
-            console.log('🏪 profileStore: filterState已更新', {
-                old: state.filterState,
-                new: newFilterState
-            });
-            
+            if (import.meta.env.DEV) {
+                console.log('🏪 profileStore: filterState已更新', {
+                    old: state.filterState,
+                    new: newFilterState
+                });
+            }
+
             return {
                 filterState: newFilterState,
             };
@@ -212,10 +216,10 @@ export const useProfileStore = create<ProfileState & ProfileActions>((set, get) 
         set((state) => {
             // 切换排序时重置分页状态
             return {
-                filterState: { 
-                    ...state.filterState, 
-                    orderBy, 
-                    orderDirection 
+                filterState: {
+                    ...state.filterState,
+                    orderBy,
+                    orderDirection
                 },
                 pageState: { ...defaultPageState },
                 scrollState: { ...defaultScrollState },

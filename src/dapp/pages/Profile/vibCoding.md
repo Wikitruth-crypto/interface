@@ -1,112 +1,186 @@
-# WikiTruth Profile 页面设计指南
+# WikiTruth Profile页面
 
-## 1. 页面目标
-Profile 页面用于展示与当前登录用户（wallet address + userId）相关的链上 Box 与资金流，并提供集中化的提现工具。核心业务覆盖如下：
+## 简述
+Profile页面实际上就是展示与当前User有关的所有信息，主要与其有关的Box、资金数据、以及实现提款等操作。
 
-1. 通过 Supabase 汇总用户的 Box 统计、订单资金、奖励资金以及提现记录。
-2. 为不同角色（buyer/bidder/minter/helper）提供可视化的资金卡片，支持批量选择与提款。
-3. 将链上 FundManager 合约的多种 withdraw* 方法封装在统一的 UI 交互中，减少重复的按钮与逻辑。
+## 相关文档说明和组件：
+- **合约逻辑文档**：新版本的项目机制做了一些改动，可以阅读`src\dapp\artifacts\PROJECT_LOGIC_CN.md`中FundManager相关的内容。
+- **数据库文档**：采用了新的supabase数据库，可以阅读`supabaseDocs`中的内容。
+- **查询服务**：实际的查询服务`src\dapp\services\supabase\profile.ts`。
 
-> **注意**：整个页面的数据源均来自最新的 Supabase 表结构：
-> - `boxes`/`metadata_boxes`：获取 Box 基础信息与元数据。
-> - `box_user_order_amounts`：记录 buyer/bidder 针对某个 Box 的资金余额（订单或退款）。
-> - `user_rewards` / `user_withdraws`：记录 minter/helper 累计奖励与历史提现。
+## 业务功能：
 
-## 2. 数据流与 Hooks
+1. 根据UserId和UserAddress，从supabase数据库获取与其相关的数据内容，数据会在统计组件进行展示。
+2. 通过切换统计组件的tab，来显示不同类型的Box列表，filter则负责排序操作。
+3. 每个Box卡片展示一些基础的数据，更重要的是要展示资金数据。
+4. 如果有可提取资金，则可以进行批量提取操作。
 
-| 模块 | Hook/Store | 作用 |
-|------|------------|------|
-| 用户身份 | `useGetMyUserId` | 解析钱包绑定的 userId，无 userId 时仅能查询 `owned` tab。|
-| 统计数据 | `useUserProfile` | 通过 `queryUserStats` 汇总各类型 Box 数量并驱动顶部 Tab。|
-| Box 列表 | `useUserBoxes` | 结合 filters 与 Supabase 分页，返回包含元数据的 Box 列表。|
-| 订单资金 | `useFunds` | 针对 `bought/bade` tab 查询 `box_user_order_amounts`，计算可提金额并返回 `ClaimableFund`。|
-| 奖励资金 | `useUserRewardsSummary` | 汇总 `user_rewards` / `user_withdraws`，按代币展示 minter/helper 奖励。|
-| 提现状态 | `useWithdrawStore` | 统一管理所有被选中的 Box/token，记录 token 地址、精度、claim method 等。|
-| 合约交互 | `useWithdraw` / `useRewardsWithdraw` | 包装 FundManager 合约，分别处理订单/退款与奖励提现。
+## 数据获取流程：
 
-### ClaimableFund 类型
+### 1. 用户统计数据（UserStats）
+通过 `queryUserStats` 函数从supabase获取：
+- `totalBoxes`: 用户相关的所有Box总数（去重）
+- `ownedBoxes`: 当前拥有的Box数量（基于`owner_address`）
+- `mintedBoxes`: 铸造的Box数量（基于`minter_id`）
+- `soldBoxes`: 出售的Box数量（基于`seller_id`）
+- `boughtBoxes`: 购买的Box数量（基于`buyer_id`）
+- `bidBoxes`: 参与竞价的Box数量（基于`box_bidders`表）
+- `completedBoxes`: 完成订单的Box数量（基于`completer_id`）
+- `publishedBoxes`: 公开的Box数量（基于`publisher_id`）
+
+### 2. Box列表数据
+通过 `queryUserBoxes` 函数从supabase获取，支持以下Tab筛选：
+- `all`: 所有相关的Box（owner_address 或 userId相关字段）
+- `owned`: 当前拥有的Box（基于`owner_address`）
+- `minted`: 铸造的Box（基于`minter_id`）
+- `sold`: 出售的Box（基于`seller_id`）
+- `bought`: 购买的Box（基于`buyer_id`）
+- `bade`: 参与竞价的Box（通过`box_bidders`表查询）
+- `completed`: 完成订单的Box（基于`completer_id`）
+- `published`: 公开的Box（基于`publisher_id`）
+
+### 3. 资金数据获取
+
+#### 3.1 orderAmounts（订单金额）
+- **查询方式**：`src\dapp\services\supabase\fundsBox.ts`组件中的`query_OrderAmountsData`
+- **用途**：查询用户在指定Box中的订单金额（用于竞价失败退款或退款许可，即`Order，refund`）
+- **Order**：竞价失败，`bidders.includ(user) && user !==buyer`。
+- **Refund**: 退款，`user === buyer && box.refundPermit === true`。
+- **筛选条件**: 只有在bought和bade中才需要查询orderAmounts。
+
+#### 3.2 User总奖励金额
+- **查询方式**：`src\dapp\services\supabase\userData.ts`组件中的`query_UserRewardsData`
+- **用途**: 展示user所获得的总奖励，
+- **reward_type**：`Minter`, `Seller`, `Completer`（supabase tables的定义）
+- **token**：支持多代币展示，因为合约机制可能造成每种奖励都可能会有多种代币。
+
+#### 3.3 User总提取金额
+- **查询方式**：`src\dapp\services\supabase\userData.ts`组件中的`query_UserWithdrawsData`
+- **用途**: 展示user已提取的总金额（奖励），
+- **withdraw_type**：`Minter`,`Helper`（supabase tables的定义， Seller和Completer都计入了Helper）
+- **token**：支持多代币展示，因为合约机制可能造成每种奖励都可能会有多种代币。
+
+
+#### 3.4 boxRewards（盒子所产生的奖励）
+- **查询方式**：`src\dapp\services\supabase\fundsBoxList.ts`组件中的`query_BoxRewardsDataListByBoxIds`
+- **用途**: 查询盒子所产生的总奖励，无其它业务逻辑，仅纯展示。
+- **筛选条件**：只有`create`模式，并且`status === InSecry / Pubhish`，并且`buyer !== ''`的box才需要查询。
+- **注意**：该功能暂时可以不实现！！！
+
+## 资金类型与提款函数映射：
+
+### 资金类型（FundType）
+1. **Refund（退款）**：买家获得退款许可后可提取的退款金额
+2. **Order（订单）**：竞价失败后可提取的订单金额
+3. **HelperRewards（辅助奖励）**：完成订单等操作获得的奖励（多代币）
+4. **MinterRewards（铸造者奖励）**：作为Box铸造者获得的奖励（多代币）
+
+### Tab与资金类型的对应关系：
+
+| Tab | 资金类型 | 提款函数 | 说明 |
+|-----|---------|---------|------|
+| `bought` / `bade` | Refund | `withdrawRefundAmounts` | 当`refundPermit === true`且用户是buyer时 |
+| `bought` / `bade` | Order | `withdrawOrderAmounts` | 当竞价失败（`bidders.includes(user)`且`buyer !== user`）时 |
+
+## 新旧版本差异（重要）：
+
+### 1. withdrawOrderAmounts 函数变化
+
+**旧版本**：
+```typescript
+// 参数顺序：[boxId数组, token地址, FundType]
+args = [selectedBoxes, tokenAddress, selectedType as FundType];
 ```
-interface TokenData {
-  amount: string;
-  formattedAmount: string;
-  symbol: string;
-  address?: string;
-  decimals?: number;
-  hasValidAmount: boolean;
-}
-interface ClaimableFund {
-  boxId: string;
-  type: 'Refund' | 'Order' | 'HelperRewards' | 'MinterRewards';
-  claimMethod: ClaimMethodType;         // withdrawOrderAmounts / withdrawRefundAmounts / ...
-  tokens: TokenData[];                  // 当前场景通常只有一个 token，但结构允许扩展
-}
+
+**新版本**：
+```solidity
+function withdrawOrderAmounts(address token_, uint256[] calldata list_) external;
+// 参数顺序：[token地址, boxId数组]
+// 不再需要 FundType 参数
 ```
-> 不再区分 `officeToken` / `acceptedToken`，所有代币均以 `TokenData` 表示，便于扩展多 token 奖励场景。
 
-## 3. UI 结构
+**影响**：
+- 参数顺序改变：token在前，boxId数组在后
+- 移除了`FundType`参数，合约内部会根据用户身份自动判断是Order还是Refund
 
-1. **UserIdAlert + ProfileContainer**：容器负责获取 userId、装载全部子组件并传递 state。
-2. **UserDataBar**：展示 `useUserProfile` 返回的统计指标，点击 Tab 触发列表重载。
-3. **ProfileRewardsPanel**：集中展示 `user_rewards` / `user_withdraws` 聚合的 Helper/Minter 奖励，并提供 `withdrawHelperRewards` / `withdrawMinterRewards` 操作。
-4. **CardProfileContainer 列表**：
-   - `CardProfile` 渲染单个 Box 的图文信息与资金 Radio；
-   - `CardProfileContainer` 使用 `useFunds` 计算 `ClaimableFund`，并把可选 token 注册到 `useWithdrawStore`。
-5. **ProfileWithdrawPanel**：一旦用户在 Box 卡片中选择了订单/退款资金，就在列表下方展示聚合金额与统一的提现按钮。
+### 2. withdrawRefundAmounts 函数
 
-### 卡片与提现联动
-- 每个 Box 仅负责“选择/取消”某个代币（Radio），不再渲染独立的 Claim 按钮。
-- `useWithdrawStore` 根据 token symbol + claimMethod 自动聚合同类 Box，确保批量提现参数满足合约要求（同一 token + boxId 列表）。
-- `ProfileWithdrawPanel` 从 store 读取：
-  - `selectedBoxes` → 传给合约的 boxId 数组；
-  - `selectedTokenAddress/selectedTokenDecimals` → 用于展示与组装合约参数；
-  - `totalAmount()` → BigInt，始终使用 store 中的注册数据累加。
+**新版本**：
+```solidity
+function withdrawRefundAmounts(address token_, uint256[] calldata list_) external;
+// 参数顺序：[token地址, boxId数组]
+```
 
-## 4. Supabase 查询与过滤
+**注意**：与`withdrawOrderAmounts`参数结构一致，但用于不同的资金类型
 
-### Box 列表过滤逻辑
-- `useProfileTable`/`useProfileStore` 管理 `selectedTab`、排序字段与状态筛选；
-- `useUserBoxes` 根据 Tab 组合条件：
-  - `owned` 用 `owner_address`；`minted/sold/bought/...` 使用 userId 字段；
-  - `bade` 先查询 `box_bidders` 获得 boxId 列表再 `in` 查询。
+### 3. withdrawHelperRewards 和 withdrawMinterRewards
 
-### 订单金额：`box_user_order_amounts`
-- 仅在 `bought` / `bade` Tab 启用查询；
-- 请求参数：`box_id`、`user_id`、`token`（来自 Box 的 `accepted_token`）；
-- 业务判断：
-  - Refund → `refundPermit = true` 且 `buyerId === userId`；
-  - Order → 竞拍失败（bidders 包含 userId 且 buyerId !== userId）。
+**新版本**：
+```solidity
+function withdrawHelperRewards(address token_) external;
+function withdrawMinterRewards(address token_) external;
+```
 
-### 奖励金额：`user_rewards` / `user_withdraws`
-- `useUserRewardsSummary` 按 rewardType（Minter / Helper）与 token 聚合：
-  - `earned` = `user_rewards.amount`；
-  - `withdrawn` = `user_withdraws.amount`；
-  - `claimable` = `earned - withdrawn`。
-- 仅当 `claimable > 0` 才允许提现按钮。
+**变化**：
+- 只需要`token`地址参数
+- **不再需要boxId数组**，合约内部会汇总该用户的所有奖励
 
-## 5. 合约交互映射
+## UI详细说明：
 
-| 资金类型 | Claim Method | 参数格式 |
-|----------|--------------|----------|
-| Order | `withdrawOrderAmounts` | `[tokenAddress, boxId[]]` |
-| Refund | `withdrawRefundAmounts` | `[tokenAddress, boxId[]]` |
-| Helper Rewards | `withdrawHelperRewards` | `[tokenAddress]` |
-| Minter Rewards | `withdrawMinterRewards` | `[tokenAddress]` |
+### 检查UserId
+监听UserId，如果当前没有UserId，则进行提示`需要登录`信息。
+根据UserId和address从supabase查询相关的数据。
 
-实现要点：
-- `useWithdraw` 根据 store 中的 `selectedClaimMethod` 自动组装参数；
-- `useRewardsWithdraw` 单独处理 Helper/Minter 奖励提现，并在成功后 `invalidateQueries(['profile-user-rewards', ...])` 刷新数据。
+### 统计组件
 
-## 6. 交互细则
+**User奖励仪表盘**：User的资金统计数据
+- 已获得的奖励：根据代币、`reward_type`分别展示
+- 已提取的奖励：根据代币、`withdraw_type`分别展示
+- 可提取的奖励：同上，但需要检查金额是否大于0。
+- 提款：`withdrawHelperRewards` / `withdrawMinterRewards`：只需要传入token地址
 
-1. **登录态**：用户未绑定 userId 时，展示提示并阻止非 owned tab/提现操作。
-2. **选择逻辑**：再次点击相同 token 视为取消，store 会重置所有状态。
-3. **金额格式**：所有 BigInt 金额通过 `formatAmount(amount, decimals, precision)` 格式化，默认展示 4 位小数，超过千/百万时自动转化为 K/M。
-4. **异常处理**：
-   - Supabase 请求失败 → ProfileContainer 显示错误模块并提供 “Reload”。
-   - 合约调用失败 → Rewards/Withdraw 面板使用 `WithdrawCard` 的 error 状态提示并允许重试。
-5. **扩展性**：
-   - `ClaimableFund.tokens` 支持未来的多币种奖励；
-   - `FundsSection` 仅依赖 `FundsData[]`，不再关注 office/accepted 的历史概念。
+**Box统计**：展示与User相关的Box数据统计
+- All：所有相关的Box总数
+- Minted：铸造的Box数量
+- Owned：当前拥有的Box数量
+- Sold：出售的Box数量
+- Bought：购买的Box数量
+- Bade：参与竞价的Box数量
+- Completed：完成订单的Box数量
+- Published：公开的Box数量
 
----
-以上文档描述了 Profile 页面端到端的数据流、核心组件与提现流程，供后续扩展或复用时查阅。
+### Box列表卡片组件：
+
+**列表**：
+- 分页展示，每页默认10条
+- 支持按`tokenId`、`price`、`createTimestamp`排序
+- 支持按Box状态筛选
+
+**Box卡片**：
+- **基础数据**：Box ID、状态、价格、创建时间等
+- **资金数据展示**：
+  - 对于`bought`/`bade` Tab：显示`orderAmounts`（订单金额）
+- **可提取标识**：当金额大于0时，显示可提取标识
+
+### 提款操作流程：
+
+1. **选择资金**：用户通过Radio选择要提取的资金类型和代币
+2. **自动聚合**：系统自动聚合相同`tokenSymbol`、`type`、`claimMethod`的所有Box
+3. **批量提款**：
+   - `withdrawOrderAmounts` / `withdrawRefundAmounts`：需要传入boxId数组和token地址
+   
+4. **参数构建**：
+   ```typescript
+   // Order/Refund类型
+   args = [tokenAddress, selectedBoxes] // 注意顺序
+   ```
+
+### 注意事项：
+
+1. **批量提款限制**：`withdrawOrderAmounts`和`withdrawRefundAmounts`支持批量操作，但必须是**同一个token**的Box才能批量提取
+2. **资金类型判断**：
+   - Refund：需要`refundPermit === true`且用户是buyer
+   - Order：需要用户是bidders之一但不是buyer
+   - 合约会根据用户身份自动判断，前端不需要传递FundType
+3. **状态检查**：奖励类资金需要Box状态为`InSecrecy`或`Published`（注意：新版本中`Completed`状态已改为`InSecrecy`）
+

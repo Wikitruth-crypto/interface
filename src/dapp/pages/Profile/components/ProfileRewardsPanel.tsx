@@ -18,7 +18,7 @@ interface ProfileRewardsPanelProps {
 
 const ProfileRewardsPanel: React.FC<ProfileRewardsPanelProps> = ({ userId, className }) => {
     const { categories, isLoading, isFetching, error, refetch } = useUserRewardsSummary(userId);
-    const { withdrawRewards, pendingKey, isPending, error: withdrawError } = useRewardsWithdraw(userId);
+    const { withdrawRewards, pendingKey, isLoading: isWithdrawLoading, error: withdrawError } = useRewardsWithdraw(userId);
     const { login } = useSiweAuth();
 
     const handleWithdraw = async (method: RewardWithdrawMethod, tokenAddress: string) => {
@@ -127,7 +127,7 @@ const ProfileRewardsPanel: React.FC<ProfileRewardsPanelProps> = ({ userId, class
                                         {category.tokens.map((token) => {
                                             const actionKey = `${category.withdrawMethod}-${token.tokenAddress.toLowerCase()}`;
                                             const canClaim = token.raw.claimable > BigInt(0);
-                                            const isButtonBusy = pendingKey === actionKey && isPending;
+                                            const isButtonBusy = pendingKey === actionKey && isWithdrawLoading;
 
                                             return (
                                                 <Card
@@ -182,7 +182,7 @@ const ProfileRewardsPanel: React.FC<ProfileRewardsPanelProps> = ({ userId, class
                                                                     type="primary"
                                                                     block
                                                                     size="large"
-                                                                    disabled={!canClaim || isPending}
+                                                                    disabled={!canClaim || isWithdrawLoading}
                                                                     loading={isButtonBusy}
                                                                     onClick={() => handleWithdraw(category.withdrawMethod, token.tokenAddress)}
                                                                 >

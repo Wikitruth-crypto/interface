@@ -19,7 +19,7 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const controller = useBoxActionController(boxActionConfigs.auction);
   
-  const { auctioningTime } = useProtocolConstants();
+  const { initialAuctionPeriod } = useProtocolConstants();
 
   const handleAuction = () => {
     onClick?.();
@@ -41,7 +41,7 @@ const AuctionButton: React.FC<Props> = ({ onClick, className }) => {
           Auction
         </Button>
         <Typography.Paragraph className="text-muted-foreground text-sm">
-          Start the auction, the initial auction period is {auctioningTime / 24 / 3600} days.
+          Start the auction, the initial auction period is {initialAuctionPeriod / 24 / 3600} days.
         </Typography.Paragraph>
         {modalOpen && <ModalSellAuction onClose={closeModal} listedMode='Auction' controller={controller} />}
       </div>

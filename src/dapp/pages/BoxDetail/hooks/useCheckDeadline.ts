@@ -29,7 +29,7 @@ export const useCheckDeadline = (box: BoxDetailData): DeadlineCheckStateType | u
         isInReviewRefundDeadline = Number(reviewDeadline) > now;
     }
 
-    const isInExtendDeadlineTimeWindow = now > Number(deadline) - PROTOCOL_CONSTANTS.extendDeadlineTimeWindow;
+    const isInExtendDeadlineTimeWindow = now > Number(deadline) - PROTOCOL_CONSTANTS.deadlineExtensionWindow;
 
     return {
         isInRequestRefundDeadline: isInRequestRefundDeadline,

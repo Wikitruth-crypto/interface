@@ -2,24 +2,37 @@ import Logo from "@/components/base/logo";
 import LinkList from "@/components/customer/link";
 import { Container } from "@/components/Container";
 import LoginDropdown from "@/dapp/components/login";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
-const dappMenu = [
+const baseMenuItems = [
     { name: "Marketplace", href: "/app" },
     { name: "Create", href: "/app/create" },
     { name: "Staking", href: "/app/staking" },
     { name: "DAO", href: "/app/dao" },
     { name: "Token", href: "/app/token" },
-    { name: "Tests", href: "/app/tests" },
-    // { name: "Account Query Test", href: "/app/accountQueryTest" },
 ];
+
+const testMenuItems = [
+    { name: "Tests", href: "/app/tests" },
+];
+
+const getDappMenu = () => {
+    // 开发环境才显示 Tests
+    if (import.meta.env.DEV) {
+        return [...baseMenuItems, ...testMenuItems];
+    }
+    return baseMenuItems;
+};
 
 
 
 export default function DappHeader() {
     const [activeKey, setActiveKey] = useState<string>('Marketplace')
     const location = useLocation();
+
+    // 根据环境动态生成菜单
+    const dappMenu = useMemo(() => getDappMenu(), []);
 
     useEffect(() => {
         // DApp route activation logic
@@ -41,7 +54,7 @@ export default function DappHeader() {
             // BoxDetail page can keep the current activated item, or set to Marketplace
             setActiveKey('Marketplace');
         }
-    }, [location.pathname]);
+    }, [location.pathname, dappMenu]);
     
     return (
         <header className="w-full bg-black/70 backdrop-blur sticky top-0 z-50">

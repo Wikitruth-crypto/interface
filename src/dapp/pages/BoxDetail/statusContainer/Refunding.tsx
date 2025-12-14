@@ -8,7 +8,6 @@ import {
     AgreementButton
 } from '@BoxDetail/ButtonContainer';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
-import useViewFileTruthBox from '../hooks/useDecryptionViewFile';
 
 interface Props {
     tokenId?: string,
@@ -20,9 +19,6 @@ const Refunding: React.FC<Props> = ({ }) => {
     if (!box) {
         return <div>loading...</div>
     }
-
-    // 从box中获取公开数据
-    const publicData = box.privateKey;
 
     return (
         <div className="flex flex-col items-start justify-center gap-4">

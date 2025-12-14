@@ -56,19 +56,11 @@ const TokenUnwrapForm: React.FC<TokenUnwrapFormProps> = ({
     }, []);
 
     const handleUnwrapAll = useCallback(() => {
-        console.log('handleUnwrapAll called, balance:', balance, 'selectedPair?.secret:', selectedPair?.secret);
         if (balance && balance > BigInt(0)) {
-            // 使用 secret 的 decimals，如果没有则使用 erc20 的 decimals
             const decimals = selectedPair?.secret?.decimals || selectedPair?.erc20?.decimals || 18;
             const formatted = formatBalance(formatUnits(balance, decimals));
-            console.log('Setting unwrapAmount to:', formatted);
             setUnwrapAmount(formatted);
-        } else {
-            console.log('handleUnwrapAll: conditions not met', {
-                hasBalance: !!balance,
-                balanceGreaterThanZero: balance ? balance > BigInt(0) : false,
-            });
-        }
+        } 
     }, [balance, selectedPair]);
 
     const handleUnwrap = useCallback(() => {

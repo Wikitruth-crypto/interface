@@ -19,9 +19,6 @@ const Paid: React.FC<Props> = ({ }) => {
         return <div>loading...</div>
     }
 
-    // 从box中获取公开数据
-    const publicData = box.privateKey;
-
     return (
         <div className="flex flex-col items-start justify-center gap-4">
             

@@ -4,14 +4,6 @@ import { useSiweAuth } from "../SiweAuth/useSiweAuth";
 // import { CHAIN_ID } from "@/dapp/contractsConfig";
 import { useWalletContext } from "@/dapp/context/useAccount/WalletContext";
 
-/**
- * 传入参数：boxId,
- * 1. 检查是否有私钥，没有则进入第二步，有则直接返回私钥
- * 2. 检查是否有siweToken，没有则进入第三步，有则进入第四步
- * 3. 请求siweToken，
- * 4. 使用siweToken获取私钥，返回私钥
- */
-
 export const useGetPrivateKey = () => {
     const { chainId, address } = useWalletContext();
     const { getPrivateKey_TruthBox, setPrivateKey_TruthBox } = useSimpleSecretStore();

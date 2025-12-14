@@ -11,7 +11,7 @@ import {
 import { 
     getProtocolConstants, 
     ProtocolConstantsType, 
-    SAPPHIRE_TESTNET_CONSTANTS 
+    SAPPHIRE_TESTNET 
 } from "./ProtocolConstants";
 import { ABIS } from "./chain-23295/abis";
 
@@ -33,7 +33,7 @@ export let OFFICIAL_TOKEN_CONFIG: TokenMetadata = {
     abi: ABIS[ContractName.OFFICIAL_TOKEN],
 }
 
-export let PROTOCOL_CONSTANTS: ProtocolConstantsType = SAPPHIRE_TESTNET_CONSTANTS;
+export let PROTOCOL_CONSTANTS: ProtocolConstantsType = SAPPHIRE_TESTNET;
 
 /**
  * 监听当前链的变化, 

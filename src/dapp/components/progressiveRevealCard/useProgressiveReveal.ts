@@ -33,8 +33,8 @@ export interface UseProgressiveRevealReturn<T> {
     revealedCount: number;
     /** 总进度（0-1） */
     progress: number;
-    /** 通知某个索引的图片已加载完成（仅在 waitForImageLoad=true 时使用） */
-    notifyImageLoaded: (index: number) => void; // 新增
+    /** 通知某个索引的加载完成（仅在 waitForImageLoad=true 时使用） */
+    notifyCompleted: (index: number) => void; // 新增
 }
 
 /**
@@ -255,8 +255,8 @@ export function useProgressiveReveal<T = any>(
         });
     }, [revealDelay, transitionDuration, clearAllTimeouts, waitForImageLoad]);
 
-    // 新增：处理图片加载完成的函数
-    const handleImageLoaded = useCallback((index: number) => {
+    // 新增：处理加载完成的函数
+    const handleCompleted = useCallback((index: number) => {
         if (import.meta.env.DEV) {
             console.log('handleImageLoaded: useProgressiveReveal', index);
         }
@@ -381,6 +381,6 @@ export function useProgressiveReveal<T = any>(
         isRevealing,
         revealedCount,
         progress,
-        notifyImageLoaded: handleImageLoaded, // 新增
+        notifyCompleted: handleCompleted, // 新增
     };
 } 

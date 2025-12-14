@@ -17,7 +17,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
   const controller = useBoxActionController(boxActionConfigs.payConfiFee);
   const { box } = useBoxDetailContext();
   const {
-    payConfiFeeExtendDeadline,
+    confidentialityFeeExtensionPeriod,
     incrementRate,
   } = useProtocolConstants();
   const [open, setOpen] = useState(false);
@@ -48,7 +48,7 @@ const PayConfiFeeButton: React.FC<Props> = ({ onClick, className }) => {
 
       <div className={cn('flex flex-col items-start mt-2')}>
         <Typography.Paragraph className="text-muted-foreground text-sm">
-          Pay the confidentiality fee to extend the confidentiality period: {payConfiFeeExtendDeadline / 24 / 3600} days
+          Pay the confidentiality fee to extend the confidentiality period: {confidentialityFeeExtensionPeriod / 24 / 3600} days
         </Typography.Paragraph>
         <Typography.Paragraph className="text-muted-foreground text-sm">
           The increment rate: {incrementRate}%

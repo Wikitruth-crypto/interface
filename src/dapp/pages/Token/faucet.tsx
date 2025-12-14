@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Space, Typography, Alert, Row, Col,} from 'antd';
 import { useAllContractConfigs } from '@/dapp/contractsConfig';
 import { OFFICIAL_TOKEN_CONFIG } from '@/dapp/contractsConfig';
-import { Address_0 } from '@/dapp/constants';
 import { useAccount } from 'wagmi';
 import { useWriteContract } from 'wagmi';
-import { formatUnits } from 'viem';
+import { formatUnits , zeroAddress} from 'viem';
 import { timeToDate } from '@dapp/utils/time';
 import { useERC20 } from '@/dapp/hooks/readContracts/useERC20';
 
@@ -26,13 +25,13 @@ const Faucet: React.FC = () => {
     
     useEffect(() => {
         const fetchBalance = async () => {
-            if (!address || address === Address_0) return;
+            if (!address || address === zeroAddress) return;
             const balance = await balanceOf(tokenContract.address, address);
             setBalance(balance);
             const mint_data = await mintDate(tokenContract.address, address);
             setMint_data(mint_data);
             // 计算是否可以铸造
-            const mint_viable = await mintDate(tokenContract.address, address) + 72*60*60 < Date.now()/1000;
+            const mint_viable = mint_data + 72*60*60 < Date.now()/1000;
             setMint_viable(mint_viable);
         }
 

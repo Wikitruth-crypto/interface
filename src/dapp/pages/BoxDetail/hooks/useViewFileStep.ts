@@ -15,9 +15,9 @@ export interface ViewFileStep {
 }
 
 const STEP_TEMPLATES: Record<ViewFileStepKey, Omit<ViewFileStep, 'status' | 'description'>> = {
-    privateKey: { key: 'privateKey', title: '读取私钥' },
-    decrypt: { key: 'decrypt', title: '解密文件信息'},
-    done: { key: 'done', title: '完成' },
+    privateKey: { key: 'privateKey', title: 'Reading private key' },
+    decrypt: { key: 'decrypt', title: 'Decrypting file information'},
+    done: { key: 'done', title: 'Done' },
 };
 
 const MAX_RETRY = 5;
@@ -28,9 +28,9 @@ export const useViewFileStep = (
     const { decryptionViewFile } = useDecryptionViewFile();
 
     const [steps, setSteps] = useState<ViewFileStep[]>([
-        { ...STEP_TEMPLATES.privateKey, status: 'wait', description: '等待读取私钥' },
-        { ...STEP_TEMPLATES.decrypt, status: 'wait', description: '等待解密' },
-        { ...STEP_TEMPLATES.done, status: 'wait', description: '等待完成' },
+        { ...STEP_TEMPLATES.privateKey, status: 'wait', description: 'Reading private key' },
+        { ...STEP_TEMPLATES.decrypt, status: 'wait', description: 'Decrypting file information' },
+        { ...STEP_TEMPLATES.done, status: 'wait', description: 'Done' },
     ]);
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -40,9 +40,9 @@ export const useViewFileStep = (
 
     const reset = useCallback(() => {
         setSteps([
-            { ...STEP_TEMPLATES.privateKey, status: 'wait', description: '等待读取私钥' },
-            { ...STEP_TEMPLATES.decrypt, status: 'wait', description: '等待解密' },
-            { ...STEP_TEMPLATES.done, status: 'wait', description: '等待完成' },
+            { ...STEP_TEMPLATES.privateKey, status: 'wait', description: 'Reading private key' },
+            { ...STEP_TEMPLATES.decrypt, status: 'wait', description: 'Decrypting file information' },
+            { ...STEP_TEMPLATES.done, status: 'wait', description: 'Done' },
         ]);
         setErrorMsg(null);
         setResult(null);
@@ -63,35 +63,35 @@ export const useViewFileStep = (
         metadataBox: MetadataBoxType
     ) => {
         if (!box || !metadataBox) {
-            setErrorMsg('未找到 Box 或 metadata，无法解密。');
-            updateStep('privateKey', 'error', '缺少必要数据');
+            setErrorMsg('Box or metadata not found, cannot decrypt.');
+            updateStep('privateKey', 'error', 'Missing necessary data');
             return;
         }
 
         if (attemptRef.current >= MAX_RETRY) {
-            setErrorMsg(`已达到最大尝试次数（${MAX_RETRY} 次），请稍后再试。`);
+            setErrorMsg(`Maximum attempts reached (${MAX_RETRY} times), please try again later.`);
             return;
         }
 
         attemptRef.current += 1;
         setIsProcessing(true);
         setErrorMsg(null);
-        updateStep('privateKey', 'process', '正在读取私钥…');
+        updateStep('privateKey', 'process', 'Reading private key…');
 
         try {
             const pk = await getPrivateKey(box.id);
             if (!pk) {
-                throw new Error('无法读取私钥，请确认已完成签名授权。');
+                throw new Error('Cannot read private key, please confirm that the signature authorization has been completed.');
             }
-            updateStep('privateKey', 'finish', '私钥读取完成');
+            updateStep('privateKey', 'finish', 'Private key read completed');
 
-            updateStep('decrypt', 'process', '解密文件信息中…');
+            updateStep('decrypt', 'process', 'Decrypting file information…');
             const res = await decryptionViewFile(pk, metadataBox);
             setResult(res);
-            updateStep('decrypt', 'finish', '解密成功');
-            updateStep('done', 'finish', '完成');
+            updateStep('decrypt', 'finish', 'Decryption successful');
+            updateStep('done', 'finish', 'Done');
         } catch (err: any) {
-            const msg = err?.message || '未知错误，请稍后重试。';
+            const msg = err?.message || 'Unknown error, please try again later.';
             setErrorMsg(msg);
             if (steps.find(s => s.key === 'privateKey')?.status !== 'finish') {
                 updateStep('privateKey', 'error', msg);

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Typography, Divider, Alert } from 'antd';
+import { Typography, Divider, Alert,  } from 'antd';
 import Storing from '@BoxDetail/statusContainer/Storing';
 import Selling from '@BoxDetail/statusContainer/Selling';
 import Auction from '@BoxDetail/statusContainer/Auction';
@@ -103,6 +103,14 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
             {renderStatusButton()}
 
             <Divider />
+
+            {
+                import.meta.env.DEV && (
+                    <Typography.Paragraph>
+                        {JSON.stringify(box, null, 2)}
+                    </Typography.Paragraph>
+                )
+            }
 
             {/* Additional Features Section */}
 

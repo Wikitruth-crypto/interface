@@ -36,7 +36,6 @@ const HooksTest = () => {
     const supportedTokens = useSupportedTokens();
     const allConfigs = useAllContractConfigs();
 
-    // 测试：读取代币授�?
     const testRead = async () => {
         if (!address) return;
         const result = await readAllowance(
@@ -53,7 +52,6 @@ const HooksTest = () => {
         // setBalance(balance);
     }
 
-    // 测试：读取合约数�?
     // useEffect(() => {
     //     const fetchData = async () => {
     //         if (!address) return;

@@ -13,7 +13,8 @@ interface WithdrawArgs {
 interface CurrentAction extends WithdrawArgs {}
 
 export const useRewardsWithdraw = (userId: string | null) => {
-    const { writeCustormV2, error, isPending, isSuccessed } = useWriteCustormV2();
+    const { writeCustormV2, error, isLoading, isSuccessed } = useWriteCustormV2();
+    const [testLoading, setTestLoading] = useState(false);
     const allConfigs = useAllContractConfigs();
     const queryClient = useQueryClient();
     const [currentAction, setCurrentAction] = useState<CurrentAction | null>(null);
@@ -35,9 +36,13 @@ export const useRewardsWithdraw = (userId: string | null) => {
             //     args: [tokenAddress],
             // });
             // await queryClient.invalidateQueries({ queryKey: rewardsQueryKey });
+            setTestLoading(true);
 
             const hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-            console.log('hash:', hash);
+            // 延迟5秒后返回
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            setTestLoading(false);
+
             return hash;
 
         } finally {
@@ -52,7 +57,7 @@ export const useRewardsWithdraw = (userId: string | null) => {
         currentAction,
         pendingKey,
         error,
-        isPending,
+        isLoading: isLoading || testLoading,
         isSuccessed,
     };
 };
