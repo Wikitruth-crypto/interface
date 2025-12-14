@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import {
     ReactFlow,
     Node,
@@ -137,10 +137,8 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
         return positionConfigs[size] || positionConfigs.md;
     }, [size]);
 
-    // 初始节点 - 使用动态位置配置
-    const initialNodes: Node[] = useMemo(() => {
+    const buildNodes = useCallback((): Node[] => {
         const positions = getPositions();
-        
         return [
             {
                 id: 'storing',
@@ -227,7 +225,7 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
                 type: 'statusNode'
             }
         ];
-    }, [status, size, responsive, isStatusActive, getPositions]);
+    }, [getPositions, isStatusActive, status, size, responsive]);
 
     // 极简的边配置 - 移除所有自定义样式
     const initialEdges: Edge[] = useMemo(() => [
@@ -274,8 +272,13 @@ const StatusStepFlow: React.FC<StatusStepFlowProps> = ({
     ], []);
 
     // 使用 React Flow 官方推荐的状态管理
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [nodes, setNodes, onNodesChange] = useNodesState(buildNodes());
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+    // 当 status/listedMode/size/responsive 变化时同步节点激活态
+    useEffect(() => {
+        setNodes(buildNodes());
+    }, [buildNodes, setNodes]);
 
     // 连接处理函数
     const onConnect = useCallback(

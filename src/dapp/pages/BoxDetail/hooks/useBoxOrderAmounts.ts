@@ -9,11 +9,10 @@ export const useBoxOrderAmounts = (
     boxId: string,
     userId: string,
     roles: BoxRoleType[],
-    enabled: boolean = true
 ) => {
     const { network, layer } = CHAIN_CONFIG;
 
-    const shouldQuery = enabled && !!boxId && !!userId && userId.trim() !== '' && roles.includes('Bidder');
+    const shouldQuery = !!boxId && !!userId && userId.trim() !== '' && roles.includes('Bidder');
 
     // 将 roles 数组序列化为字符串，用于 queryKey（确保 roles 变化时自动重新查询）
     // 使用排序后的 JSON 字符串，避免数组顺序不同导致的重复查询

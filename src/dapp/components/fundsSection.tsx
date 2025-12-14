@@ -1,6 +1,6 @@
 import React from 'react';
-import { Radio, Typography, Space, Empty, Alert } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import { Radio, Typography, Space, Empty,} from 'antd';
+// import { CheckCircleOutlined } from '@ant-design/icons';
 import { formatAmount } from '@dapp/utils/formatAmount';
 
 const { Text, Title } = Typography;

@@ -93,29 +93,26 @@ export const BoxDetailProvider: React.FC<{
   // ==================== 条件查询 ====================
   
   // 1. 奖励数据查询（根据需求决定是否查询，这里默认查询）
-  const shouldQueryRewards = !!boxId;
   const { 
     boxRewardsData, 
     isLoading: isLoadingRewards 
-  } = useBoxRewards(boxId, shouldQueryRewards);
+  } = useBoxRewards(boxId, box || {} as BoxDetailData);
   
   // 2. 竞标者数据查询（仅当 listedMode === 'Auctioning' 时查询）
-  const listedMode = box?.listedMode || '';
-  const shouldQueryBidders = !!boxId && listedMode === 'Auctioning' ;
+  // const listedMode = box?.listedMode || '';
+  // const shouldQueryBidders = !!boxId && listedMode === 'Auctioning' ;
   const { 
     biddersIds, 
     isLoading: isLoadingBidders 
   } = useBoxBidders(
     boxId, 
-    listedMode,
-    shouldQueryBidders
+    box || {} as BoxDetailData
   );
   
   // 3. 用户订单金额数据查询（需要 userId 和 acceptedToken，监听 userId 变化）
   // 关键点：
   // - userId 在 queryKey 中，所以当 userId 变化时，React Query 会自动重新查询
   // - enabled 参数控制是否查询，只有当所有条件满足时才查询
-  const shouldQueryOrderAmounts = !!boxId && !!userId ;
   const roles = useBoxDetailStore((state) => state.userState.roles);
 
   const { 
@@ -125,7 +122,6 @@ export const BoxDetailProvider: React.FC<{
     boxId,
     userId || '', // 当 userId 为 null 时传入空字符串
     roles,
-    shouldQueryOrderAmounts // 只有当所有条件满足时才查询
   );
   
   // ==================== Context Value ====================

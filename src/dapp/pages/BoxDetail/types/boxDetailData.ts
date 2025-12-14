@@ -17,7 +17,6 @@ export interface BoxDetailData {
     sellerId?: string;
     buyerId?: string;
     completerId?: string;
-    biddersIds: string[];
     acceptedToken?: string;
     status: string;
     listedMode?: string | null;

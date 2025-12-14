@@ -3,19 +3,25 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryBoxDetail_BiddersIds } from '@/dapp/services/supabase/boxDetail';
 import { CHAIN_CONFIG} from '@/dapp/contractsConfig';
+import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 export const useBoxBidders = (
     boxId: string,
-    listedMode: string,
-    enabled: boolean = true
+    box: BoxDetailData,
 ) => {
 
     const { network, layer } = CHAIN_CONFIG;
 
-    const shouldQuery = listedMode === 'Auctioning' && enabled && !!boxId ;
+    const shouldQuery = !!boxId && !!box && box.listedMode === 'Auctioning' && box.buyerId !== '';
+    const listedMode = box.listedMode || '';
+
+    // if(import.meta.env.DEV){
+    //     console.log('shouldQuery-useBoxBidders:', shouldQuery);
+    // }
 
     // 使用 React Query 查询 Box 竞标者数据
     const { data, isLoading, error, isFetching } = useQuery({
+        
         queryKey: ['box-bidders', network, layer, boxId, listedMode],
         queryFn: async () => {
             const result = await queryBoxDetail_BiddersIds(

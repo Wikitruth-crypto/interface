@@ -9,7 +9,7 @@ import { useSiweAuth } from '@/dapp/hooks/SiweAuth';
 
 
 export const useLisenerRoles = () => {
-    const { box } = useBoxDetailContext();
+    const { box, biddersIds } = useBoxDetailContext();
     const { address, isConnected, accountRole, chainId} = useWalletContext() || {};
     const { isValidateSession } = useSiweAuth();
 
@@ -58,9 +58,8 @@ export const useLisenerRoles = () => {
         const buyerId = box.buyerId ? String(box.buyerId).trim() : '';
         const minterId = box.minterId ? String(box.minterId).trim() : '';
         const completerId = box.completerId ? String(box.completerId).trim() : '';
-        const biddersIds = box.biddersIds || [];
 
-        if (biddersIds.length > 0 && userIdStr && userIdStr !== '') {
+        if (biddersIds && biddersIds.length > 0 && userIdStr && userIdStr !== '') {
             // bidders 现在是字符串数组
             const isBidder = biddersIds.some(bidderId => bidderId === userIdStr);
             if (isBidder && buyerId !== userIdStr) {

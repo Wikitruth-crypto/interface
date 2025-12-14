@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Typography, Divider, Alert,  } from 'antd';
+import { Typography, Divider, Alert, } from 'antd';
 import Storing from '@BoxDetail/statusContainer/Storing';
 import Selling from '@BoxDetail/statusContainer/Selling';
 import Auction from '@BoxDetail/statusContainer/Auction';
@@ -13,7 +13,7 @@ import CountdownTimer from '@/dapp/components/countdownTimer';
 import RoleContainer from '../components/roleLabel';
 import PriceLabel from '@BoxDetail/components/priceLabel';
 import { BoxStatus } from '@/dapp/types/contracts/truthBox';
-// import StatusLabel from '@/dapp/components/base/statusLabel';
+import StatusLabel from '@/dapp/components/base/statusLabel';
 import ShareSocial from '@/dapp/components/shareSoical';
 import { useBoxDetailContext } from '../contexts/BoxDetailContext';
 
@@ -74,9 +74,10 @@ const ContentRight: React.FC<Props> = ({ tokenId }) => {
     return (
         <div className="w-full space-y-6 md:space-y-8">
 
-            <Typography.Title level={4} style={{ marginBottom: 2 }}>
-                Status:
-            </Typography.Title>
+            {/* <Typography.Title level={4} style={{ marginBottom: 2 }}>
+                    Status:
+                </Typography.Title> */}
+            <StatusLabel status={status} />
             <StatusStep
                 status={status}
                 listedMode={listedMode}

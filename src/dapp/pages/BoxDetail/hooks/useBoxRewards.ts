@@ -9,13 +9,16 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { query_BoxRewardsData, type BoxRewardData } from '@/dapp/services/supabase/fundsBox';
 import { CHAIN_CONFIG } from '@/dapp/contractsConfig';
+import type { BoxDetailData } from '@/dapp/pages/BoxDetail/types/boxDetailData';
 
 export const useBoxRewards = (
     boxId: string,
-    enabled: boolean = true
+    box: BoxDetailData,
 ) => {
 
     const { network, layer } = CHAIN_CONFIG;
+
+    const shouldQuery = !!boxId && !!box && box.listedMode !== '' && (box.status === 'InSecrecy' || box.status === 'Published');
 
     // 使用 React Query 查询 Box 奖励数据
     const { data, isLoading, error, isFetching } = useQuery({
@@ -32,7 +35,7 @@ export const useBoxRewards = (
             return result;
         },
         staleTime: 5 * 60 * 1000, 
-        enabled: enabled && !!boxId, // 只有当 enabled 为 true 且 boxId 存在时才查询
+        enabled: shouldQuery, // 只有当 enabled 为 true 且 boxId 存在时才查询
     });
 
     // 转换数据格式

@@ -156,7 +156,7 @@ const PriceLabel: React.FC<PriceTextProps> = ({
         <Space 
             size={responsive ? 'middle' : 4}
             style={{ 
-                width: '100%',
+                // width: '100%',
                 fontFamily: 'monospace',
             }}
         >
