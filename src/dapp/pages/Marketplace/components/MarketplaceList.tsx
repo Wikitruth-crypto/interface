@@ -87,7 +87,7 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
         reset,
         notifyCompleted,
     } = useProgressiveReveal<MarketplaceBoxData>({
-        initialCount: Math.max(visibleItems.length || 0),
+        initialCount: visibleItems.length || 0,
         waitForImageLoad: true, // 启用图片加载等待模式
         transitionDuration: 300,
     });
@@ -142,8 +142,9 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
                                 contentComponent={TruthBoxCard}
                                 contentProps={{
                                     onClick: () => {
-                                        if (progressiveItem.data?.id) {
-                                            handleCardClick(progressiveItem.data.id);
+                                        const itemId = progressiveItem.data?.id ?? progressiveItem.data?.tokenId;
+                                        if (itemId !== undefined && itemId !== null) {
+                                            handleCardClick(itemId);
                                         }
                                     },
                                 }}
@@ -174,3 +175,7 @@ const MarketplaceList: React.FC<MarketplaceListProps> = ({
 };
 
 export default MarketplaceList;
+
+
+
+
