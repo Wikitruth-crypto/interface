@@ -1,0 +1,63 @@
+/* Custom styles for WikiTruth Rainbow Kit */
+
+/* ConnectButton container style */
+.wikitruth-connect-button-wrapper {
+  display: inline-flex;
+}
+
+/* Override Rainbow Kit ConnectButton style */
+.wikitruth-connect-button-wrapper [data-rk] {
+  --rk-connect-button-border-radius: 10px;
+  --rk-connect-button-padding: 8px 16px;
+}
+
+/* Custom ConnectButton button style */
+.wikitruth-connect-button-wrapper button[data-rk] {
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Button style when connected */
+.wikitruth-connect-button-wrapper button[data-rk]:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Adjust button internal element spacing */
+.wikitruth-connect-button-wrapper [data-rk] > div {
+  gap: 8px;
+}
+
+/* Adjust network label style */
+.wikitruth-connect-button-wrapper [data-rk] [data-testid="rk-network-name"] {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Adjust address display style */
+.wikitruth-connect-button-wrapper [data-rk] [data-testid="rk-account-button"] {
+  border-radius: 10px;
+}
+
+/* Hide avatar */
+.wikitruth-connect-button-wrapper [data-rk] img[alt*="avatar"],
+.wikitruth-connect-button-wrapper [data-rk] [class*="avatar"],
+.wikitruth-connect-button-wrapper [data-rk] [class*="Avatar"] {
+  display: none !important;
+}
+
+/* Hide avatar placeholder */
+.wikitruth-connect-button-wrapper [data-rk] svg[class*="avatar"],
+.wikitruth-connect-button-wrapper [data-rk] div[class*="Avatar"] {
+  display: none !important;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .wikitruth-connect-button-wrapper button[data-rk] {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+}

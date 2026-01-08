@@ -1,0 +1,4775 @@
+openapi: 3.0.3
+info:
+  title: Oasis Nexus API V1
+  description: 'An API for accessing indexed data from the Oasis Network.
+
+
+    <!-- Acts as a separator after search in sidebar -->
+
+    # Endpoints
+
+    '
+  version: 0.1.0
+servers:
+- url: https://nexus.oasis.io/v1
+  description: Mainnet index endpoint.
+- url: https://testnet.nexus.oasis.io/v1
+  description: Testnet index endpoint.
+x-query-params:
+- &id005
+  in: query
+  name: offset
+  schema:
+    type: integer
+    format: uint64
+    default: 0
+  description: 'The number of items to skip before starting to collect the result
+    set.
+
+    '
+- &id004
+  in: query
+  name: limit
+  schema:
+    type: integer
+    format: uint64
+    default: 100
+    minimum: 1
+    maximum: 1000
+  description: 'The maximum numbers of items to return.
+
+    '
+- &id008
+  in: query
+  name: limit
+  schema:
+    type: integer
+    format: uint64
+    default: 100
+    minimum: 1
+    maximum: 100
+  description: 'The maximum numbers of items to return.
+
+    '
+- in: query
+  name: height
+  schema:
+    type: integer
+    format: int64
+  description: 'The block height from which to query state. Oasis Nexus does not
+
+    make any guarantees about availability of historical state data.
+
+    '
+- &id006
+  in: path
+  name: runtime
+  required: true
+  schema:
+    $ref: '#/components/schemas/Runtime'
+  description: 'The runtime which to query.
+
+    '
+- &id007
+  in: query
+  name: method
+  schema:
+    type: string
+  description: "A filter on the runtime transaction method.\n\nIn addition to the\
+    \ existing method names, the following special values are supported:\n  - 'native_transfers':\
+    \ Returns transactions \"likely to be native transfers\".\n    - These include\
+    \ accounts.Transfer transactions and evm.Calls with an empty 'body' field.\n\n\
+    \  - 'evm.Call_no_native': Returns EVM calls that are \"not likely to be native\
+    \ transfers\".\n"
+  example: accounts.Transfer
+- &id009
+  in: query
+  name: window_size_seconds
+  schema:
+    type: integer
+    format: uint32
+    default: 86400
+  description: 'The size of windows into which the statistic is grouped, in seconds.
+
+    The backend supports a limited number of window sizes: 300 (5 minutes) and
+
+    86400 (1 day). Requests with other values may be rejected.
+
+    '
+- &id010
+  in: query
+  name: window_step_seconds
+  schema:
+    type: integer
+    format: uint32
+    default: 86400
+  description: 'The size of the step between returned statistic windows, in seconds.
+
+    The backend supports a limited number of step sizes: 300 (5 minutes) and
+
+    86400 (1 day). Requests with other values may be rejected.
+
+    '
+x-examples:
+  block-height:
+  - 8048956
+  - 8049555
+  block-hash:
+  - 0a29ac21fa69bb9e43e5cb25d10826ff3946f1ce977e82f99a2614206a50765c
+  state-root:
+  - 8e39bf193f8a954ab8f8d7cb6388c591fd0785ea060bbd8e3752e266b54499d3
+  tx-hash:
+  - 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+  tx-body:
+  - '{"amount":"1000000000","account":"oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p"}'
+  parameters-change:
+  - '{"min_validators":null,"max_validators":"120","voting_power_distribution":null}'
+  epoch:
+  - 13402
+  - 13403
+  event-type:
+  - staking.escrow.take
+  roothash-message-type:
+  - staking.transfer
+  entity-id:
+  - gb8SHLeDc69Elk7OTfqhtVgE2sqxrBCDQI84xKR+Bjg=
+  node-id:
+  - lbxs4hlud9XNloIOdhJPaCahd7HtiY8QATCgGnFfCM0=
+  staking-address:
+  - oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+  - oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+  eth-address:
+  - 1236769886106935517602631440786362467726022846366
+  proposal-id:
+  - 1
+  proposal-state:
+  - active
+  runtime-block-round:
+  - 3283246
+  runtime-block-hash:
+  - 21c243cd34bedfc234f1b45615d10a868f0655f59578f063a7d2fc8c6e5b4009
+  runtime-event-type:
+  - consensus_accounts.deposit
+  iso-timestamp:
+  - '2022-03-01T00:00:00Z'
+  - '2019-04-01T00:00:00Z'
+  - '2022-10-15T00:05:34Z'
+  time-duration:
+  - 72h3m0.5s
+  validator-media:
+  - '{"email":"validator@example.net","keybase":"validator_keybase","name":"Example
+    Validator","twitter":"validator_twitter","url":"https://example.com","logoUrl":
+    "https://example.com/logo.png"}'
+x-err-responses:
+  common-errors:
+    '400': &id001
+      $ref: '#/components/responses/HumanReadableError'
+    '404': &id002
+      $ref: '#/components/responses/NotFoundError'
+    '500': &id003
+      $ref: '#/components/responses/HumanReadableError'
+paths:
+  /:
+    get:
+      operationId: getStatus
+      summary: Returns the status of indexing.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing status metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+  /recent_blocks:
+    get:
+      summary: Returns a list of recent blocks across all layers
+      description: Sorted from most to least recent. Limited to 10 blocks.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of recent blocks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentBlockList'
+  /{runtime}/blocks:
+    get:
+      summary: Returns a list of Runtime blocks.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: query
+        name: from
+        schema:
+          type: integer
+          format: int64
+        description: A filter on minimum block height, inclusive.
+        example: 8048956
+      - in: query
+        name: to
+        schema:
+          type: integer
+          format: int64
+        description: A filter on maximum block height, inclusive.
+        example: 8049555
+      - in: query
+        name: after
+        schema:
+          type: string
+          format: date-time
+        description: A filter on minimum block time, inclusive.
+        example: '2022-03-01T00:00:00Z'
+      - in: query
+        name: before
+        schema:
+          type: string
+          format: date-time
+        description: A filter on maximum block time, exclusive.
+        example: '2019-04-01T00:00:00Z'
+      - in: query
+        name: hash
+        schema:
+          type: string
+        description: A filter on the block hash.
+        example: 0a29ac21fa69bb9e43e5cb25d10826ff3946f1ce977e82f99a2614206a50765c
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of Runtime blocks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeBlockList'
+  /{runtime}/transactions:
+    get:
+      summary: Returns a list of Runtime transactions.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: query
+        name: block
+        schema:
+          type: integer
+          format: int64
+        description: A filter on block round.
+        example: 3283246
+      - in: query
+        name: after
+        schema:
+          type: string
+          format: date-time
+        description: A filter on minimum transaction time, inclusive.
+        example: '2022-03-01T00:00:00Z'
+      - in: query
+        name: before
+        schema:
+          type: string
+          format: date-time
+        description: A filter on maximum transaction time, exclusive.
+        example: '2019-04-01T00:00:00Z'
+      - in: query
+        name: rel
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: 'A filter on related accounts. Every returned transaction will
+          refer to
+
+          this account in a way. For example, for an `accounts.Transfer` tx, this
+          will be
+
+          the sender or the recipient of tokens.
+
+          Nexus detects related accounts inside EVM transactions and events on a
+
+          best-effort basis. For example, it inspects ERC20 methods inside `evm.Call`
+          txs.
+
+          '
+      - *id007
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: 'A JSON object containing a list of Runtime transactions.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeTransactionList'
+  /{runtime}/transactions/{tx_hash}:
+    get:
+      summary: Returns runtime transactions with the given transaction hash.
+      parameters:
+      - *id006
+      - in: path
+        name: tx_hash
+        required: true
+        schema:
+          type: string
+        description: 'The transaction hash of the transaction(s) to return. This can
+          be an
+
+          Ethereum transaction hash; the query will compare against both a
+
+          transaction''s regular tx_hash and eth_tx_hash (if it exists).
+
+          This endpoint can return multiple transactions in extremely rare cases,
+
+          e.g. when a hash matches multiple Oasis runtime transactions or both
+
+          an Oasis runtime transaction and the eth_tx_hash of an evm-transaction.
+
+          '
+        example: 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested runtime transactions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeTransactionList'
+  /{runtime}/events:
+    get:
+      summary: Returns a list of runtime events.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: query
+        name: block
+        schema:
+          type: integer
+          format: int64
+        description: A filter on block round.
+        example: 3283246
+      - in: query
+        name: tx_index
+        schema:
+          type: integer
+          format: int32
+        description: 'A filter on transaction index. The returned events all need
+          to originate
+
+          from a transaction that appeared in `tx_index`-th position in the block.
+
+          It is invalid to specify this filter without also specifying a `block`.
+
+          Specifying `tx_index` and `round` is an alternative to specifying `tx_hash`;
+
+          either works to fetch events from a specific transaction.
+
+          '
+        example: 3
+      - in: query
+        name: tx_hash
+        schema:
+          type: string
+        description: 'A filter on the hash of the transaction that originated the
+          events.
+
+          Specifying `tx_index` and `round` is an alternative to specifying `tx_hash`;
+
+          either works to fetch events from a specific transaction.
+
+          This can be an Ethereum transaction hash; the query will compare against
+
+          both a transaction''s regular tx_hash and eth_tx_hash (if it exists).
+
+          '
+        example: 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+      - in: query
+        name: type
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeEventType'
+        description: A filter on the event type.
+      - in: query
+        name: rel
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: 'A filter on related accounts. Every returned event will refer
+          to
+
+          this account. For example, for a `accounts.Transfer` event, this will be
+
+          the sender or the recipient of tokens.
+
+          '
+      - in: query
+        name: evm_log_signature
+        schema:
+          type: string
+        description: 'A filter on the evm log signatures.
+
+          Note: The filter will only match on parsed (verified) EVM events.
+
+          '
+        example: '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+      - in: query
+        name: contract_address
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: 'A filter on a smart contract. Every returned event will have
+          been
+
+          emitted by the contract at this address.
+
+          '
+      - in: query
+        name: nft_id
+        schema:
+          type: string
+        example: '999'
+        description: 'A filter on NFT events. Every returned event will be specifically
+
+          about this NFT instance ID. You must specify the contract_address
+
+          filter with this filter.
+
+          Currently this only supports ERC-721 Transfer events.
+
+          This may expand to support other event types in the future.
+
+          If you want only ERC-721 Transfer events, specify
+
+          evm_log_signature=ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef
+
+          to avoid inadvertently getting other event types if they are
+
+          supported later.
+
+          Using an evm_log_signature filter with this set to any other value
+
+          will match no events.
+
+          '
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: 'Runtime events matching the filters, sorted by most recent
+            first.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeEventList'
+  /{runtime}/evm_tokens:
+    get:
+      summary: Returns a list of EVM (ERC-20, ...) tokens on the runtime.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: query
+        name: name
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+          maxItems: 6
+        description: A filter on the name, the name or symbol must contain this value
+          as a substring. If multiple names are provided, the token must match all
+          of them.
+      - in: query
+        name: sort_by
+        schema:
+          type: string
+          enum:
+          - total_holders
+          - market_cap
+        description: 'The field to sort the tokens by.
+
+          If unset, the tokens will be sorted by number of holders.
+
+          '
+      - in: query
+        name: type
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenType'
+        description: 'The type of tokens to return.
+
+          '
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested tokens.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmTokenList'
+  /{runtime}/evm_tokens/{address}:
+    get:
+      summary: Returns info on an EVM (ERC-20, ...) token on the runtime.
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: The staking address of the token contract.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmToken'
+  /{runtime}/evm_tokens/{address}/holders:
+    get:
+      summary: 'Returns the list of holders of an EVM (ERC-20, ...) token.
+
+        '
+      description: 'This endpoint does not verify that `address` is actually an EVM
+        token; if it is not, it will simply return an empty list.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: The staking address of the token contract for which to return
+          the holders.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested holders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenHolderList'
+  /{runtime}/evm_tokens/{address}/nfts:
+    get:
+      summary: 'Returns the list of non-fungible token (NFT) instances of an EVM (ERC-721,
+        ...) token.
+
+        '
+      description: 'This endpoint does not verify that `address` is actually an EVM
+        token; if it is not, it will simply return an empty list.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: The staking address of the token contract for which to return
+          the NFT instances.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested instances.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmNftList'
+  /{runtime}/evm_tokens/{address}/nfts/{id}:
+    get:
+      summary: 'Returns the non-fungible token (NFT) instance of an EVM (ERC-721,
+        ...) token.
+
+        '
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: The staking address of the token contract of the NFT instance.
+      - in: path
+        name: id
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+        description: The ID of the NFT instance.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested instances.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmNft'
+  /{runtime}/accounts/{address}:
+    get:
+      summary: Returns a runtime account.
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        description: The staking address of the account to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a runtime layer account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeAccount'
+  /{runtime}/accounts/{address}/delegations:
+    get:
+      summary: Returns a runtime account's delegations.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        description: The address of the account that delegated.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of delegations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelegationList'
+  /{runtime}/accounts/{address}/debonding_delegations:
+    get:
+      summary: Returns a runtime account's debonding delegations.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        description: The address of the account that debonded.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of debonding delegations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebondingDelegationList'
+  /{runtime}/accounts/{address}/nfts:
+    get:
+      summary: 'Returns the list of non-fungible token (NFT) instances owned by an
+        account.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: The staking address of the owner of the NFT instances.
+      - in: query
+        name: token_address
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: Only return NFT instances from the token contract at the given
+          staking address.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: The requested instances.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmNftList'
+  /{runtime}/status:
+    get:
+      summary: Returns the runtime status.
+      parameters:
+      - *id006
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing latest runtime status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeStatus'
+  /{runtime}/rofl_apps:
+    get:
+      summary: Returns a list of ROFL apps on the runtime.
+      parameters:
+      - *id008
+      - *id005
+      - *id006
+      - in: query
+        name: admin
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        examples:
+          eth:
+            $ref: '#/components/examples/EthAddress'
+          oasis:
+            $ref: '#/components/examples/StakingAddress'
+        description: A filter on the admin of the ROFL app.
+      - in: query
+        name: name
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+          maxItems: 6
+        description: A filter on the name of the ROFL app. If multiple names are provided,
+          the ROFL App must match all of them.
+      - in: query
+        name: sort_by
+        schema:
+          type: string
+          enum:
+          - created_at
+          - created_at_desc
+        description: 'The field to sort the ROFL apps by.
+
+          If unset, the ROFL apps will be sorted by activity (num_active_instances,
+          num_transactions) in descending order.
+
+          To sort by creation time, set this to `created_at` (or `created_at_desc`).
+
+          '
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of ROFL apps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflAppList'
+  /{runtime}/rofl_apps/{id}:
+    get:
+      summary: Returns a specific ROFL app.
+      parameters:
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a ROFL app.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflApp'
+  /{runtime}/rofl_apps/{id}/transactions:
+    get:
+      summary: 'Returns a list of "managing" transactions of the ROFL app.
+
+        '
+      description: 'This does not return transaction submitted by ROFL app instances,
+        for that see
+
+        the `/rofl_apps/{id}/instance_transactions` endpoint.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return transactions for.
+      - *id007
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of transactions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeTransactionList'
+  /{runtime}/rofl_apps/{id}/instance_transactions:
+    get:
+      summary: Returns a list of transactions submitted by instances of the ROFL app.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return transactions for.
+      - *id007
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of transactions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeTransactionList'
+  /{runtime}/rofl_apps/{id}/instances:
+    get:
+      summary: Returns a list of instances of the given ROFL app.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return instances for.
+      responses:
+        '200':
+          description: A JSON object containing a list of ROFL app instances.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflAppInstanceList'
+  /{runtime}/rofl_apps/{id}/instances/{rak}:
+    get:
+      summary: Returns a specific ROFL instance.
+      parameters:
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return an instance for.
+      - in: path
+        name: rak
+        required: true
+        schema:
+          type: string
+        description: The RAK of the ROFL instance to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a ROFL instance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflInstance'
+  /{runtime}/rofl_apps/{id}/instances/{rak}/transactions:
+    get:
+      summary: Returns a list of transactions submitted by the given ROFL instance.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL app to return transactions for.
+      - in: path
+        name: rak
+        required: true
+        schema:
+          type: string
+        description: The RAK of the ROFL instance to return transactions for.
+      - *id007
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of transactions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuntimeTransactionList'
+  /{runtime}/roflmarket_providers:
+    get:
+      summary: Returns a list of ROFL market providers.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of ROFL market providers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketProviderList'
+  /{runtime}/roflmarket_providers/{address}:
+    get:
+      summary: Returns a specific ROFL market provider.
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/StakingAddress'
+        description: The address of the ROFL market provider to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a ROFL market provider.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketProvider'
+  /{runtime}/roflmarket_providers/{address}/offers:
+    get:
+      summary: Returns a list of ROFL market offers for a specific provider.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/StakingAddress'
+        description: The address of the ROFL market provider to return offers for.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of ROFL market offers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketOfferList'
+  /{runtime}/roflmarket_providers/{address}/offers/{id}:
+    get:
+      summary: Returns a specific ROFL market offer.
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/StakingAddress'
+        description: The address of the ROFL market provider to return offers for.
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL market offer to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a ROFL market offer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketOffer'
+  /{runtime}/roflmarket_providers/{address}/instances/{id}:
+    get:
+      summary: Returns a specific ROFL market instance.
+      parameters:
+      - *id006
+      - in: path
+        name: address
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/StakingAddress'
+        description: The address of the ROFL market provider to return an instance
+          for.
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: The ID of the ROFL market instance to return.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of ROFL market offers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketInstance'
+  /{runtime}/roflmarket_instances:
+    get:
+      summary: Returns a list of ROFL market instances.
+      parameters:
+      - *id004
+      - *id005
+      - *id006
+      - in: query
+        name: provider
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/StakingAddress'
+        description: A filter on the provider of the ROFL market instance.
+      - in: query
+        name: admin
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/EthOrOasisAddress'
+        description: A filter on the admin of the ROFL market instance.
+      - in: query
+        name: deployed_app_id
+        schema:
+          type: string
+        description: A filter on the deployed app ID of the ROFL market instance.
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: A JSON object containing a list of ROFL market instances.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoflMarketInstanceList'
+  /stats/tx_volume:
+    get:
+      summary: 'Returns a timeline of the transaction volume at the chosen granularity
+
+        combined for all layers.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id009
+      - *id010
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: 'A JSON object containing a list of TPS values for each interval.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TxVolumeList'
+  /{layer}/stats/tx_volume:
+    get:
+      summary: 'Returns a timeline of the transaction volume at the chosen granularity,
+
+        for either consensus or one of the paratimes.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id009
+      - *id010
+      - in: path
+        name: layer
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Layer'
+        description: 'The layer for which to return the transaction volume timeline.
+
+          '
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: 'A JSON object containing a list of TPS values for each interval.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TxVolumeList'
+  /{layer}/stats/active_accounts:
+    get:
+      summary: 'Returns a (sliding) timeline of the recorded daily unique active accounts
+        for
+
+        either consensus or one of the paratimes.
+
+        '
+      parameters:
+      - *id004
+      - *id005
+      - *id010
+      - in: path
+        name: layer
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Layer'
+        description: 'The layer for which to return the active accounts timeline.
+
+          '
+      responses:
+        '400': *id001
+        '404': *id002
+        '500': *id003
+        '200':
+          description: 'A JSON object containing a list of unique active accounts
+            values for each interval.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveAccountsList'
+components:
+  schemas:
+    Layer:
+      type: string
+      enum:
+      - sapphire
+      - consensus
+      example: sapphire
+    Runtime:
+      type: string
+      enum:
+      - sapphire
+      example: sapphire
+    StakingAddress:
+      type: string
+      pattern: ^oasis1[a-z0-9]{40}$
+      example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+      x-go-type: staking.Address
+      x-go-type-import:
+        name: staking
+        path: github.com/oasisprotocol/nexus/coreapi/v22.2.11/staking/api
+      description: An Oasis-style (bech32) address.
+    TextBigInt:
+      type: string
+      pattern: ^-?[0-9]+$
+      format: bigint
+      example: '1234567890123456789012'
+      x-go-type: common.BigInt
+      x-go-type-import:
+        name: common
+        path: github.com/oasisprotocol/nexus/common
+    TextBigDecimal:
+      type: string
+      pattern: ^-?[0-9]+(\.[0-9]+)?$
+      format: decimal
+      example: '12345.678901234567890123'
+      x-go-type: common.BigDecimal
+      x-go-type-import:
+        name: common
+        path: github.com/oasisprotocol/nexus/common
+    Address:
+      type: string
+      pattern: ^oasis1[a-z0-9]{40}$
+      example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+      description: An Oasis-style (bech32) address.
+    EthOrOasisAddress:
+      type: string
+      pattern: ^oasis1[a-z0-9]{40}$|^(0x)?[0-9a-fA-F]{40}$
+    Ed25519PubKey:
+      type: string
+      format: byte
+      example: lbxs4hlud9XNloIOdhJPaCahd7HtiY8QATCgGnFfCM0=
+      x-go-type: signature.PublicKey
+      x-go-type-import:
+        name: signature
+        path: github.com/oasisprotocol/oasis-core/go/common/crypto/signature
+      description: A base64-encoded ed25519 public key.
+    CallFormat:
+      type: string
+      example: encrypted/x25519-deoxysii
+      x-go-type: common.CallFormat
+      x-go-type-import:
+        name: common
+        path: github.com/oasisprotocol/nexus/common
+    List:
+      type: object
+      required:
+      - total_count
+      - is_total_count_clipped
+      properties:
+        total_count:
+          type: integer
+          format: uint64
+          description: 'The total number of records that match the query, i.e. the
+            number of records
+
+            the query would return with limit=infinity.
+
+            '
+          example: 412
+        is_total_count_clipped:
+          type: boolean
+          description: Whether total_count is clipped for performance reasons.
+          example: true
+    Status:
+      type: object
+      required:
+      - latest_block
+      - latest_node_block
+      - latest_block_time
+      - latest_update_age_ms
+      properties:
+        latest_block:
+          type: integer
+          format: int64
+          description: 'The height of the most recent indexed block. Compare with
+            latest_node_block to measure
+
+            how far behind Nexus is from the chain.
+
+            '
+          example: 8048956
+        latest_node_block:
+          type: integer
+          format: int64
+          description: The height of the most recently produced block on-chain as
+            seen by Nexus.
+          example: 8049555
+        latest_block_time:
+          type: string
+          format: date-time
+          description: The RFC 3339 formatted consensus time of when the most recently
+            indexed block was produced.
+          example: '2019-04-01T00:00:00Z'
+        latest_update_age_ms:
+          type: integer
+          format: int64
+          description: The number of milliseconds since Nexus processed the latest
+            block.
+          example: 352
+    RecentBlockList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - blocks
+        properties:
+          blocks:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RecentBlock'
+      description: 'A list of recent blocks from all layers.
+
+        '
+    RecentBlock:
+      type: object
+      required:
+      - layer
+      - height
+      - hash
+      - timestamp
+      - num_transactions
+      properties:
+        layer:
+          allOf:
+          - $ref: '#/components/schemas/Layer'
+          description: The layer the block belongs to.
+        height:
+          type: integer
+          format: int64
+          description: The block height.
+          example: 8048956
+        hash:
+          type: string
+          description: The block header hash.
+          example: 0a29ac21fa69bb9e43e5cb25d10826ff3946f1ce977e82f99a2614206a50765c
+        timestamp:
+          type: string
+          format: date-time
+          description: The second-granular consensus time.
+          example: '2022-03-01T00:00:00Z'
+        num_transactions:
+          type: integer
+          format: int32
+          description: Number of transactions in the block.
+          example: 17
+    BlockList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - blocks
+        properties:
+          blocks:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Block'
+      description: 'A list of consensus blocks.
+
+        '
+    Block:
+      type: object
+      required:
+      - height
+      - hash
+      - timestamp
+      - num_transactions
+      - gas_limit
+      - epoch
+      - state_root
+      - proposer
+      properties:
+        height:
+          type: integer
+          format: int64
+          description: The block height.
+          example: 8048956
+        hash:
+          type: string
+          description: The block header hash.
+          example: 0a29ac21fa69bb9e43e5cb25d10826ff3946f1ce977e82f99a2614206a50765c
+        timestamp:
+          type: string
+          format: date-time
+          description: The second-granular consensus time.
+          example: '2022-03-01T00:00:00Z'
+        num_transactions:
+          type: integer
+          format: int32
+          description: Number of transactions in the block.
+          example: 17
+        gas_limit:
+          type: integer
+          format: uint64
+          description: 'The gas limit for the block. A gas limit 0 means that the
+            max block gas was unlimited.
+
+            Blocks from Cobalt, Damask, and early Eden had no gas limit as their sizes
+            were only
+
+            restricted by byte size until an upgrade during Eden introduced a gas
+            limit.
+
+            '
+          example: 30000
+        size_limit:
+          type: integer
+          format: uint64
+          description: 'The size limit for the block in bytes.
+
+            '
+        epoch:
+          type: integer
+          format: int64
+          description: The epoch number of the epoch in which the block was produced.
+          example: 13402
+        state_root:
+          type: string
+          description: The Merkle root of the state tree after applying the block.
+          example: 8e39bf193f8a954ab8f8d7cb6388c591fd0785ea060bbd8e3752e266b54499d3
+        proposer:
+          allOf:
+          - $ref: '#/components/schemas/EntityInfo'
+          description: The entity that proposed this block.
+        signers:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EntityInfo'
+          description: A list of the entities that signed the block.
+        size:
+          type: integer
+          format: uint64
+          description: 'The size of the block in bytes.
+
+            This field is missing for blocks pre Oasis-Core 24.3.
+
+            '
+        gas_used:
+          type: integer
+          format: int64
+          description: 'Total gas used by the transactions in the block.
+
+            This field is missing for blocks pre Oasis-Core 24.3.
+
+            '
+          example: 123456
+      description: 'A consensus block.
+
+        '
+    EntityInfo:
+      type: object
+      description: Light-weight entity information, containing only its ID, address
+        and registry metadata.
+      properties:
+        entity_id:
+          type: string
+          description: The ID of the entity owning the node; this corresponds to the
+            entity's public key in base64.
+          example: '`TqUyj5Q+9vZtqu10yw6Zw7HEX3Ywe0JQA9vHyzY47TU=`'
+        entity_address:
+          type: string
+          description: Address of the entity owning the node, in Bech32 format (`oasis1...`).
+          example: '`oasis1qzzd6khm3acqskpxlk9vd5044cmmcce78y5l6000`'
+        entity_metadata:
+          description: 'Metadata about an entity, if available. See [the metadata
+            registry](https://github.com/oasisprotocol/metadata-registry) for details.
+
+
+            When available, it is an object with some subset of the following fields:
+
+
+            - `v`: The version of the metadata structure (always present).
+
+            - `serial`: The serial number of the metadata statement (always present).
+
+            - `name`: The name of the entity.
+
+            - `url`: The URL associated with the entity.
+
+            - `email`: The email address associated with the entity.
+
+            - `keybase`: Tne entity''s keybase.io handle.
+
+            - `twitter`: The twitter handle associated with the entity.
+
+            '
+          example: "An entity with all fields:\n\n    {\n      \"v\": 1,\n      \"\
+            serial\": 1,\n      \"name\": \"Entity display name\",\n      \"url\"\
+            : \"https://example.org/entity\",\n      \"email\": \"entity@example.org\"\
+            ,\n      \"keybase\": \"keybase_handle\",\n      \"twitter\": \"twitter_handle\"\
+            \n    }\n"
+    Delegation:
+      type: object
+      required:
+      - amount
+      - shares
+      - validator
+      - delegator
+      properties:
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of tokens delegated in base units.
+        shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The shares of tokens delegated.
+        validator:
+          type: string
+          description: The delegatee (validator) address.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        delegator:
+          type: string
+          description: The delegator address.
+          example: oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+      description: 'A delegation.
+
+        '
+    DelegationList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - delegations
+        properties:
+          delegations:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Delegation'
+        description: 'A list of delegations.
+
+          '
+    DebondingDelegation:
+      type: object
+      required:
+      - amount
+      - shares
+      - validator
+      - delegator
+      - debond_end
+      properties:
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of tokens delegated in base units.
+        shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The shares of tokens delegated.
+        validator:
+          type: string
+          description: The delegatee (validator) address.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        delegator:
+          type: string
+          description: The delegator address.
+          example: oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+        debond_end:
+          type: integer
+          format: int64
+          description: The epoch at which the debonding ends.
+      description: 'A debonding delegation.
+
+        '
+    DebondingDelegationList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - debonding_delegations
+        properties:
+          debonding_delegations:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/DebondingDelegation'
+        description: 'A list of debonding delegations.
+
+          '
+    ConsensusTxMethod:
+      type: string
+      enum:
+      - beacon.PVSSCommit
+      - beacon.PVSSReveal
+      - beacon.VRFProve
+      - consensus.Meta
+      - governance.CastVote
+      - governance.SubmitProposal
+      - keymanager.PublishEphemeralSecret
+      - keymanager.PublishMasterSecret
+      - keymanager.UpdatePolicy
+      - registry.DeregisterEntity
+      - registry.ProveFreshness
+      - registry.RegisterEntity
+      - registry.RegisterNode
+      - registry.RegisterRuntime
+      - registry.UnfreezeNode
+      - roothash.Evidence
+      - roothash.ExecutorCommit
+      - roothash.ExecutorProposerTimeout
+      - roothash.SubmitMsg
+      - staking.AddEscrow
+      - staking.Allow
+      - staking.AmendCommissionSchedule
+      - staking.Burn
+      - staking.ReclaimEscrow
+      - staking.Transfer
+      - staking.Withdraw
+      - keymanager/churp.Apply
+      - keymanager/churp.Confirm
+      - keymanager/churp.Create
+      - keymanager/churp.Update
+      - vault.AuthorizeAction
+      - vault.CancelAction
+      - vault.Create
+      example: staking.Transfer
+    TransactionList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - transactions
+        properties:
+          transactions:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Transaction'
+        description: 'A list of consensus transactions.
+
+          '
+    Transaction:
+      type: object
+      required:
+      - block
+      - index
+      - timestamp
+      - hash
+      - sender
+      - nonce
+      - fee
+      - gas_limit
+      - method
+      - body
+      - success
+      properties:
+        block:
+          type: integer
+          format: int64
+          description: The block height at which this transaction was executed.
+          example: 8048956
+        index:
+          type: integer
+          format: int32
+          description: 0-based index of this transaction in its block
+          example: 17
+        timestamp:
+          type: string
+          format: date-time
+          description: 'The second-granular consensus time of this tx''s block, i.e.
+            roughly when the
+
+            [block was proposed](https://github.com/tendermint/tendermint/blob/v0.34.x/spec/core/data_structures.md#header).
+
+            '
+          example: '2022-10-15T00:05:34Z'
+        hash:
+          type: string
+          description: The cryptographic hash of this transaction's encoding.
+          example: 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+        sender:
+          type: string
+          description: The address of who sent this transaction.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        nonce:
+          type: integer
+          format: int64
+          description: The nonce used with this transaction, to prevent replay.
+          example: 0
+        fee:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The fee that this transaction''s sender committed
+
+            to pay to execute it.
+
+            '
+          example: 1000
+        gas_limit:
+          type: integer
+          format: uint64
+          description: 'The maximum gas that a transaction can use.
+
+            '
+          example: 30000
+        gas_used:
+          type: integer
+          format: uint64
+          description: 'The gas used by the transaction.
+
+            This field is missing for transactions pre Oasis-Core 24.3.
+
+            '
+          example: 30000
+        method:
+          allOf:
+          - $ref: '#/components/schemas/ConsensusTxMethod'
+          description: The method that was called.
+        body:
+          type: object
+          description: The method call body. This spec does not encode the many possible
+            types; instead, see [the Go API](https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go)
+            of oasis-core. This object will conform to one of the types passed to
+            variable instantiations using `NewMethodName` two levels down the hierarchy,
+            e.g. `MethodTransfer` from `oasis-core/go/staking/api` seen [here](https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go@v0.2300.10/staking/api#pkg-variables).
+          example: '{"amount":"1000000000","account":"oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p"}'
+        success:
+          type: boolean
+          description: Whether this transaction successfully executed.
+        error:
+          allOf:
+          - $ref: '#/components/schemas/TxError'
+          description: Error details of a failed transaction.
+      description: 'A consensus transaction.
+
+        '
+    TxError:
+      type: object
+      required:
+      - code
+      properties:
+        module:
+          type: string
+          description: The module of a failed transaction.
+        code:
+          type: integer
+          format: uint32
+          description: The status code of a failed transaction.
+        message:
+          type: string
+          description: 'The message of a failed transaction.
+
+            This field, like `code` and `module`, can represent an error that originated
+
+            anywhere in the paratime, i.e. either inside or outside a smart contract.
+
+
+            A common special case worth calling out: When the paratime is
+
+            EVM-compatible (e.g. Emerald or Sapphire) and the error originates
+
+            inside a smart contract (using `revert` in solidity), the following
+
+            will be true:
+
+            - `module` will be "evm" and `code` will be 8; see [here](https://github.com/oasisprotocol/oasis-sdk/blob/runtime-sdk/v0.8.3/runtime-sdk/modules/evm/src/lib.rs#L128)
+            for other possible errors in the `evm` module.
+
+            - `message` will contain the best-effort human-readable revert reason.
+
+            - `raw_message` will contain the raw revert reason. This is useful for
+            cases where the `message` parsing fails
+
+            '
+        revert_params:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvmAbiParam'
+          description: 'The error parameters, as decoded using the contract abi. Present
+            only when
+
+            - the error originated from within a smart contract (e.g. via `revert`
+            in Solidity), and
+
+            - the contract is verified or the revert reason is a plain String.
+
+            If this field is present, `message` will include the name of the error,
+            e.g. ''InsufficientBalance''.
+
+            Note that users should be cautious when evaluating error data since the
+
+            data origin is not tracked and error information can be faked.
+
+            '
+        raw_message:
+          type: string
+          description: 'The unparsed transaction error message.
+
+            '
+    ConsensusEventType:
+      type: string
+      enum:
+      - governance.proposal_executed
+      - governance.proposal_finalized
+      - governance.proposal_submitted
+      - governance.vote
+      - registry.entity
+      - registry.node_unfrozen
+      - registry.node
+      - registry.runtime
+      - registry.runtime_suspended
+      - roothash.execution_discrepancy
+      - roothash.executor_committed
+      - roothash.finalized
+      - roothash.message
+      - roothash.in_msg_processed
+      - staking.allowance_change
+      - staking.burn
+      - staking.escrow.add
+      - staking.escrow.debonding_start
+      - staking.escrow.reclaim
+      - staking.escrow.take
+      - staking.transfer
+      example: staking.escrow.take
+    ConsensusEventList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - events
+        properties:
+          events:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/ConsensusEvent'
+        description: 'A list of consensus events.
+
+          '
+    ConsensusEvent:
+      type: object
+      required:
+      - block
+      - type
+      - body
+      properties:
+        block:
+          type: integer
+          format: int64
+          description: The block height at which this event was generated.
+          example: 8048956
+        tx_index:
+          type: integer
+          format: int32
+          description: '0-based index of this event''s originating transaction within
+            its block.
+
+            Absent if the event did not originate from a transaction.
+
+            '
+          example: 5
+        tx_hash:
+          type: string
+          description: 'Hash of this event''s originating transaction.
+
+            Absent if the event did not originate from a transaction.
+
+            '
+          example: 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+        roothash_runtime_id:
+          type: string
+          description: 'The ID of the runtime to which the event relates, encoded
+            in hex.
+
+            Present only for events of type `roothash.*`.
+
+            '
+          example: 000000000000000000000000000000000000000000000000e2eaa99fc008f87f
+        roothash_runtime:
+          allOf:
+          - $ref: '#/components/schemas/Runtime'
+          description: 'The runtime to which the event relates.
+
+            Present only for events of type `roothash.*`.
+
+            '
+          example: emerald
+        roothash_runtime_round:
+          type: integer
+          format: int64
+          description: 'When applicable, the round in the runtime to which this event
+
+            relates.
+
+            Present only for events of type `roothash.*` except for
+
+            `roothash.execution_discrepancy` before Eden.
+
+            '
+        timestamp:
+          type: string
+          format: date-time
+          description: 'The second-granular consensus time of this event''s block.
+
+            '
+          example: '2022-03-01T00:00:00Z'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/ConsensusEventType'
+          description: The type of the event.
+        body:
+          type: object
+          description: 'The event contents. This spec does not encode the many possible
+            types;
+
+            instead, see [the Go API](https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go/consensus/api/transaction/results#Event)
+            of oasis-core.
+
+            This object will conform to one of the `*Event` types two levels down
+
+            the hierarchy, e.g. `TransferEvent` from `Event > staking.Event > TransferEvent`
+
+            '
+      description: 'An event emitted by the consensus layer.
+
+        '
+    RoothashMessageType:
+      type: string
+      enum:
+      - staking.transfer
+      - staking.withdraw
+      - staking.add_escrow
+      - staking.reclaim_escrow
+      - registry.update_runtime
+      - governance.cast_vote
+      - governance.submit_proposal
+      example: staking.transfer
+    RoothashMessageList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - roothash_messages
+        properties:
+          roothash_messages:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoothashMessage'
+    RoothashMessage:
+      type: object
+      required:
+      - runtime
+      - round
+      - index
+      properties:
+        runtime:
+          type: string
+          description: 'The runtime that sent this message.
+
+            '
+          example: sapphire
+        round:
+          type: integer
+          format: int64
+          description: 'The block round when the runtime sent this message.
+
+            '
+          example: 1357490
+        index:
+          type: integer
+          format: int32
+          description: 'The 0-based index of this message in the block.
+
+            '
+          example: 0
+        type:
+          allOf:
+          - $ref: '#/components/schemas/RoothashMessageType'
+          description: 'The type of this message.
+
+            '
+          example: staking.withdraw
+        body:
+          type: object
+          description: 'The "body" of a message is a structure within the
+
+            `github.com/oasisprotocol/oasis-core/go/roothash/api/message`
+
+            `Message` structure
+
+            (https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go/roothash/api/message#Message).
+
+            For example, if the type is `staking.withdraw`, the body is the Go
+
+            `Message` structure''s `.Staking.Withdraw` field, which is a
+
+            `github.com/oasisprotocol/oasis-core/go/staking/api` `Withdraw`
+
+            structure
+
+            (https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go/staking/api#Withdraw),
+
+            with `from` and `amount` fields in JSON.
+
+            '
+          example:
+            from: oasis1qqzjq6lqjf8d07ehhvu5ytc47dck8w7a6qgn7efh
+            amount: '500000000'
+        error_module:
+          type: string
+          description: 'If executing this message resulted in an error, this is the
+
+            error''s module.
+
+            '
+          example: staking
+        error_code:
+          type: integer
+          format: int32
+          description: 'If executing this message resulted in an error, this is the
+
+            error''s code.
+
+            '
+          example: 3
+        result:
+          description: 'A result value that consensus provided after executing this
+
+            message. These aren''t centrally registered anywhere, so look at
+
+            the consensus apps'' `ExecuteMessage`
+
+            (https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go/consensus/cometbft/api#MessageSubscriber)
+
+            implementations to see what they return. For example, a
+
+            `staking.withdraw` type message gives a
+
+            `github.com/oasisprotocol/oasis-core/go/staking/api`
+
+            `WithdrawResult` structure as its result
+
+            (`https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go/staking/api#WithdrawResult`)
+
+            with `owner`, `beneficiary`, `allowance`, and `amount_change`
+
+            fields.
+
+            '
+          example:
+            owner: oasis1qqzjq6lqjf8d07ehhvu5ytc47dck8w7a6qgn7efh
+            beneficiary: oasis1qrd3mnzhhgst26hsp96uf45yhq6zlax0cuzdgcfc
+            allowance: '97000000000'
+            amount_change: '500000000'
+    EntityList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - entities
+        properties:
+          entities:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Entity'
+        description: 'A list of entities registered at the consensus layer.
+
+          '
+    Entity:
+      type: object
+      required:
+      - id
+      - address
+      - nodes
+      properties:
+        id:
+          x-go-name: ID
+          type: string
+          description: The public key identifying this entity.
+          example: gb8SHLeDc69Elk7OTfqhtVgE2sqxrBCDQI84xKR+Bjg=
+        address:
+          type: string
+          description: The staking address belonging to this entity; derived from
+            the entity's public key.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        nodes:
+          type: array
+          items:
+            type: string
+          description: The vector of nodes owned by this entity.
+      description: 'An entity registered at the consensus layer.
+
+        '
+    ValidatorsResponse:
+      type: object
+      required:
+      - validator_list
+      - stats
+      properties:
+        validator_list:
+          allOf:
+          - $ref: '#/components/schemas/ValidatorList'
+        stats:
+          allOf:
+          - $ref: '#/components/schemas/ValidatorAggStats'
+          description: Summary statistics across all consensus validators.
+    ValidatorList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - validators
+        - stats
+        properties:
+          validators:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Validator'
+          stats:
+            allOf:
+            - $ref: '#/components/schemas/ValidatorAggStats'
+            description: Summary statistics across all consensus validators.
+        description: 'A list of validators registered at the consensus layer, plus
+          summary
+
+          statistics across all consensus validators.
+
+          '
+    ValidatorAggStats:
+      type: object
+      required:
+      - total_voting_power
+      - total_delegators
+      - total_staked_balance
+      properties:
+        total_voting_power:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The total voting power across all validators.
+        total_delegators:
+          type: integer
+          format: uint64
+          description: The total number of delegators in the network.
+        total_staked_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The total amount of token staked to validators.
+    ValidatorCommissionBound:
+      type: object
+      required:
+      - lower
+      - upper
+      - epoch_start
+      - epoch_end
+      properties:
+        lower:
+          type: integer
+          format: uint64
+        upper:
+          type: integer
+          format: uint64
+        epoch_start:
+          type: integer
+          format: uint64
+        epoch_end:
+          type: integer
+          format: uint64
+    ValidatorMedia:
+      type: object
+      properties:
+        url:
+          type: string
+          description: An URL associated with the entity.
+        email:
+          type: string
+          description: An email address associated with the entity.
+        twitter:
+          type: string
+          description: Twitter handle.
+        keybase:
+          type: string
+          description: Keybase handle.
+        name:
+          type: string
+          description: The human-readable name of this entity.
+          example: WhaleStake
+        logoUrl:
+          type: string
+          description: URL to a logo image for the entity.
+    Validator:
+      type: object
+      required:
+      - entity_address
+      - entity_id
+      - escrow
+      - voting_power
+      - active
+      - start_date
+      - rank
+      - in_validator_set
+      - current_rate
+      - current_commission_bound
+      properties:
+        entity_address:
+          type: string
+          description: The staking address identifying this validator.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        entity_id:
+          x-go-name: EntityID
+          type: string
+          description: The public key identifying this validator.
+          example: gb8SHLeDc69Elk7OTfqhtVgE2sqxrBCDQI84xKR+Bjg=
+        node_id:
+          x-go-name: NodeID
+          type: string
+          description: The public key identifying this validator's node.
+          example: lbxs4hlud9XNloIOdhJPaCahd7HtiY8QATCgGnFfCM0=
+        escrow:
+          allOf:
+          - $ref: '#/components/schemas/Escrow'
+          description: The escrow account data for this validator.
+        voting_power:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The voting power of this validator.
+        voting_power_cumulative:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The cumulative voting power of this validator and all other
+            validators ranked higher than itself.
+        active:
+          type: boolean
+          description: Whether the entity has a node that is registered for being
+            a validator, node is up to date, and has successfully registered itself.
+            It may or may not be part of validator set.
+        start_date:
+          type: string
+          format: date-time
+          description: The second-granular consensus time.
+          example: '2022-10-15T00:05:34Z'
+        rank:
+          type: integer
+          format: uint64
+          description: The rank of the validator, determined by voting power.
+        in_validator_set:
+          type: boolean
+          description: Whether the entity is part of the validator set (top <scheduler.params.max_validators>
+            by stake among active entities).
+        media:
+          allOf:
+          - $ref: '#/components/schemas/ValidatorMedia'
+          example: '{"email":"validator@example.net","keybase":"validator_keybase","name":"Example
+            Validator","twitter":"validator_twitter","url":"https://example.com","logoUrl":
+            "https://example.com/logo.png"}'
+        current_rate:
+          type: integer
+          format: uint64
+          description: Commission rate.
+        current_commission_bound:
+          allOf:
+          - $ref: '#/components/schemas/ValidatorCommissionBound'
+        signed_blocks:
+          type: array
+          description: An array containing details of the last 100 consensus blocks,
+            indicating whether each block was signed by the validator. Only available
+            when querying a single validator.
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ValidatorSignedBlock'
+        uptime:
+          allOf:
+          - $ref: '#/components/schemas/ValidatorUptime'
+          description: The validator's uptime statistics for a period of time up to
+            now.
+      description: 'A validator registered at the consensus layer.
+
+        '
+    ValidatorUptime:
+      type: object
+      required:
+      - window_length
+      - segment_length
+      - window_uptime
+      - segment_uptimes
+      properties:
+        window_length:
+          type: integer
+          format: uint64
+          description: 'The length of the historical window for which this object
+            provides uptime information, in blocks.
+
+            Currently always 14400 blocks, or approximately 24 hours.
+
+            '
+        segment_length:
+          type: integer
+          format: uint64
+          description: 'The length of the window segment, in blocks. We subdivide
+            the window into segments of equal length
+
+            and aggregate the uptime of each segment into `segment_uptimes`.
+
+            Currently always 1200 blocks, which is approximately 2 hours.
+
+            '
+        window_uptime:
+          type: integer
+          format: uint64
+          description: The number of blocks signed by the validator out of the last
+            window_length blocks.
+        segment_uptimes:
+          type: array
+          description: 'An array showing the signed block counts for each sub-segment
+            within window_length.
+
+            The segments are in reverse-chronological order; ie the first element
+            represents the most recent segment of blocks.
+
+            '
+          items:
+            type: integer
+            format: uint64
+    ValidatorSignedBlock:
+      type: object
+      required:
+      - height
+      - signed
+      properties:
+        height:
+          type: integer
+          format: int64
+          description: The block height.
+          example: 8048956
+        signed:
+          type: boolean
+          description: Whether the validator signed the block.
+      description: 'Information whether a block was signed by the validator.
+
+        '
+    Escrow:
+      type: object
+      properties:
+        active_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of tokens that are delegated to this validator account,
+            and are NOT in the process of debonding.
+        active_shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The shares of tokens that are delegated to this validator account,
+            and are NOT in the process of debonding.
+        debonding_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of tokens that are delegated to this validator account,
+            but are also in the process of debonding (i.e. they will be unstaked within
+            ~2 weeks).
+        debonding_shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The shares of tokens that are delegated to this validator account,
+            but are also in the process of debonding (i.e. they will be unstaked within
+            ~2 weeks).
+        self_delegation_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of token this validator has delegated to itself,
+            and are NOT in the process of debonding.
+        self_delegation_shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The shares of tokens this validator has delegated to itself,
+            and are NOT in the process of debonding.
+        active_balance_24:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The active_balance of this validator account 24 hours ago.
+        num_delegators:
+          type: integer
+          format: uint64
+          description: The number of accounts that have delegated token to this account.
+    ValidatorHistory:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - history
+        properties:
+          address:
+            type: string
+            description: The staking address of the validator.
+            example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+          history:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/ValidatorHistoryPoint'
+        description: Historical escrow balance data for a single address.
+    ValidatorHistoryPoint:
+      type: object
+      required:
+      - epoch
+      properties:
+        epoch:
+          type: integer
+          format: int64
+          description: The epoch number.
+          example: 13402
+        active_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The amount of tokens that were delegated to this validator
+            account,
+
+            at the start of this epoch, and are NOT in the process of debonding.
+
+            '
+        active_shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The shares of tokens that were delegated to this validator
+            account,
+
+            at the start of this epoch, and are NOT in the process of debonding.
+
+            '
+        debonding_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The amount of tokens that were delegated to this validator
+            account
+
+            at the start of this epoch, but are also in the process of debonding
+
+            (i.e. they will be unstaked within ~2 weeks).
+
+            '
+        debonding_shares:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The shares of tokens that were delegated to this validator
+            account
+
+            at the start of this epoch, but are also in the process of debonding
+
+            (i.e. they will be unstaked within ~2 weeks).
+
+            '
+        num_delegators:
+          type: integer
+          format: uint64
+          description: The number of accounts that have delegated token to this account.
+    NodeList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - entity_id
+        - nodes
+        properties:
+          entity_id:
+            x-go-name: EntityID
+            type: string
+          nodes:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Node'
+        description: 'A list of nodes registered at the consensus layer.
+
+          '
+    Node:
+      type: object
+      required:
+      - id
+      - entity_id
+      - expiration
+      - tls_pubkey
+      - tls_next_pubkey
+      - p2p_pubkey
+      - consensus_pubkey
+      - roles
+      properties:
+        id:
+          x-go-name: ID
+          type: string
+          description: The public key identifying this node.
+          example: lbxs4hlud9XNloIOdhJPaCahd7HtiY8QATCgGnFfCM0=
+        entity_id:
+          x-go-name: EntityID
+          type: string
+          description: 'The public key identifying the entity controlling this node.
+
+            '
+          example: gb8SHLeDc69Elk7OTfqhtVgE2sqxrBCDQI84xKR+Bjg=
+        expiration:
+          type: integer
+          format: int64
+          description: The epoch in which this node's commitment expires.
+        tls_pubkey:
+          x-go-name: TLSPubkey
+          type: string
+          description: The public key used for establishing TLS connections.
+        tls_next_pubkey:
+          x-go-name: TLSNextPubkey
+          type: string
+          description: 'The public key that will be used for establishing TLS connections
+
+            upon rotation.
+
+            '
+        p2p_pubkey:
+          x-go-name: P2PPubkey
+          type: string
+          description: The unique identifier of this node on the P2P transport.
+        consensus_pubkey:
+          type: string
+          description: The unique identifier of this node as a consensus member
+        roles:
+          type: string
+          description: A bitmask representing this node's roles.
+      description: 'A node registered at the consensus layer.
+
+        '
+    AccountList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - accounts
+        properties:
+          accounts:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Account'
+        description: 'A list of consensus layer accounts.
+
+          '
+    AddressDerivationContext:
+      type: string
+      enum:
+      - 'oasis-core/address: staking'
+      - 'oasis-runtime-sdk/address: secp256k1eth'
+      - 'oasis-runtime-sdk/address: sr25519'
+      - 'oasis-runtime-sdk/address: multisig'
+      - 'oasis-runtime-sdk/address: module'
+      - 'oasis-runtime-sdk/address: runtime'
+    AddressPreimage:
+      description: 'The data from which a consensus-style address (`oasis1...`)
+
+        was derived. Notably, for EVM runtimes like Sapphire,
+
+        this links the Oasis address and the Ethereum address.
+
+
+        Oasis addresses are derived from a piece of data, such as an ed25519
+
+        public key or an Ethereum address. For example, [this](https://github.com/oasisprotocol/oasis-sdk/blob/b37e6da699df331f5a2ac62793f8be099c68469c/client-sdk/go/helpers/address.go#L90-L91)
+
+        is how an Ethereum is converted to an Oasis address. The type of underlying
+        data usually also
+
+        determines how the signatures for this address are verified.
+
+
+        Consensus supports only "staking addresses" (`context="oasis-core/address:
+        staking"`
+
+        below; always ed25519-backed).
+
+        Runtimes support all types. This means that every consensus address is also
+
+        valid in every runtime. For example, in EVM runtimes, you can use staking
+
+        addresses, but only with Oasis tools (e.g. a wallet); EVM contracts such as
+
+        ERC20 tokens or tools such as Metamask cannot interact with staking addresses.
+
+        '
+      type: object
+      required:
+      - context
+      - address_data
+      properties:
+        context:
+          allOf:
+          - $ref: '#/components/schemas/AddressDerivationContext'
+          description: 'The method by which the Oasis address was derived from `address_data`.
+
+            '
+          example: 'oasis-runtime-sdk/address: secp256k1eth'
+        context_version:
+          type: integer
+          default: 0
+          description: Version of the `context`.
+        address_data:
+          type: string
+          format: byte
+          description: 'The base64-encoded data from which the Oasis address was derived.
+
+            When `context = "oasis-runtime-sdk/address: secp256k1eth"`, this
+
+            is the Ethereum address (in base64, not hex!).
+
+            '
+          example: INLp2Ih3YIdcA+zFNhM+SIGyFgKsYYc9SKQeKRKe2uI=
+    RuntimeSdkBalance:
+      description: Balance of an account for a specific runtime and oasis-sdk token
+        (e.g. ROSE).
+      type: object
+      required:
+      - balance
+      - token_symbol
+      - token_decimals
+      properties:
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: Number of tokens held, in base units.
+        token_symbol:
+          type: string
+          description: The token ticker symbol. Unique across all oasis-sdk tokens
+            in the same runtime.
+          example: ROSE
+        token_decimals:
+          type: integer
+          description: The number of decimals of precision for this token.
+          example: 18
+    RuntimeEvmBalance:
+      description: Balance of an account for a specific runtime and EVM token.
+      type: object
+      required:
+      - balance
+      - token_contract_addr
+      - token_contract_addr_eth
+      - token_decimals
+      - token_type
+      properties:
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: Number of tokens held, in base units.
+        token_contract_addr:
+          type: string
+          description: The Oasis address of this token's contract.
+          example: oasis1qzk5pr2x8ah04lgjee3lv06fmyvqvz45egjv4ps0
+        token_contract_addr_eth:
+          type: string
+          description: The EVM address of this token's contract.
+          example: '0xF8E3DE55D24D13607A12628E0A113B66BA578bDC'
+        token_symbol:
+          type: string
+          description: The token ticker symbol. Not guaranteed to be unique across
+            distinct EVM tokens.
+        token_name:
+          type: string
+          description: The name of the token. Not guaranteed to be unique across distinct
+            EVM tokens.
+        token_type:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenType'
+        token_decimals:
+          type: integer
+          description: The number of decimals of precision for this token.
+          example: 18
+    TokenHolderList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - holders
+        properties:
+          holders:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/BareTokenHolder'
+        description: 'A list of token holders for a specific (implied) runtime and
+          token.
+
+          '
+    BareTokenHolder:
+      description: 'Balance of an account for a specific (implied) runtime and token.
+
+        '
+      type: object
+      required:
+      - holder_address
+      - balance
+      properties:
+        holder_address:
+          type: string
+          description: The Oasis address of the account holder.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        eth_holder_address:
+          type: string
+          description: The Ethereum address of the same account holder, if meaningfully
+            defined.
+          example: 1236769886106935517602631440786362467726022846366
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: Number of tokens held, in base units.
+    Account:
+      type: object
+      required:
+      - address
+      - nonce
+      - available
+      - escrow
+      - debonding
+      - delegations_balance
+      - debonding_delegations_balance
+      - allowances
+      - stats
+      properties:
+        address:
+          type: string
+          description: The staking address for this account.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        nonce:
+          type: integer
+          format: int64
+          description: The expected nonce for the next transaction (= last used nonce
+            + 1)
+          example: 0
+        available:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The available balance, in base units.
+        escrow:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: Amount delegated to this validator, in base units.
+        debonding:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: Amount debonding from this validator, in base units.
+        delegations_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The balance of this accounts' (outgoing) delegations, in base
+            units.
+          example: 10000000000
+        debonding_delegations_balance:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The balance of this accounts' (outgoing) debonding delegations,
+            in base units.
+          example: 10000000000
+        first_activity:
+          type: string
+          format: date-time
+          description: 'The second-granular consensus time of the block in which this
+            account was first active.
+
+            Dates before Cobalt (2021-04-28) are approximate.
+
+            '
+          example: '2022-03-01T00:00:00Z'
+        allowances:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/Allowance'
+          description: 'The allowances made by this account.
+
+            This field is omitted when listing multiple accounts.
+
+            '
+        stats:
+          allOf:
+          - $ref: '#/components/schemas/AccountStats'
+        entity_node_for:
+          type: string
+          description: The entity address, if this account is a node belonging to
+            an entity. Only present when querying a single account.
+          example: oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+        entity:
+          type: string
+          description: The entity address, if this account *is* an entity. If present,
+            this address should match the queried address.
+          example: oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+      description: 'A consensus layer account.
+
+        '
+    Allowance:
+      type: object
+      required:
+      - address
+      - amount
+      properties:
+        address:
+          type: string
+          description: The allowed account.
+          example: oasis1qprtzrg97jk0wxnqkhxwyzy5qys47r7alvfl3fcg
+        amount:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The amount allowed for the allowed account.
+
+            This field is omitted when listing multiple accounts.
+
+            '
+    EpochList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - epochs
+        properties:
+          epochs:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Epoch'
+        description: 'A list of consensus epochs.
+
+          '
+    Epoch:
+      type: object
+      required:
+      - id
+      - start_height
+      properties:
+        id:
+          x-go-name: ID
+          type: integer
+          format: int64
+          description: The epoch number.
+          example: 13402
+        start_height:
+          type: integer
+          format: uint64
+          description: The (inclusive) height at which this epoch started.
+          example: 8048956
+        end_height:
+          type: integer
+          format: uint64
+          description: The (inclusive) height at which this epoch ended. Omitted if
+            the epoch is still active.
+          example: 8049555
+      description: 'A consensus epoch.
+
+        '
+    ProposalList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - proposals
+        properties:
+          proposals:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Proposal'
+        description: 'A list of governance proposals.
+
+          '
+    ProposalTarget:
+      type: object
+      properties:
+        consensus_protocol:
+          type: string
+        runtime_host_protocol:
+          type: string
+        runtime_committee_protocol:
+          type: string
+      description: The target protocol versions for this upgrade proposal.
+    ProposalState:
+      type: string
+      enum:
+      - active
+      - passed
+      - failed
+      - rejected
+      description: The state of the proposal.
+      example: active
+    Proposal:
+      type: object
+      required:
+      - id
+      - submitter
+      - state
+      - deposit
+      - created_at
+      - closes_at
+      - invalid_votes
+      properties:
+        id:
+          x-go-name: ID
+          type: integer
+          format: uint64
+          description: The unique identifier of the proposal.
+          example: 1
+        submitter:
+          type: string
+          description: The staking address of the proposal submitter.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        state:
+          allOf:
+          - $ref: '#/components/schemas/ProposalState'
+        deposit:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The deposit attached to this proposal.
+        title:
+          type: string
+          description: The (optional) title of the proposal.
+        description:
+          type: string
+          description: The (optional) description of the proposal.
+        handler:
+          type: string
+          description: The name of the upgrade handler.
+        target:
+          allOf:
+          - $ref: '#/components/schemas/ProposalTarget'
+        epoch:
+          type: integer
+          format: uint64
+          description: The epoch at which the proposed upgrade will happen.
+          example: 13402
+        cancels:
+          type: integer
+          format: int64
+          description: 'The proposal to cancel, if this proposal proposes
+
+            cancelling an existing proposal.
+
+            '
+        parameters_change_module:
+          type: string
+          description: 'The name of the module whose parameters are to be changed
+
+            by this ''parameters_change'' proposal.
+
+            '
+        parameters_change:
+          description: The parameters change proposal body. This spec does not encode
+            the many possible types; instead, see [the Go API](https://pkg.go.dev/github.com/oasisprotocol/oasis-core/go)
+            of oasis-core. This object will conform to one of the `ConsensusParameterChanges`
+            types, depending on the `parameters_change_module`.
+          example: '{"min_validators":null,"max_validators":"120","voting_power_distribution":null}'
+        created_at:
+          type: integer
+          format: int64
+          description: The epoch at which this proposal was created.
+          example: 13402
+        closes_at:
+          type: integer
+          format: int64
+          description: The epoch at which voting for this proposal will close.
+          example: 13403
+        invalid_votes:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The number of invalid votes for this proposal, after tallying.
+
+            '
+      description: 'A governance proposal.
+
+        '
+    ProposalVotes:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - proposal_id
+        - votes
+        properties:
+          proposal_id:
+            x-go-name: ProposalID
+            type: integer
+            format: uint64
+            description: The unique identifier of the proposal.
+          votes:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/ProposalVote'
+            description: The list of votes for the proposal.
+        description: 'A list of votes for a governance proposal.
+
+          '
+    ProposalVote:
+      type: object
+      required:
+      - address
+      - vote
+      properties:
+        address:
+          type: string
+          description: The staking address casting this vote.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        vote:
+          type: string
+          description: The vote cast.
+          example: 'yes'
+        height:
+          type: integer
+          format: int64
+          description: The block height at which this vote was recorded.
+          example: 8048956
+        timestamp:
+          type: string
+          format: date-time
+          description: The second-granular consensus time of the block in which this
+            vote was cast.
+          example: '2022-03-01T00:00:00Z'
+    RuntimeBlockList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - blocks
+        properties:
+          blocks:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RuntimeBlock'
+        description: 'A list of consensus blocks.
+
+          '
+    RuntimeBlock:
+      type: object
+      required:
+      - round
+      - hash
+      - timestamp
+      - num_transactions
+      - size
+      - gas_used
+      properties:
+        round:
+          type: integer
+          format: int64
+          description: The block round.
+          example: 3283246
+        hash:
+          type: string
+          description: The block header hash.
+          example: 21c243cd34bedfc234f1b45615d10a868f0655f59578f063a7d2fc8c6e5b4009
+        timestamp:
+          type: string
+          format: date-time
+          description: The second-granular consensus time.
+          example: '2022-10-15T00:05:34Z'
+        num_transactions:
+          type: integer
+          format: int32
+          description: The number of transactions in the block.
+          example: 1
+        size:
+          type: integer
+          format: int32
+          description: The total byte size of all transactions in the block.
+          example: 203
+        gas_used:
+          type: integer
+          format: int64
+          description: The total gas used by all transactions in the block.
+          example: 118597
+        min_gas_price:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The minimum gas price for the block, in base units.
+      description: 'A ParaTime block.
+
+        '
+    RuntimeEventList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - events
+        properties:
+          events:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RuntimeEvent'
+        description: 'A list of runtime events.
+
+          '
+    RuntimeEvent:
+      type: object
+      required:
+      - round
+      - timestamp
+      - type
+      - body
+      properties:
+        round:
+          type: integer
+          format: int64
+          description: The block height at which this event was generated.
+          example: 3283246
+        tx_index:
+          type: integer
+          format: int32
+          description: '0-based index of this event''s originating transaction within
+            its block.
+
+            Absent if the event did not originate from a transaction.
+
+            '
+        tx_hash:
+          type: string
+          description: 'Hash of this event''s originating transaction.
+
+            Absent if the event did not originate from a transaction.
+
+            '
+          example: 0d0531d6b8a468c07440182b1cdda517f5a076d69fb2199126a83082ecfc0f41
+        eth_tx_hash:
+          type: string
+          description: 'Ethereum transaction hash of this event''s originating transaction.
+
+            Absent if the event did not originate from an EVM transaction.
+
+            '
+        timestamp:
+          type: string
+          format: date-time
+          description: 'The second-granular consensus time of this event''s block.
+
+            '
+          example: '2022-03-01T00:00:00Z'
+        type:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeEventType'
+          description: The type of the event.
+        body:
+          type: object
+          description: 'The decoded event contents, possibly augmented with additional
+            address info.
+
+            This spec does not encode the many possible types; instead, see [the Go
+            API](https://pkg.go.dev/github.com/oasisprotocol/oasis-sdk/client-sdk/go/modules).
+
+            This object will conform to one of the `*Event` types two levels down
+
+            the hierarchy (e.g. `MintEvent` from `accounts > Event > MintEvent`),
+
+            OR `evm > Event`. For object fields that specify an oasis-style address,
+            Nexus
+
+            will add a field specifying the corresponding Ethereum address, if known.
+            Currently,
+
+            the only such possible fields are `from_eth`, `to_eth`, and `owner_eth`.
+
+            '
+        evm_log_name:
+          type: string
+          description: 'If the event type is `evm.log`, this field describes the human-readable
+            type of
+
+            evm event, e.g. `Transfer`.
+
+            Absent if the event type is not `evm.log`.
+
+            '
+          example: Transfer
+        evm_log_params:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvmAbiParam'
+          description: 'The decoded `evm.log` event data.
+
+            Absent if the event type is not `evm.log`.
+
+            '
+        evm_token:
+          allOf:
+          - $ref: '#/components/schemas/EvmEventToken'
+      description: An event emitted by the runtime layer
+    RuntimeEventType:
+      type: string
+      enum:
+      - accounts.transfer
+      - accounts.burn
+      - accounts.mint
+      - consensus_accounts.deposit
+      - consensus_accounts.withdraw
+      - consensus_accounts.delegate
+      - consensus_accounts.undelegate_start
+      - consensus_accounts.undelegate_done
+      - core.gas_used
+      - evm.log
+      - rofl.app_created
+      - rofl.app_updated
+      - rofl.app_removed
+      - rofl.instance_registered
+      - roflmarket.provider_created
+      - roflmarket.provider_updated
+      - roflmarket.provider_removed
+      - roflmarket.instance_created
+      - roflmarket.instance_updated
+      - roflmarket.instance_accepted
+      - roflmarket.instance_cancelled
+      - roflmarket.instance_removed
+      - roflmarket.instance_command_queued
+      example: consensus_accounts.deposit
+    EvmAbiParam:
+      type: object
+      required:
+      - name
+      - evm_type
+      - value
+      properties:
+        name:
+          type: string
+          description: The parameter name.
+        evm_type:
+          type: string
+          description: The solidity type of the parameter.
+        value:
+          description: The parameter value.
+      description: 'A decoded parameter of an event or error emitted from an EVM runtime.
+
+        Values of EVM type `int128`, `uint128`, `int256`, `uint256`, `fixed`, and
+        `ufixed` are represented as strings.
+
+        Values of EVM type `address` and `address payable` are represented as lowercase
+        hex strings with a "0x" prefix.
+
+        Values of EVM type `bytes` and `bytes<N>` are represented as base64 strings.
+
+        Values of other EVM types (integer types, strings, arrays, etc.) are represented
+        as their JSON counterpart.
+
+        '
+    EvmEventToken:
+      type: object
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenType'
+        symbol:
+          type: string
+          description: Symbol of the token, as provided by token contract's `symbol()`
+            method.
+          example: USDT
+        decimals:
+          type: integer
+          description: 'The number of least significant digits in base units that
+            should be displayed as
+
+            decimals when displaying tokens. `tokens = base_units / (10**decimals)`.
+
+            Affects display only. Often equals 18, to match ETH.
+
+            '
+          example: 18
+      description: 'Details about the EVM token involved in the event, if any.
+
+        '
+    RuntimeEvmContract:
+      type: object
+      required:
+      - gas_used
+      properties:
+        creation_tx:
+          type: string
+          description: 'The Oasis cryptographic hash of the transaction that created
+            the smart contract.
+
+            Can be omitted for contracts that were created by another contract, as
+            opposed
+
+            to a direct `Create` call.
+
+            '
+        eth_creation_tx:
+          type: string
+          description: 'The Ethereum transaction hash of the transaction in `creation_tx`.
+
+            Encoded as a lowercase hex string.
+
+            '
+          example: dc19a122e268128b5ee20366299fc7b5b199c8e3
+        creation_bytecode:
+          type: string
+          format: byte
+          description: 'The creation bytecode of the smart contract. This includes
+            the constructor logic
+
+            and the constructor parameters. When run, this code generates the runtime
+            bytecode.
+
+            Can be omitted for contracts that were created by another contract, as
+            opposed
+
+            to a direct `Create` call.
+
+            '
+        runtime_bytecode:
+          type: string
+          format: byte
+          description: 'The runtime bytecode of the smart contract. This is the code
+            stored on-chain that
+
+            describes a smart contract. Every contract has this info, but Nexus fetches
+
+            it separately, so the field may be missing for very fresh contracts (or
+            if the fetching
+
+            process is stalled).
+
+            '
+        gas_used:
+          description: The total amount of gas used to create or call this contract.
+          type: integer
+          format: uint64
+          example: 153852
+        verification:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeEvmContractVerification'
+          description: 'Additional information obtained from contract verification.
+            Only available for smart
+
+            contracts that have been verified successfully by Sourcify.
+
+            '
+    VerificationLevel:
+      type: string
+      enum:
+      - partial
+      - full
+      description: 'The level of verification of a smart contract, as defined by Sourcify.
+
+        An absence of this field means that the contract has not been verified.
+
+        See also https://docs.sourcify.dev/docs/full-vs-partial-match/
+
+        '
+    RuntimeEvmContractVerification:
+      type: object
+      properties:
+        verification_level:
+          allOf:
+          - $ref: '#/components/schemas/VerificationLevel'
+        compilation_metadata:
+          type: object
+          description: 'The smart contract''s [metadata.json](https://docs.soliditylang.org/en/latest/metadata.html)
+            file in JSON format as defined by Solidity.
+
+            Includes the smart contract''s [ABI](https://docs.soliditylang.org/en/develop/abi-spec.html).
+
+            '
+        source_files:
+          type: array
+          items:
+            type: object
+          description: 'Array of all contract source files, in JSON format as returned
+            by [Sourcify](https://sourcify.dev/server/api-docs/#/Repository/get_files_any__chain___address_).
+
+            '
+    RuntimeTransactionList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - transactions
+        properties:
+          transactions:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RuntimeTransaction'
+        description: 'A list of runtime transactions.
+
+          '
+    RuntimeTransaction:
+      type: object
+      required:
+      - round
+      - index
+      - timestamp
+      - hash
+      - signers
+      - sender_0
+      - nonce_0
+      - fee
+      - fee_symbol
+      - charged_fee
+      - gas_limit
+      - gas_used
+      - size
+      - raw_result
+      - is_likely_native_token_transfer
+      properties:
+        round:
+          type: integer
+          format: int64
+          description: The block round at which this transaction was executed.
+          example: 3379702
+        index:
+          type: integer
+          format: int64
+          description: The 0-based index of this transaction in the block.
+          example: 0
+        timestamp:
+          type: string
+          format: date-time
+          description: The second-granular consensus time when this tx's block was
+            proposed.
+          example: '2022-10-15T00:05:34Z'
+        hash:
+          type: string
+          description: The Oasis cryptographic hash of this transaction's encoding.
+          example: 8394f682150e5f62b02f197d16b4769d032cb1c1b7a6dcf853ba1b12626e080b
+        eth_hash:
+          type: string
+          description: 'The Ethereum cryptographic hash of this transaction''s encoding.
+
+            Absent for non-Ethereum-format transactions.
+
+            '
+          example: 9e6a5837c6366d4a7e477c71ffe32d40915cdef7ef209792259e5ee70caf2705
+        signers:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RuntimeTransactionSigner'
+          description: The signers of this transaction.
+        sender_0:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          deprecated: true
+          description: 'The Oasis address of this transaction''s 0th signer.
+
+            Unlike Ethereum, Oasis natively supports multiple-signature transactions.
+
+            However, the great majority of transactions only have a single signer
+            in practice.
+
+            DEPRECATED: This field will be removed in the future in favor of the signers
+            field.
+
+            '
+          example: oasis1qz670t637yyxshnlxhjj5074wgwl94d0x5x69zqd
+        sender_0_eth:
+          type: string
+          deprecated: true
+          description: 'The Ethereum address of this transaction''s 0th signer.
+
+            DEPRECATED: This field will be removed in the future in favor of the signers
+            field.
+
+            '
+          example: 1236769886106935517602631440786362467726022846366
+        nonce_0:
+          type: integer
+          format: uint64
+          deprecated: true
+          description: 'The nonce used with this transaction''s 0th signer, to prevent
+            replay.
+
+            DEPRECATED: This field will be removed in the future in favor of the signers
+            field.
+
+            '
+          example: 114194
+        fee:
+          type: string
+          description: 'The fee that this transaction''s sender committed to pay to
+            execute
+
+            it (total ParaTime base units, as a string).
+
+            '
+          example: '3000000000000000'
+        fee_symbol:
+          type: string
+          description: 'The denomination of the fee.
+
+            '
+        fee_proxy_module:
+          type: string
+          description: 'The module of the fee proxy.
+
+            '
+        fee_proxy_id:
+          type: string
+          format: byte
+          description: 'the base64-encoded id of the fee proxy.
+
+            '
+        gas_limit:
+          type: integer
+          format: uint64
+          description: 'The maximum gas that this transaction''s sender committed
+            to use to
+
+            execute it.
+
+            '
+          example: 30000
+        gas_used:
+          type: integer
+          format: uint64
+          description: The total gas used by the transaction.
+        charged_fee:
+          type: string
+          description: 'The fee that was charged for the transaction execution (total,
+            native denomination,
+
+            ParaTime base units, as a string).
+
+            For EVM transactions this is calculated as `gas_price * gas_used`, where
+            `gas_price = fee / gas_limit`, for compatibility with Ethereum.
+
+            For other transactions this equals to `fee`.
+
+            '
+        size:
+          type: integer
+          format: int32
+          description: The total byte size of the transaction.
+        raw_result:
+          type: string
+          format: byte
+          description: 'The raw result of the transaction execution, as returned by
+            the runtime.
+
+            This is a base64-encoded byte array. The meaning of this field depends
+            on the transaction type.
+
+            '
+        oasis_encryption_envelope:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeTransactionEncryptionEnvelope'
+          description: 'The data relevant to the Oasis-style encrypted transaction.
+
+            Note: The term "envelope" in this context refers to the [Oasis-style encryption
+            envelopes](https://github.com/oasisprotocol/oasis-sdk/blob/c36a7ee194abf4ca28fdac0edbefe3843b39bf69/runtime-sdk/src/types/callformat.rs)
+
+            which differ slightly from [digital envelopes](https://en.wikipedia.org/wiki/Hybrid_cryptosystem#Envelope_encryption).
+
+            '
+        method:
+          type: string
+          description: "The method that was called. Defined by the runtime. In theory,\
+            \ this could be any string as the runtimes evolve.\nIn practice, Nexus\
+            \ currently expects only the following methods:\n  - \"accounts.Transfer\"\
+            \n  - \"consensus.Deposit\"\n  - \"consensus.Withdraw\"\n  - \"consensus.Delegate\"\
+            \n  - \"consensus.Undelegate\"\n  - \"evm.Create\"\n  - \"evm.Call\"\n\
+            \  - \"rofl.Create\"\n  - \"rofl.Update\"\n  - \"rofl.Remove\"\n  - \"\
+            rofl.Register\"\n  - \"roflmarket.ProviderCreate\"\n  - \"roflmarket.ProviderUpdate\"\
+            \n  - \"roflmarket.ProviderUpdateOffers\"\n  - \"roflmarket.ProviderRemove\"\
+            \n  - \"roflmarket.InstanceCreate\"\n  - \"roflmarket.InstanceTopUp\"\n\
+            \  - \"roflmarket.InstanceCancel\"\n  - \"roflmarket.InstanceExecuteCmds\"\
+            \n  - \"roflmarket.InstanceChangeAdmin\"\nMay be null if the transaction\
+            \ was malformed or encrypted.\n"
+          example: evm.Call
+        body:
+          type: object
+          description: The method call body. May be null if the transaction was malformed.
+          example:
+            address: t1mAPucIdVnrYBpJOcLV2nZoOFo=
+            data: RBo+cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+            value: ''
+        is_likely_native_token_transfer:
+          type: boolean
+          description: "Whether this transaction likely represents a native token\
+            \ transfer.\nThis is based on a heuristic, and can change at any time\
+            \ without warning and possibly without updating the documentation.\nThe\
+            \ current heuristic sets this to `true` for:\n - Transactions with method\
+            \ \"accounts.Transfer\". Those are always native token transfers.\n -\
+            \ Transactions with method \"evm.Call\" that have no `data` field in their\
+            \ `body`. Those tend to be transfers, but the runtimes provides no reliable\
+            \ visibility into whether a transfer happened.\nNote: Other transactions\
+            \ with method \"evm.Call\", and possibly \"evm.Create\", may also be (or\
+            \ include) native token transfers. The heuristic will be `false` for those.\n"
+          example: true
+        to:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          description: "A reasonable \"to\" Oasis address associated with this transaction,\n\
+            if applicable. The meaning varies based on the transaction method. Some\
+            \ notable examples:\n  - For `method = \"accounts.Transfer\"`, this is\
+            \ the paratime account receiving the funds.\n  - For `method = \"consensus.Deposit\"\
+            `, this is the paratime account receiving the funds.\n  - For `method\
+            \ = \"consensus.Withdraw\"`, this is the consensus (!) account receiving\
+            \ the funds.\n  - For `method = \"consensus.Delegate\"`, this is the consensus\
+            \ (!) account receiving the funds.\n  - For `method = \"consensus.Undelegate\"\
+            `, this is the consensus (!) account to which funds were previously delegated.\
+            \ Note that this corresponds with the `.from` field in the transaction\
+            \ body.\n  - For `method = \"evm.Create\"`, this is the address of the\
+            \ newly created smart contract.\n  - For `method = \"evm.Call\"`, this\
+            \ is the address of the called smart contract\n"
+          example: oasis1qq6ulxmcagnp5nr56ylva7nhmwnxtf0krumg9dkq
+        to_eth:
+          type: string
+          description: 'A reasonable "to" Ethereum address associated with this transaction,
+
+            '
+          example: 1236769886106935517602631440786362467726022846366
+        amount:
+          type: string
+          description: 'A reasonable "amount" associated with this transaction, if
+
+            applicable. The meaning varies based on the transaction method.
+
+            Usually in native denomination, ParaTime units. As a string.
+
+            '
+          example: '100000001666393459'
+        amount_symbol:
+          type: string
+          description: 'The denomination of the "amount" associated with this transaction,
+            if applicable.
+
+            '
+          example: ROSE
+        encryption_envelope:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeTransactionEncryptionEnvelope'
+          description: 'The data relevant to the EVM encrypted transaction. Only present
+            for encrypted
+
+            transactions in confidential EVM runtimes like Sapphire.
+
+            Note: The term "envelope" in this context refers to the [Oasis-style encryption
+            envelopes](https://github.com/oasisprotocol/oasis-sdk/blob/c36a7ee194abf4ca28fdac0edbefe3843b39bf69/runtime-sdk/src/types/callformat.rs)
+
+            which differ slightly from [digital envelopes](https://en.wikipedia.org/wiki/Hybrid_cryptosystem#Envelope_encryption).
+
+            '
+        success:
+          type: boolean
+          description: 'Whether this transaction successfully executed.
+
+            Is absent in multi-step runtime transactions (`consensus.Deposit`, `consensus.Withdraw`,
+
+            `consensus.Delegate`, and `consensus.Undelegate`) until the second step
+            is completed.
+
+            Can be absent (meaning "unknown") for confidential runtimes.
+
+            '
+        evm_fn_name:
+          type: string
+          description: 'The name of the smart contract function called by the transaction.
+
+            Only present for `evm.log` transaction calls to contracts that have been
+            verified.
+
+            '
+          example: acceptTaskResults
+        evm_fn_params:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/EvmAbiParam'
+          description: 'The decoded parameters with which the smart contract function
+            was called.
+
+            Only present for `evm.log` transaction calls to contracts that have been
+            verified.
+
+            '
+        error:
+          allOf:
+          - $ref: '#/components/schemas/TxError'
+          description: Error details of a failed transaction.
+      description: 'A runtime transaction.
+
+        '
+    RuntimeTransactionEncryptionEnvelope:
+      type: object
+      required:
+      - format
+      properties:
+        format:
+          allOf:
+          - $ref: '#/components/schemas/CallFormat'
+          description: The format of the encrypted evm transaction envelope.
+        public_key:
+          type: string
+          format: byte
+          description: The base64-encoded public key used to encrypt the transaction.
+        data_nonce:
+          type: string
+          format: byte
+          description: The base64-encoded nonce used to encrypt the transaction data.
+        data:
+          type: string
+          format: byte
+          description: The base64-encoded encrypted transaction data.
+        result_nonce:
+          type: string
+          format: byte
+          description: The base64-encoded nonce used to encrypt the transaction results.
+        result:
+          type: string
+          format: byte
+          description: The base64-encoded encrypted result data.
+    RuntimeTransactionSigner:
+      type: object
+      required:
+      - address
+      - nonce
+      properties:
+        address:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          description: 'The Oasis address of the transaction signer.
+
+            '
+          example: oasis1qz670t637yyxshnlxhjj5074wgwl94d0x5x69zqd
+        address_eth:
+          type: string
+          description: 'The Ethereum address of this transaction signer.
+
+            '
+          example: 1236769886106935517602631440786362467726022846366
+        nonce:
+          type: integer
+          format: uint64
+          description: The transaction signer nonce.
+          example: 114194
+    RuntimeAccount:
+      type: object
+      required:
+      - address
+      - nonce
+      - balances
+      - evm_balances
+      - stats
+      properties:
+        address:
+          type: string
+          description: The staking address for this account.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        nonce:
+          type: integer
+          format: int64
+          description: The expected nonce for the next transaction (= last used nonce
+            + 1)
+          example: 0
+        address_preimage:
+          allOf:
+          - $ref: '#/components/schemas/AddressPreimage'
+        balances:
+          description: 'The balance(s) of this account in this runtime. Most runtimes
+            use only one denomination, and thus
+
+            produce only one balance here. These balances do not include "layer (n+1)
+            tokens", i.e. tokens
+
+            managed by smart contracts deployed in this runtime. For example, in EVM-compatible
+            runtimes,
+
+            this does not include ERC-20 tokens
+
+            '
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RuntimeSdkBalance'
+        evm_contract:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeEvmContract'
+          description: 'Data on the EVM smart contract associated with this account
+            address. Only present for accounts
+
+            that represent a smart contract on EVM.
+
+            '
+        evm_balances:
+          description: 'The balances of this account in each runtime, as managed by
+            EVM smart contracts (notably, ERC-20).
+
+            NOTE: This field is limited to 1000 entries. If you need more, please
+            let us know in a GitHub issue.
+
+            '
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RuntimeEvmBalance'
+        stats:
+          allOf:
+          - $ref: '#/components/schemas/AccountStats'
+    RuntimeStatus:
+      type: object
+      required:
+      - active_nodes
+      - latest_block
+      - latest_block_time
+      - latest_update_age_ms
+      properties:
+        active_nodes:
+          type: integer
+          description: The number of compute nodes that are registered and can run
+            the runtime.
+          example: 42
+        latest_block:
+          type: integer
+          format: int64
+          description: The height of the most recent indexed block (also sometimes
+            referred to as "round") for this runtime. Query a synced Oasis node for
+            the latest block produced.
+          example: 8048956
+        latest_block_time:
+          type: string
+          format: date-time
+          description: The RFC 3339 formatted consensus time of when the latest indexed
+            block for this runtime was produced.
+          example: '2019-04-01T00:00:00Z'
+        latest_update_age_ms:
+          type: integer
+          format: int64
+          description: The number of milliseconds since Nexus processed the latest
+            block.
+          example: 352
+    EvmTokenType:
+      type: string
+      enum:
+      - ERC20
+      - ERC721
+      description: 'The type of a EVM token.
+
+        '
+    EvmTokenList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - evm_tokens
+        properties:
+          evm_tokens:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/EvmToken'
+            description: A list of L2 EVM tokens (ERC-20, ERC-721, ...).
+        description: A list of tokens in a runtime.
+    EvmToken:
+      type: object
+      required:
+      - contract_addr
+      - eth_contract_addr
+      - type
+      - is_verified
+      properties:
+        contract_addr:
+          type: string
+          description: The Oasis address of this token's contract.
+          example: oasis1qp2hssandc7dekjdr6ygmtzt783k3gn38uupdeys
+        eth_contract_addr:
+          type: string
+          description: The Ethereum address of this token's contract.
+          example: 1236769886106935517602631440786362467726022846366
+        name:
+          type: string
+          description: Name of the token, as provided by token contract's `name()`
+            method.
+          example: Uniswap
+        symbol:
+          type: string
+          description: Symbol of the token, as provided by token contract's `symbol()`
+            method.
+          example: USDT
+        decimals:
+          type: integer
+          description: 'The number of least significant digits in base units that
+            should be displayed as
+
+            decimals when displaying tokens. `tokens = base_units / (10**decimals)`.
+
+            Affects display only. Often equals 18, to match ETH.
+
+            '
+          example: 18
+        type:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenType'
+          description: 'The heuristically determined interface that the token contract
+            implements.
+
+            A less specialized variant of the token might be detected; for example,
+            an
+
+            ERC-1363 token might be labeled as ERC-20 here. If the type cannot be
+
+            detected or is not supported, this field will be null/absent.
+
+            '
+        total_supply:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The total number of base units available.
+        neby_derived_price:
+          allOf:
+          - $ref: '#/components/schemas/TextBigDecimal'
+          description: 'The estimated price of one base unit of this token, expressed
+            in the native denomination of the runtime.
+
+
+            This value is sourced from the Neby GraphQL API and reflects the token''s
+            `derivedETH` price as computed by the subgraph indexing the Neby DEX.
+
+            It is available only for tokens listed and tradable on the Neby exchange.
+
+
+            May be zero if the subgraph could not determine a valid price route to
+            the native token unit.
+
+            '
+        num_transfers:
+          type: integer
+          format: int64
+          description: 'The total number of transfers of this token.
+
+
+            May be omitted if the number of transfers cannot be known (e.g. private
+            ERC20 tokens such as BitUSD).
+
+            '
+        num_holders:
+          type: integer
+          format: int64
+          description: 'The number of addresses that have a nonzero balance of this
+            token.
+
+
+            May be omited if the number of holders cannot be known (e.g. private ERC20
+            tokens such as BitUSD).
+
+            '
+          example: 123
+        ref_swap:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenSwap'
+          description: 'Information about a swap contract between this token and a
+
+            reference token. The relative price and relative total value of
+
+            this token are estimated based on this swap contract.
+
+            '
+        ref_token:
+          allOf:
+          - $ref: '#/components/schemas/EvmRefToken'
+          description: 'Information about the reference token. The relative price
+            and
+
+            relative total value are expressed in this reference token''s base
+
+            unit.
+
+            '
+        relative_token_address:
+          type: string
+          description: 'The relative price and relative total value are expressed
+            in this
+
+            reference token''s base unit.
+
+            '
+        relative_price:
+          type: number
+          format: double
+          description: 'The relative price of one base unit of this token is this
+            many of
+
+            the relative token''s base unit.
+
+            '
+        relative_total_value:
+          type: number
+          format: double
+          description: 'The relative price of this token multiplied by this token''s
+            total
+
+            supply, in the relative token''s base unit.
+
+            '
+        is_verified:
+          deprecated: true
+          type: boolean
+          description: 'Whether the contract has been successfully verified by Sourcify.
+
+            Additional information on verified contracts is available via
+
+            the `/{runtime}/accounts/{address}` endpoint.
+
+            DEPRECATED: This field will be removed in the future in favor of verification_level
+
+            '
+          example: false
+        verification_level:
+          allOf:
+          - $ref: '#/components/schemas/VerificationLevel'
+    EvmTokenSwap:
+      type: object
+      required:
+      - pair_address
+      properties:
+        pair_address:
+          type: string
+          description: 'The Oasis address of the swap pair contract.
+
+            '
+        pair_address_eth:
+          type: string
+          description: 'The Ethereum-compatible address of the swap pair contract.
+
+            '
+        factory_address:
+          type: string
+          description: 'The Oasis address of the swap factory contract.
+
+            '
+        factory_address_eth:
+          type: string
+          description: 'The Ethereum-compatible address of the swap factory contract.
+
+            '
+        token0_address:
+          type: string
+          description: 'The Oasis address of the first token in this swap.
+
+            '
+        token0_address_eth:
+          type: string
+          description: 'The Ethereum-compatible address of the first token in this
+            swap
+
+            '
+        token1_address:
+          type: string
+          description: 'The Oasis address of the second token in this swap.
+
+            '
+        token1_address_eth:
+          type: string
+          description: 'The Ethereum-compatible address of the second token in this
+            swap.
+
+            '
+        create_round:
+          type: integer
+          format: int64
+          description: 'The round when this swap pair was created.
+
+            '
+        reserve0:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The swap''s liquidity pool of the first token, in that token''s
+            base units.
+
+            '
+        reserve1:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The swap''s liquidity pool of the second token, in that token''s
+            base units.
+
+            '
+        last_sync_round:
+          type: integer
+          format: int64
+          description: 'The round when this swap pair last updated its reserves.
+
+            '
+    EvmRefToken:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/EvmTokenType'
+          description: 'The heuristically determined interface that the token contract
+            implements.
+
+            A less specialized variant of the token might be detected; for example,
+            an
+
+            ERC-1363 token might be labeled as ERC-20 here. If the type cannot be
+
+            detected or is not supported, this field will be null/absent.
+
+            '
+        name:
+          type: string
+          description: Name of the token, as provided by token contract's `name()`
+            method.
+          example: Wrapped ROSE
+        symbol:
+          type: string
+          description: Symbol of the token, as provided by token contract's `symbol()`
+            method.
+          example: wROSE
+        decimals:
+          type: integer
+          description: 'The number of least significant digits in base units that
+            should be displayed as
+
+            decimals when displaying tokens. `tokens = base_units / (10**decimals)`.
+
+            Affects display only. Often equals 18, to match ETH.
+
+            '
+          example: 18
+    EvmNftList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - evm_nfts
+        properties:
+          evm_nfts:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/EvmNft'
+            description: A list of L2 EVM NFT (ERC-721, ...) instances.
+        description: A list of NFT instances.
+    EvmNft:
+      type: object
+      required:
+      - token
+      - id
+      properties:
+        token:
+          allOf:
+          - $ref: '#/components/schemas/EvmToken'
+        id:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The instance ID of this NFT within the collection represented
+            by `token`.
+        owner:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          description: The Oasis address of this NFT instance's owner.
+          example: oasis1qpclnnm0wu44pn43mt6vv3me59kl8zk9ty7qyj03
+        owner_eth:
+          type: string
+          description: The Ethereum address of this NFT instance's owner.
+          example: '0xDEF1009df2d6872C214cd9148c6883893B7c4D91'
+        num_transfers:
+          type: integer
+          format: int64
+          description: 'The total number of transfers of this NFT instance.
+
+            '
+        metadata_uri:
+          type: string
+        metadata_accessed:
+          type: string
+        metadata:
+          description: 'A metadata document for this NFT instance.
+
+            Currently only ERC-721 is supported, where the document is an Asset Metadata
+            from the ERC721 Metadata JSON Schema.
+
+            '
+        name:
+          type: string
+          description: Identifies the asset which this NFT represents
+        description:
+          type: string
+          description: Describes the asset which this NFT represents
+        image:
+          type: string
+          description: 'A URI pointing to a resource with mime type image/* representing
+
+            the asset which this NFT represents. (Additional
+
+            non-descriptive text from ERC-721 omitted.)
+
+            '
+    AccountStats:
+      type: object
+      required:
+      - num_txns
+      properties:
+        total_sent:
+          deprecated: true
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The total amount of native tokens sent, in base units.
+
+            DEPRECATED: This field might be inaccurate. Nexus is currently not able
+            to track
+
+            certain actions which subtract/add tokens.
+
+            '
+        total_received:
+          deprecated: true
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: 'The total amount of native tokens received, in base units.
+
+            DEPRECATED: This field might be inaccurate. Nexus is currently not able
+            to track
+
+            certain actions which subtract/add tokens.
+
+            '
+        num_txns:
+          description: The total number of transactions this account was involved
+            with.
+          type: integer
+          format: uint64
+          example: 4184
+    TxVolumeList:
+      type: object
+      required:
+      - window_size_seconds
+      - windows
+      properties:
+        window_size_seconds:
+          type: integer
+          format: uint32
+        windows:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/TxVolume'
+          description: The list of daily transaction volumes.
+      description: 'A list of daily transaction volumes.
+
+        '
+    TxVolume:
+      type: object
+      required:
+      - window_end
+      - tx_volume
+      properties:
+        window_end:
+          type: string
+          format: date-time
+          description: The end timestamp for this daily transaction volume measurement.
+          example: '2022-03-01T00:00:00Z'
+        tx_volume:
+          type: integer
+          format: uint64
+          description: The transaction volume for this window.
+          example: 420
+    ActiveAccountsList:
+      type: object
+      required:
+      - window_size_seconds
+      - windows
+      properties:
+        window_size_seconds:
+          type: integer
+          format: uint32
+        windows:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ActiveAccounts'
+          description: The list of daily unique active account windows.
+      description: 'A list of daily unique active account windows.
+
+        '
+    ActiveAccounts:
+      type: object
+      required:
+      - window_end
+      - active_accounts
+      properties:
+        window_end:
+          type: string
+          format: date-time
+          description: The date for the end of the daily active accounts measurement
+            window.
+          example: '2022-03-01T00:00:00Z'
+        active_accounts:
+          type: integer
+          format: uint64
+          description: The number of active accounts for the 24hour window ending
+            at window_end.
+          example: 420
+    RoflAppList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - rofl_apps
+        properties:
+          rofl_apps:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoflApp'
+        description: 'A list of ROFL apps.
+
+          '
+    RoflApp:
+      type: object
+      required:
+      - id
+      - admin
+      - stake
+      - policy
+      - sek
+      - metadata
+      - secrets
+      - removed
+      - date_created
+      - last_activity
+      - active_instances
+      - num_active_instances
+      properties:
+        id:
+          type: string
+          description: The identifier of the ROFL application.
+        admin:
+          type: string
+          description: The application administrator address.
+          example: oasis1qpg2xuz46g53737343r20yxeddhlvc2ldqsjh70p
+        admin_eth:
+          type: string
+          description: The Ethereum address of the application administrator (only
+            provided if known).
+          example: 1236769886106935517602631440786362467726022846366
+        stake:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount of stake in escrow by the administrator.
+        policy:
+          type: object
+          description: The application authentication policy.
+        sek:
+          type: string
+          description: The secrets encryption public key.
+        metadata:
+          type: object
+          description: Arbitrary key-value pairs.
+        secrets:
+          type: object
+          description: Arbitrary SEK-encrypted key-value pairs.
+        removed:
+          type: boolean
+          description: Whether the application has been removed.
+        date_created:
+          type: string
+          format: date-time
+          description: The date and time when the application was created.
+          example: '2022-03-01T00:00:00Z'
+        last_activity:
+          type: string
+          format: date-time
+          description: The date and time when the application was last active.
+          example: '2022-03-01T00:00:00Z'
+        last_activity_tx:
+          allOf:
+          - $ref: '#/components/schemas/RuntimeTransaction'
+          description: 'The most recent transaction associated with this ROFL app.
+
+            This field is only present when querying a single ROFL app.
+
+            '
+        num_active_instances:
+          type: integer
+          format: uint64
+          description: The number of currently active instances of the application.
+        active_instances:
+          type: array
+          description: 'Registered application instances. Only active instances are
+            returned.
+
+            Use the `{runtime}/rofl_apps/{id}/instances` endpoint to retrieve all
+            instances.
+
+            '
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RoflInstance'
+    RoflInstance:
+      type: object
+      required:
+      - rak
+      - endorsing_node_id
+      - rek
+      - expiration_epoch
+      - extra_keys
+      properties:
+        rak:
+          type: string
+          description: The runtime attestation public key (Ed25519).
+        rek:
+          type: string
+          description: The runtime encryption public key (x25519).
+        endorsing_node_id:
+          type: string
+          description: The identifier of the endorsing node.
+        endorsing_entity_id:
+          type: string
+          description: The optional identifier of the endorsing entity.
+        expiration_epoch:
+          type: integer
+          format: uint64
+          description: The epoch at which the instance expires.
+        metadata:
+          type: object
+          description: Arbitrary metadata key-value pairs, assigned by the application.
+        extra_keys:
+          type: array
+          items:
+            type: string
+          description: 'The extra endorsed public keys. Extra keys can be Ed25519,
+            Secp256k1, or Sr25519. And
+
+            are stored as json with included type information.
+
+            '
+    RoflAppInstanceList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - instances
+        properties:
+          instances:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoflInstance'
+    RoflMarketProvider:
+      type: object
+      required:
+      - address
+      - nodes
+      - scheduler
+      - payment_address
+      - metadata
+      - stake
+      - offers_next_id
+      - offers_count
+      - instances_next_id
+      - instances_count
+      - created_at
+      - updated_at
+      - removed
+      properties:
+        address:
+          type: string
+          description: The address of the ROFL market provider.
+        nodes:
+          type: array
+          items:
+            type: string
+          description: The nodes that are part of the ROFL market provider.
+        scheduler:
+          type: string
+          description: The authorized scheduler ROFL app ID for this provider.
+        payment_address:
+          type: object
+          description: The payment address configuration for this provider.
+        metadata:
+          type: object
+          description: Arbitrary metadata key-value pairs, assigned by the provider.
+        stake:
+          allOf:
+          - $ref: '#/components/schemas/TextBigInt'
+          description: The amount staked for provider registration.
+        offers_next_id:
+          type: string
+          description: The next offer ID for this provider.
+        offers_count:
+          type: integer
+          format: uint64
+          description: The number of offers.
+        instances_next_id:
+          type: string
+          description: The next instance ID for this provider.
+        instances_count:
+          type: integer
+          format: uint64
+          description: The number of instances.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time when the provider was created.
+          example: '2022-03-01T00:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: The date and time when the provider was last updated.
+          example: '2022-03-01T00:00:00Z'
+        removed:
+          type: boolean
+          description: Whether the provider has been removed.
+    RoflMarketProviderList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - providers
+        properties:
+          providers:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoflMarketProvider'
+    RoflMarketOffer:
+      type: object
+      required:
+      - id
+      - provider
+      - resources
+      - payment
+      - capacity
+      - metadata
+      - removed
+      properties:
+        id:
+          type: string
+          description: Unique offer identifier.
+        provider:
+          type: string
+          description: The address of the ROFL market provider that created this offer.
+        resources:
+          type: object
+          description: The offered resources by this offer.
+        payment:
+          type: object
+          description: The payment configuration for this offer.
+        capacity:
+          type: integer
+          format: uint64
+          description: Amount of available instances for this offer.
+        metadata:
+          type: object
+          description: Arbitrary metadata key-value pairs assigned by the provider.
+        removed:
+          type: boolean
+          description: Whether the offer has been removed.
+    RoflMarketOfferList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - offers
+        properties:
+          offers:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoflMarketOffer'
+    RoflMarketInstance:
+      type: object
+      required:
+      - id
+      - provider
+      - offer_id
+      - status
+      - creator
+      - admin
+      - metadata
+      - resources
+      - deployment
+      - created_at
+      - updated_at
+      - paid_from
+      - paid_until
+      - payment
+      - payment_address
+      - refund_data
+      - cmd_next_id
+      - cmd_count
+      - removed
+      properties:
+        id:
+          type: string
+          description: Unique instance identifier.
+        provider:
+          type: string
+          description: The address of the ROFL market provider that created this instance.
+        offer_id:
+          type: string
+          description: The identifier of the offer that this instance belongs to.
+        status:
+          type: integer
+          format: uint8
+          description: The status of the instance.
+        creator:
+          type: string
+          description: The address of the creator of the instance.
+        admin:
+          type: string
+          description: The address of the administrator of the instance.
+        node_id:
+          type: string
+          description: the optional identifier of the node where the instance has
+            been provisioned.
+        metadata:
+          type: object
+          description: Arbitrary metadata key-value pairs assigned by the provider.
+        resources:
+          type: object
+          description: The resources allocated to this instance.
+        deployment:
+          type: object
+          description: The deployment configuration for this instance.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time when the instance was created.
+          example: '2022-03-01T00:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: The date and time when the instance was last updated.
+          example: '2022-03-01T00:00:00Z'
+        paid_from:
+          type: string
+          format: date-time
+          description: The date and time from which the instance has been paid for
+            and not yet claimed by the provider.
+          example: '2022-03-01T00:00:00Z'
+        paid_until:
+          type: string
+          format: date-time
+          description: The date and time until which the instance has been paid for.
+          example: '2022-03-01T00:00:00Z'
+        payment:
+          type: object
+          description: The payment information for this instance.
+        payment_address:
+          type: string
+          description: The payment address for this instance.
+        refund_data:
+          type: string
+          description: The method-specific refund information.
+        cmd_next_id:
+          type: string
+          description: The next command ID for this instance.
+        cmd_count:
+          type: integer
+          format: uint64
+          description: The number of commands for this instance.
+        cmds:
+          type: array
+          items:
+            type: object
+            description: The commands for this instance.
+        removed:
+          type: boolean
+          description: Whether the instance has been removed.
+    RoflMarketInstanceList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - type: object
+        required:
+        - instances
+        properties:
+          instances:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/RoflMarketInstance'
+  responses:
+    HumanReadableError:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - msg
+            properties:
+              msg:
+                type: string
+                description: An error message.
+                example: internal storage error
+      description: A human-readable error message.
+    NotFoundError:
+      description: An empty response indicating that the requested resource was not
+        found.
+      content:
+        application/json:
+          schema: {}
+  examples:
+    StakingAddress:
+      value: oasis1qp2hssandc7dekjdr6ygmtzt783k3gn38uupdeys
+      description: A native Oasis address, bech32-encoded.
+    EthAddress:
+      value: '0xDEF1009df2d6872C214cd9148c6883893B7c4D91'
+      description: An Ethereum-compatible address, hex-encoded. Capitalization does
+        not matter.

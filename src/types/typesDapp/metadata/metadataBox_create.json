@@ -1,0 +1,47 @@
+{
+  "project": "Wiki Truth",
+  "website": [
+    "https://wikitruth.eth.limo/"
+  ],
+  "name": "Truth Box",
+  "tokenId": "",
+  "typeOfCrime": "Business Crime",
+  "label": [
+    "medtech",
+    "price",
+    "collusion",
+    "Antitrust",
+    "Price Manipulation"
+  ],
+  "title": "I possess secret meeting minutes from the \"Vienna Trade Conference\" where executives from three major medical device giants (MedTech, BioHealth, CareS",
+  "nftImage": "ipfs://bafkreiceyfomhmweglsvsvxtb6h23nexj3prqnwisqyjewdth7f46jqjny",
+  "boxImage": "ipfs://bafkreicezwvrpe5xnoi2dktrrjudinvet2fov7yw4typ7neocaq7mhf5ee",
+  "country": "Bosnia and Herzegovina",
+  "state": "Herzegovina-Neretva Canton",
+  "description": " I was a senior interpreter accompanying MedTech's CEO to the 2022 Global Medical Device Trade Conference in Vienna. The conference schedule was public, but the real deal happened behind the scenes. One evening, the CEO asked me to accompany him to a \"private dinner\" attended only by the top executives of MedTech, BioHealth, and CareSys, held in a private room at a Michelin restaurant where phone signals were blocked. At the dinner, they didn't discuss food at all, but openly divided the market. They agreed that over the next two years, the three companies would synchronously and phasedly increase the factory price of their latest generation drug-coated cardiac stents by at least 15%, and divided their \"advantage areas\" in North America, Europe, and Asia based on hospital purchasing volume to avoid \"destructive price wars.\" I was responsible for taking notes and retained that draft agreement with handwritten modifications by each CEO, including a detailed quarterly price increase sched",
+  "eventDate": "2022-06-09",
+  "createDate": "2025/10/29 11:26:09",
+  "timestamp": 1761708369726,
+  "mintMethod": "create",
+  "encryptionSlicesMetadataCID": {
+    "slicesMetadataCID_encryption": "0xabae872298fe488793f17df3e79c5dd4e8f8e9f9da0cf1edee035314887c7192deb7ada30b04915e0602a75c001991ecc570966430f9cf6fa06d3d8fb53caa1e02d7417447f91957336525",
+    "slicesMetadataCID_iv": "0x76ed0699369e1b84988d424b"
+  },
+  "encryptionFileCID": [
+    {
+      "fileCID_encryption": "0x71f4e8844358d32996f98a27c807fffdd706dec902764f6ba00221ca5e3e16c80c42a86a65c6f975ad1ce6d566cdccda5335d7379985956c39fb1bffb51e0dc9510f2c48cf7a1985cf7487",
+      "fileCID_iv": "0x11bcacd05f25f5fb5dc88191"
+    },
+    {
+      "fileCID_encryption": "0xd3d0d4d7f519cc846dfd2faeaf0cc3de1be26fdd7e0b7405778d6c42d9da140f6f281e318a45331fc5f65ea4b2dccc61bbc36ddc02a34a1fea31eb05b59ae5ba762c3136f58ace71c57245",
+      "fileCID_iv": "0x827b3181516cb4283ac44a76"
+    }
+  ],
+  "encryptionPasswords": {
+    "password_encryption": "0xbad15d202fc944949086f1d490d169f2b17b49f71fd0ca63020348b8060e8166c6a485c0c3c87d59d8810b6e8480a73cf1900287722afc053296d4522e9dc51ed8f72b7ab6f3f9ae65440aef7b6f3518",
+    "password_iv": "0x3dd46d0c6a9df5c8e7bf9b3f"
+  },
+  "publicKey": "0x3059301306072a8648ce3d020106082a8648ce3d03010703420004cdb130ae2d72132ec0369c11873353f22ddb09e4f0d52c221c9d673090596bc38fab6d842690d0ce6aedf7fddc740fd1572c2511e86728b1332b6eb8732ad9ca",
+  "fileList": [],
+  "password": ""
+}
