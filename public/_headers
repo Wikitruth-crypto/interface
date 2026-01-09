@@ -1,0 +1,68 @@
+# Cloudflare Pages Headers Configuration
+# This file configures MIME types and other HTTP headers
+
+# JavaScript files - must have correct MIME type for ES modules
+/js/*
+  Content-Type: application/javascript; charset=utf-8
+
+# All JavaScript files
+*.js
+  Content-Type: application/javascript; charset=utf-8
+
+# TypeScript files (if any are served)
+*.ts
+  Content-Type: application/javascript; charset=utf-8
+
+*.tsx
+  Content-Type: application/javascript; charset=utf-8
+
+# CSS files
+*.css
+  Content-Type: text/css; charset=utf-8
+
+# JSON files
+*.json
+  Content-Type: application/json; charset=utf-8
+
+# Font files
+*.woff
+  Content-Type: font/woff
+
+*.woff2
+  Content-Type: font/woff2
+
+*.ttf
+  Content-Type: font/ttf
+
+*.otf
+  Content-Type: font/otf
+
+# Image files
+*.svg
+  Content-Type: image/svg+xml
+
+*.png
+  Content-Type: image/png
+
+*.jpg
+  Content-Type: image/jpeg
+
+*.jpeg
+  Content-Type: image/jpeg
+
+*.gif
+  Content-Type: image/gif
+
+*.webp
+  Content-Type: image/webp
+
+# HTML files
+*.html
+  Content-Type: text/html; charset=utf-8
+
+# Security headers
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
