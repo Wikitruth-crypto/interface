@@ -1,4 +1,8 @@
 # Cloudflare Pages SPA Redirects
-# Redirect all routes to index.html for client-side routing
+# Redirect routes without file extensions to index.html for client-side routing
+# This avoids infinite loops by excluding files with extensions
 
+# Redirect all paths without extensions to index.html
 /*    /index.html   200
+# But exclude files that already have extensions (js, css, images, etc.)
+# Cloudflare Pages will automatically serve these files correctly

@@ -9,7 +9,7 @@ const supabaseConfig = {
 
 // Verify configuration
 if (!supabaseConfig.url || !supabaseConfig.anonKey) {
-    throw new Error('Missing Supabase config, please check environment variables SUPABASE_URL and SUPABASE_ANON_KEY');
+    throw new Error('Missing Supabase config, please check environment variables VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
 }
 
 
