@@ -1,9 +1,4 @@
 
-// -----------------IPFS ------------------------
-export const IPFS_FLEEK = {
-    MintData: import.meta.env.VITE_IPFS_FLEEK_MintData_clientId,
-    ResultData: import.meta.env.VITE_IPFS_FLEEK_ResultData_clientId,
-}
 
 // -----------------IPFS PINATA------------------------
 export const IPFS_PINATA = {

@@ -2,15 +2,9 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseConfig = {
-    url: import.meta.env.VITE_SUPABASE_URL || '',
-    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+    url: import.meta.env.VITE_SUPABASE_URL,
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
 };
-
-// Verify configuration
-if (!supabaseConfig.url || !supabaseConfig.anonKey) {
-    throw new Error('Missing Supabase config, please check environment variables VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
-}
-
 
 export function createSupabaseClient(): SupabaseClient<Database> {
     return createClient<Database>(supabaseConfig.url, supabaseConfig.anonKey, {
