@@ -51,20 +51,15 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-    // Simple code splitting - let Vite handle it automatically
+    // Let Vite handle code splitting automatically to avoid export issues
     rollupOptions: {
       output: {
         // Simple chunk file naming
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Simple manual chunks - just separate node_modules from source code
-        manualChunks(id) {
-          // Only split node_modules into a vendor chunk
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
+        // Let Vite automatically handle code splitting
+        // No manual chunks to avoid export issues
       },
     },
     // Increase chunk size warning threshold

@@ -78,8 +78,6 @@ For decentralized deployment on IPFS:
 2. Upload the `dist/` directory to IPFS
 3. Access via IPFS gateway or pinning service
 
-**Attention!**:If deployed on Cloudflare Pages，use this command:    npx wrangler pages deploy dist --project-name= <name>。
-
 ## 🤝 Contributing
 
 1. Follow the code style guidelines
