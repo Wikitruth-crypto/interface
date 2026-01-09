@@ -4,7 +4,6 @@
 name = "wikitruth-vite"
 compatibility_date = "2026-01-09"
 pages_build_output_dir = "dist"
-account_id = "0edb1718e6be0bbb49cf3209a4a1ec50"
 
 # Pages deployment configuration
 # The pages_build_output_dir specifies the directory containing static files to upload
