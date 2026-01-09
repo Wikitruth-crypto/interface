@@ -1,0 +1,1 @@
+const t=t=>(t=>{const e="string"==typeof t?parseInt(t):t,r=new Date(e>=1e10?e:1e3*e);return`${r.getFullYear()}/${String(r.getMonth()+1).padStart(2,"0")}/${String(r.getDate()).padStart(2,"0")} ${String(r.getHours()).padStart(2,"0")}:${String(r.getMinutes()).padStart(2,"0")}:${String(r.getSeconds()).padStart(2,"0")}`})(t);export{t};

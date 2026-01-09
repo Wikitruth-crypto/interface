@@ -51,72 +51,18 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-    // Code splitting optimization
+    // Simple code splitting - let Vite handle it automatically
     rollupOptions: {
       output: {
-        // Optimize chunk file naming
+        // Simple chunk file naming
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Intelligent code splitting
-        manualChunks: (id) => {
-          // Exclude nested node_modules (under oasisQuery directory)
-          if (id.includes('oasisQuery') && id.includes('node_modules')) {
-            return null; // Do not package nested dependencies separately
-          }
-          
-          // Handle dependencies in node_modules
+        // Simple manual chunks - just separate node_modules from source code
+        manualChunks(id) {
+          // Only split node_modules into a vendor chunk
           if (id.includes('node_modules')) {
-            // React related
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            // Web3 related
-            if (id.includes('wagmi') || id.includes('viem') || id.includes('ethers') || 
-                id.includes('@rainbow-me') || id.includes('@oasisprotocol') ||
-                id.includes('@walletconnect')) {
-              return 'web3-vendor';
-            }
-            // UI related
-            if (id.includes('antd') || id.includes('@ant-design')) {
-              return 'ui-vendor';
-            }
-            // Query related
-            if (id.includes('@tanstack/react-query') || id.includes('@tanstack/query-core')) {
-              return 'query-vendor';
-            }
-            // Chart/Flowchart
-            if (id.includes('@xyflow')) {
-              return 'flow-vendor';
-            }
-            // Database
-            if (id.includes('@supabase')) {
-              return 'supabase-vendor';
-            }
-            // Wallet related
-            if (id.includes('metamask') || id.includes('@metamask') || 
-                id.includes('siwe')) {
-              return 'wallet-vendor';
-            }
-            // Utility libraries
-            if (id.includes('lodash') || id.includes('date-fns') || 
-                id.includes('dayjs') || id.includes('zod')) {
-              return 'utils-vendor';
-            }
-            // Other node_modules
             return 'vendor';
-          }
-          
-          // Split by page - separate code for different pages
-          if (id.includes('/pages/')) {
-            const pageMatch = id.match(/\/pages\/([^/]+)/);
-            if (pageMatch) {
-              const pageName = pageMatch[1].toLowerCase();
-              // Exclude index files as they will be included in the main entry
-              if (!id.includes('/index.')) {
-                return `page-${pageName}`;
-              }
-            }
           }
         },
       },
@@ -130,6 +76,7 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       'react-router-dom',
       'wagmi',
       '@wagmi/core',
@@ -148,11 +95,20 @@ export default defineConfig({
     ],
     // Force pre-bundling of these dependencies (optional, initial build will be slower)
     force: false,
+    esbuildOptions: {
+      // Ensure React is treated as a single instance
+      define: {
+        global: 'globalThis',
+      },
+    },
   },
 
   // Define global constants
   define: {
     // Define global variables if needed
-    'process.env': {}
+    'process.env': JSON.stringify({}),
+    'process.version': JSON.stringify('v18.0.0'), // Provide a version string for libraries that check process.version
+    'process.browser': JSON.stringify(true),
+    'process.platform': JSON.stringify('browser'),
   }
 })

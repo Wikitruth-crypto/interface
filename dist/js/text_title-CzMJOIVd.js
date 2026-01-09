@@ -1,0 +1,1 @@
+import{j as e}from"./vendor-BDtTUao2.js";import{c as t}from"./index-DzM9oNjl.js";function s({children:s,className:r}){return e.jsx("p",{className:t("text-xs text-white/80 md:text-md lg:text-base",r),children:s})}export{s as T};
