@@ -1,0 +1,20 @@
+# Cloudflare Pages Deployment Configuration
+# WikiTruth DApp - Cloudflare Pages Configuration
+
+name = "wikitruth-vite"
+compatibility_date = "2026-01-09"
+
+# Pages deployment configuration
+# Note: When using 'wrangler pages deploy dist' command, the dist directory will be used as output directory automatically
+# If you need to specify a different directory, you can use the --project-name parameter
+
+# Optional: If you need to configure environment variables, uncomment the following section
+# [vars]
+# ENVIRONMENT = "production"
+
+# Optional: If you need to configure different environments (production/preview), use the following configuration
+# [env.production]
+# name = "wikitruth-vite"
+# 
+# [env.preview]
+# name = "wikitruth-vite-preview"

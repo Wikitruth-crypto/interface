@@ -33,15 +33,6 @@ cd interface
 npm install
 ```
 
-3. Create a `.env` file in the root directory (refer to `.env.example` if available):
-```env
-VITE_CHAIN_ID=23295
-VITE_RPC_URL=your_rpc_url
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_key
-# ... other environment variables
-```
-
 ## 🏃 Development
 
 Start the development server:
@@ -78,16 +69,6 @@ Run ESLint to check code quality:
 npm run lint
 ```
 
-
-## 🧪 Testing
-
-Currently, the project uses manual testing. Test pages are available at `/app/tests` in development mode.
-
-## 📚 Documentation
-
-- Project architecture and business logic documentation can be found in the `src/pages/` subdirectories
-- Smart contract ABI files are located in `src/artifacts/`
-
 ## 🚢 Deployment
 
 The project is configured for static deployment. Build the project and deploy the `dist/` directory to any static hosting service (Vercel, Netlify, Fleek, etc.).
@@ -96,6 +77,8 @@ For decentralized deployment on IPFS:
 1. Build the project: `npm run build`
 2. Upload the `dist/` directory to IPFS
 3. Access via IPFS gateway or pinning service
+
+**Attention!**:If deployed on Cloudflare Pages，use this command: npx wrangler pages deploy dist。
 
 ## 🤝 Contributing
 
