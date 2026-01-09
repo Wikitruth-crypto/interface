@@ -1,66 +1,66 @@
 # Cloudflare Pages Headers Configuration
-# This file configures MIME types and other HTTP headers
+# Format: path pattern followed by headers (indented with 2 spaces)
 
-# JavaScript files - must have correct MIME type for ES modules
+# JavaScript files in /js/ directory - CRITICAL for ES modules
 /js/*
   Content-Type: application/javascript; charset=utf-8
 
-# All JavaScript files
-*.js
+# All JavaScript files anywhere
+/*.js
   Content-Type: application/javascript; charset=utf-8
 
-# TypeScript files (if any are served)
-*.ts
+# TypeScript files (if any)
+/*.ts
   Content-Type: application/javascript; charset=utf-8
 
-*.tsx
+/*.tsx
   Content-Type: application/javascript; charset=utf-8
 
 # CSS files
-*.css
+/*.css
   Content-Type: text/css; charset=utf-8
 
 # JSON files
-*.json
+/*.json
   Content-Type: application/json; charset=utf-8
 
 # Font files
-*.woff
+/*.woff
   Content-Type: font/woff
 
-*.woff2
+/*.woff2
   Content-Type: font/woff2
 
-*.ttf
+/*.ttf
   Content-Type: font/ttf
 
-*.otf
+/*.otf
   Content-Type: font/otf
 
 # Image files
-*.svg
+/*.svg
   Content-Type: image/svg+xml
 
-*.png
+/*.png
   Content-Type: image/png
 
-*.jpg
+/*.jpg
   Content-Type: image/jpeg
 
-*.jpeg
+/*.jpeg
   Content-Type: image/jpeg
 
-*.gif
+/*.gif
   Content-Type: image/gif
 
-*.webp
+/*.webp
   Content-Type: image/webp
 
 # HTML files
-*.html
+/*.html
   Content-Type: text/html; charset=utf-8
 
-# Security headers
+# Security headers for all files
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
