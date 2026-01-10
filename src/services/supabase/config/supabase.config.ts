@@ -14,11 +14,6 @@ if (!supabaseConfig.url || !supabaseConfig.anonKey) {
     
     const errorMsg = `Missing Supabase configuration. Please set the following environment variables:\n${missingVars.map(v => `  - ${v}`).join('\n')}\n\n` +
         `For Cloudflare Pages deployment:\n` +
-        `1. Go to: Workers & Pages > Your Project > Settings > Environment variables\n` +
-        `2. Add the missing variables listed above\n` +
-        `3. Select "Production" environment (and "Preview" if needed)\n` +
-        `4. Retry the deployment\n\n` +
-        `For local development:\n` +
         `Create a .env.local file with these variables.`;
     
     throw new Error(errorMsg);
